@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, History, Trash2, ArrowUpLeft, Store } from "lucide-react";
+import { ArrowRight, History, Trash2, ArrowUpLeft, Store, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Product } from "../../domains/product/product.types";
 import { SearchStoreResult } from "../../types/search";
@@ -31,7 +31,7 @@ export const SearchDropdownContent: React.FC<SearchDropdownContentProps> = ({
   onClearRecent,
   onSelectStore,
   onSelectProduct,
-  onSubmitSearch
+  onSubmitSearch,
 }) => {
   const { t } = useTranslation();
 
@@ -41,15 +41,15 @@ export const SearchDropdownContent: React.FC<SearchDropdownContentProps> = ({
         {/* Recent Searches */}
         {recentSearches.length > 0 && (
           <div className="space-y-2">
-            <div className="flex items-center justify-between pb-1 border-b border-slate-100">
-              <h4 className="text-xs font-bold uppercase text-slate-800 tracking-wider flex items-center gap-2">
-                <History className="w-3.5 h-3.5 text-slate-400" />
+            <div className="flex items-center justify-between pb-1 border-b border-[#eee8ef]">
+              <h4 className="text-xs font-bold uppercase text-[#302638] tracking-wider flex items-center gap-2">
+                <History className="w-3.5 h-3.5 text-[#8a7a91]" />
                 <span>{t("recent_searches", "Recherches récentes")}</span>
               </h4>
               <button
                 type="button"
                 onClick={onClearRecent}
-                className="text-[11px] text-slate-400 hover:text-red-500 font-medium flex items-center gap-1 cursor-pointer border-none bg-transparent"
+                className="text-[11px] text-slate-400 hover:text-rose-600 font-medium flex items-center gap-1 cursor-pointer border-none bg-transparent"
               >
                 <Trash2 className="w-3 h-3" />
                 <span>{t("clear", "Effacer")}</span>
@@ -60,13 +60,13 @@ export const SearchDropdownContent: React.FC<SearchDropdownContentProps> = ({
                 <div
                   key={i}
                   onClick={() => onSelectTerm(term)}
-                  className="flex items-center justify-between py-2 px-3 rounded-xl hover:bg-slate-50 text-[13px] font-medium text-slate-800 cursor-pointer group transition-colors border border-slate-100"
+                  className="flex items-center justify-between py-2 px-3 rounded-xl hover:bg-[#f8f5f9] text-[13px] font-medium text-[#3f3545] cursor-pointer group transition-colors border border-[#eee8ef]"
                 >
                   <div className="flex items-center gap-2 truncate">
-                    <History className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <History className="w-3.5 h-3.5 text-[#a395aa] shrink-0" />
                     <span className="truncate">{term}</span>
                   </div>
-                  <ArrowUpLeft className="w-3.5 h-3.5 text-slate-300 group-hover:text-emerald-600 transition-colors shrink-0" />
+                  <ArrowUpLeft className="w-3.5 h-3.5 text-slate-300 group-hover:text-[#5b4865] transition-colors shrink-0" />
                 </div>
               ))}
             </div>
@@ -76,11 +76,11 @@ export const SearchDropdownContent: React.FC<SearchDropdownContentProps> = ({
         {/* Popular catalog items preview */}
         {fallbackProducts.length > 0 && (
           <div className="space-y-3">
-            <div className="flex items-center justify-between pb-1 border-b border-slate-100">
-              <h4 className="text-xs font-bold uppercase text-slate-700 tracking-wider">
+            <div className="flex items-center justify-between pb-1 border-b border-[#eee8ef]">
+              <h4 className="text-xs font-bold uppercase text-[#4d4054] tracking-wider">
                 {t("popular_creations", "Articles populaires du catalogue")}
               </h4>
-              <span className="text-[11px] text-emerald-700 font-semibold">Tendance en Algérie</span>
+              <span className="text-[11px] text-[#8a6b35] font-semibold">Tendance en Algérie</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {fallbackProducts.slice(0, 4).map((p) => (
@@ -99,8 +99,8 @@ export const SearchDropdownContent: React.FC<SearchDropdownContentProps> = ({
       {/* Stores section if matched */}
       {filteredStores.length > 0 && (
         <div className="space-y-2">
-          <h4 className="text-xs font-bold uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
-            <Store className="w-3.5 h-3.5 text-emerald-600" />
+          <h4 className="text-xs font-bold uppercase text-[#4d4054] tracking-wider flex items-center gap-1.5">
+            <Store className="w-3.5 h-3.5 text-[#8a6b35]" />
             <span>{t("matching_stores", "Boutiques certifiées")}</span>
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -114,21 +114,16 @@ export const SearchDropdownContent: React.FC<SearchDropdownContentProps> = ({
       {/* Product Results */}
       {filteredResults.length > 0 ? (
         <div className="space-y-3">
-          <div className="flex items-center justify-between pb-1 border-b border-slate-100">
-            <h4 className="text-xs font-bold uppercase text-slate-800 tracking-wider">
+          <div className="flex items-center justify-between pb-1 border-b border-[#eee8ef]">
+            <h4 className="text-xs font-bold uppercase text-[#302638] tracking-wider">
               {t("matching_creations", "Produits correspondants")} ({filteredResults.length})
             </h4>
-            <span className="text-[11px] text-emerald-700 font-semibold">Livraison 58 wilayas</span>
+            <span className="text-[11px] text-[#8a6b35] font-semibold">Livraison 58 wilayas</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {filteredResults.slice(0, 6).map((p) => (
-              <SearchProductCard
-                key={p.id}
-                product={p}
-                query={localQuery}
-                onSelect={onSelectProduct}
-              />
+              <SearchProductCard key={p.id} product={p} query={localQuery} onSelect={onSelectProduct} />
             ))}
           </div>
 
@@ -137,9 +132,11 @@ export const SearchDropdownContent: React.FC<SearchDropdownContentProps> = ({
             <button
               type="button"
               onClick={onSubmitSearch}
-              className="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-all cursor-pointer border-none flex items-center justify-center gap-2 active:scale-98"
+              className="w-full py-3 px-4 bg-[#5b4865] hover:bg-[#493852] text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-colors cursor-pointer border-none flex items-center justify-center gap-2"
             >
-              <span>{t("see_all_results_for", "Voir tous les résultats pour")} &laquo;{localQuery}&raquo;</span>
+              <span>
+                {t("see_all_results_for", "Voir tous les résultats pour")} &laquo;{localQuery}&raquo;
+              </span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -147,7 +144,10 @@ export const SearchDropdownContent: React.FC<SearchDropdownContentProps> = ({
       ) : isSearching ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-2">
           {[1, 2, 3, 4].map((n) => (
-            <div key={n} className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3 animate-pulse">
+            <div
+              key={n}
+              className="p-3 bg-[#f7f4f8] rounded-2xl border border-[#eee8ef] flex items-center gap-3 animate-pulse"
+            >
               <div className="w-16 h-16 bg-slate-200 rounded-xl shrink-0" />
               <div className="flex-1 space-y-2">
                 <div className="h-3 bg-slate-200 rounded w-3/4" />
@@ -158,19 +158,23 @@ export const SearchDropdownContent: React.FC<SearchDropdownContentProps> = ({
           ))}
         </div>
       ) : (
-        <div className="py-8 text-center space-y-2">
-          <p className="text-sm font-bold text-slate-800">
+        <div className="mx-auto flex max-w-lg flex-col items-center rounded-2xl border border-[#eee8ef] bg-[#fbf9fc] px-5 py-8 text-center">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-[#796781] shadow-sm ring-1 ring-[#eee8ef]">
+            <Search className="h-5 w-5" />
+          </div>
+          <p className="text-sm font-bold text-[#302638]">
             {t("no_results_for", "Aucun produit direct pour")} &laquo;{localQuery}&raquo;
           </p>
-          <p className="text-xs text-slate-500">
+          <p className="mt-1 max-w-sm text-xs leading-relaxed text-slate-500">
             {t("try_broader_keywords", "Vérifiez l'orthographe ou lancez la recherche sur tout le catalogue.")}
           </p>
           <button
             type="button"
             onClick={onSubmitSearch}
-            className="mt-3 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-full cursor-pointer border-none"
+            className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#5b4865] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-[#493852] cursor-pointer border-none"
           >
             {t("search_all_catalog", "Lancer la recherche globale")}
+            <ArrowRight className="h-3.5 w-3.5" />
           </button>
         </div>
       )}

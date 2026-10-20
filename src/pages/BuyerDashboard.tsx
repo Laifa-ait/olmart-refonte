@@ -149,64 +149,64 @@ export const BuyerDashboard: React.FC = () => {
         icon: SlidersHorizontal,
         title: t("Général"),
         subtitle: t("Langue, devise DZD, thème et alertes"),
-        color: "text-[#1a73e8]",
-        bg: "bg-[#e8f0fe]",
+        color: "text-[#5b4865]",
+        bg: "bg-[#f1edf4]",
       },
       {
         id: "profile" as SettingTab,
         icon: User,
         title: t("Informations personnelles"),
         subtitle: t("Nom, email, numéro de téléphone et photo"),
-        color: "text-[#1a73e8]",
-        bg: "bg-[#e8f0fe]",
+        color: "text-[#5b4865]",
+        bg: "bg-[#f1edf4]",
       },
       {
         id: "addresses" as SettingTab,
         icon: MapPin,
         title: t("Adresses et livraisons"),
         subtitle: t("Gestion des adresses dans les 69 wilayas"),
-        color: "text-[#1a73e8]",
-        bg: "bg-[#e8f0fe]",
+        color: "text-[#5b4865]",
+        bg: "bg-[#f1edf4]",
       },
       {
         id: "orders" as SettingTab,
         icon: Package,
         title: t("Commandes et achats"),
         subtitle: t("Historique de commandes, factures et suivi"),
-        color: "text-[#1a73e8]",
-        bg: "bg-[#e8f0fe]",
+        color: "text-[#5b4865]",
+        bg: "bg-[#f1edf4]",
       },
       {
         id: "security" as SettingTab,
         icon: ShieldCheck,
         title: t("Confidentialité et sécurité"),
         subtitle: t("Mot de passe, double authentification (2FA), sessions"),
-        color: "text-[#137333]",
-        bg: "bg-[#e6f4ea]",
+        color: "text-[#276b50]",
+        bg: "bg-[#eaf3ed]",
       },
       {
         id: "preferences" as SettingTab,
         icon: Heart,
         title: t("Préférences d'achat"),
         subtitle: t("Centres d'intérêt et recommandations"),
-        color: "text-[#b06000]",
-        bg: "bg-[#fef7e0]",
+        color: "text-[#8a6b35]",
+        bg: "bg-[#f7f0df]",
       },
       {
         id: "following" as SettingTab,
         icon: Store,
         title: t("Commerçants favoris"),
         subtitle: t("Boutiques officielles et artisans suivis"),
-        color: "text-[#7627bb]",
-        bg: "bg-[#f3e8fd]",
+        color: "text-[#5b4865]",
+        bg: "bg-[#f1edf4]",
       },
       {
         id: "reviews" as SettingTab,
         icon: Star,
         title: t("Avis et évaluations"),
         subtitle: t("Notes et commentaires déposés"),
-        color: "text-[#b06000]",
-        bg: "bg-[#fef7e0]",
+        color: "text-[#8a6b35]",
+        bg: "bg-[#f7f0df]",
       },
       {
         id: "returns" as SettingTab,
@@ -229,8 +229,8 @@ export const BuyerDashboard: React.FC = () => {
         icon: Headphones,
         title: t("Aide et commentaires"),
         subtitle: t("Assistance client dédiée Olmart"),
-        color: "text-[#1a73e8]",
-        bg: "bg-[#e8f0fe]",
+        color: "text-[#5b4865]",
+        bg: "bg-[#f1edf4]",
       },
       {
         id: "about" as SettingTab,
@@ -248,18 +248,15 @@ export const BuyerDashboard: React.FC = () => {
     if (!searchQuery.trim()) return settingItems;
     const q = searchQuery.toLowerCase();
     return settingItems.filter(
-      (item) =>
-        item.title.toLowerCase().includes(q) ||
-        item.subtitle.toLowerCase().includes(q)
+      (item) => item.title.toLowerCase().includes(q) || item.subtitle.toLowerCase().includes(q)
     );
   }, [settingItems, searchQuery]);
 
   const activeItem = settingItems.find((item) => item.id === activeTab);
 
   return (
-    <div className="min-h-screen bg-[#f8fafd] text-[#1f1f1f] pb-16">
-      {/* Top Google Settings Bar */}
-      <div className="bg-white border-b border-[#dadce0] sticky top-0 z-30 shadow-xs">
+    <div id="buyer-dashboard-root" className="min-h-screen bg-[#faf8fb] text-[#302638] pb-16">
+      <div className="sticky top-0 z-30 border-b border-[#e8e1e9] bg-white/95 shadow-xs backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button
@@ -272,13 +269,13 @@ export const BuyerDashboard: React.FC = () => {
               }}
               aria-label={activeTab === "index" ? t("Retour à l'accueil") : t("Retour aux paramètres")}
               title={activeTab === "index" ? t("Retour à l'accueil") : t("Retour")}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-[#444746] hover:bg-[#f1f3f4] transition-colors border-none bg-transparent cursor-pointer"
+              className="w-10 h-10 rounded-full flex items-center justify-center text-[#6b5874] hover:bg-[#f5f1f6] transition-colors border-none bg-transparent cursor-pointer"
             >
               <ArrowLeft className="w-5 h-5 rtl:rotate-180" />
             </button>
 
             <div>
-              <h1 className="text-xl sm:text-2xl font-normal text-[#1f1f1f] tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-semibold text-[#302638] tracking-tight">
                 {activeTab === "index" ? t("Paramètres") : activeItem?.title || t("Paramètres")}
               </h1>
             </div>
@@ -300,11 +297,7 @@ export const BuyerDashboard: React.FC = () => {
         {/* DESKTOP SPLIT VIEW OR MOBILE DRILL-DOWN VIEW */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           {/* Left Navigation Panel (Visible on Desktop OR on Mobile when activeTab === 'index') */}
-          <div
-            className={`lg:col-span-4 space-y-4 ${
-              activeTab !== "index" ? "hidden lg:block" : "block"
-            }`}
-          >
+          <div className={`lg:col-span-4 space-y-4 ${activeTab !== "index" ? "hidden lg:block" : "block"}`}>
             {/* Search Bar inside Settings (Screenshot 2) */}
             <div className="relative">
               <Search className="w-4.5 h-4.5 text-[#444746] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -313,7 +306,7 @@ export const BuyerDashboard: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={t("Rechercher dans les paramètres")}
-                className="w-full pl-10 pr-9 py-2.5 bg-[#e9eef6] hover:bg-[#dfe4eb] focus:bg-white text-xs sm:text-sm rounded-full border border-transparent focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20 outline-none transition-all text-[#1f1f1f] placeholder:text-[#444746]"
+                className="w-full pl-10 pr-9 py-2.5 bg-[#f5f1f6] hover:bg-[#eee8f0] focus:bg-white text-xs sm:text-sm rounded-full border border-transparent focus:border-[#6b5874] focus:ring-2 focus:ring-[#6b5874]/20 outline-none transition-all text-[#302638] placeholder:text-[#807585]"
               />
               {searchQuery && (
                 <button
@@ -335,15 +328,13 @@ export const BuyerDashboard: React.FC = () => {
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
                     className={`w-full flex items-center justify-between p-3.5 sm:p-4 text-left rtl:text-right transition-colors cursor-pointer border-none ${
-                      isSelected
-                        ? "bg-[#e8f0fe] text-[#1a73e8]"
-                        : "bg-white hover:bg-[#f8fafd] text-[#1f1f1f]"
+                      isSelected ? "bg-[#f1edf4] text-[#5b4865]" : "bg-white hover:bg-[#fbf9fc] text-[#302638]"
                     }`}
                   >
                     <div className="flex items-center gap-3.5 min-w-0 pr-2">
                       <div
                         className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-                          isSelected ? "bg-white text-[#1a73e8] shadow-xs" : `${item.bg} ${item.color}`
+                          isSelected ? "bg-white text-[#5b4865] shadow-xs" : `${item.bg} ${item.color}`
                         }`}
                       >
                         <Icon className="w-4.5 h-4.5" />
@@ -351,20 +342,16 @@ export const BuyerDashboard: React.FC = () => {
                       <div className="min-w-0">
                         <p
                           className={`text-xs sm:text-sm font-medium truncate ${
-                            isSelected ? "text-[#1a73e8]" : "text-[#1f1f1f]"
+                            isSelected ? "text-[#5b4865]" : "text-[#302638]"
                           }`}
                         >
                           {item.title}
                         </p>
-                        <p className="text-[11px] text-[#444746] truncate">
-                          {item.subtitle}
-                        </p>
+                        <p className="text-[11px] text-[#444746] truncate">{item.subtitle}</p>
                       </div>
                     </div>
                     <ChevronRight
-                      className={`w-4 h-4 shrink-0 rtl:rotate-180 ${
-                        isSelected ? "text-[#1a73e8]" : "text-[#747775]"
-                      }`}
+                      className={`w-4 h-4 shrink-0 rtl:rotate-180 ${isSelected ? "text-[#5b4865]" : "text-[#8b8490]"}`}
                     />
                   </button>
                 );
@@ -373,19 +360,13 @@ export const BuyerDashboard: React.FC = () => {
           </div>
 
           {/* Right Detail Panel (Visible on Desktop always, or on Mobile when a setting tab is selected) */}
-          <div
-            className={`lg:col-span-8 ${
-              activeTab === "index" ? "hidden lg:block" : "block"
-            }`}
-          >
+          <div className={`lg:col-span-8 ${activeTab === "index" ? "hidden lg:block" : "block"}`}>
             {activeTab === "index" ? (
-              <div className="hidden lg:flex flex-col items-center justify-center h-full min-h-[400px] bg-white rounded-[24px] border border-[#dadce0] p-8 text-center shadow-xs">
-                <div className="w-16 h-16 rounded-full bg-[#e8f0fe] text-[#1a73e8] flex items-center justify-center mb-4">
+              <div className="hidden lg:flex flex-col items-center justify-center h-full min-h-[400px] bg-white rounded-[24px] border border-[#e8e1e9] p-8 text-center shadow-xs">
+                <div className="w-16 h-16 rounded-full bg-[#f1edf4] text-[#5b4865] flex items-center justify-center mb-4">
                   <SlidersHorizontal className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-semibold text-[#1f1f1f]">
-                  {t("Paramètres du compte Olmart")}
-                </h3>
+                <h3 className="text-lg font-semibold text-[#1f1f1f]">{t("Paramètres du compte Olmart")}</h3>
                 <p className="text-xs sm:text-sm text-[#444746] max-w-sm mt-1">
                   {t("Sélectionnez une catégorie dans le menu de gauche pour afficher et modifier vos préférences.")}
                 </p>
@@ -393,12 +374,8 @@ export const BuyerDashboard: React.FC = () => {
             ) : (
               <div className="animate-in fade-in duration-150">
                 {activeTab === "general" && <GeneralSettings />}
-                {activeTab === "profile" && (
-                  <ProfileSettings currentUser={currentUser} userProfile={userProfile} />
-                )}
-                {activeTab === "addresses" && (
-                  <AddressManager currentUser={currentUser} userProfile={userProfile} />
-                )}
+                {activeTab === "profile" && <ProfileSettings currentUser={currentUser} userProfile={userProfile} />}
+                {activeTab === "addresses" && <AddressManager currentUser={currentUser} userProfile={userProfile} />}
                 {activeTab === "orders" && (
                   <OrdersSection
                     orders={orders}
@@ -408,9 +385,7 @@ export const BuyerDashboard: React.FC = () => {
                     onLoadMore={loadMoreOrders}
                   />
                 )}
-                {activeTab === "security" && (
-                  <SecuritySettings currentUser={currentUser} userProfile={userProfile} />
-                )}
+                {activeTab === "security" && <SecuritySettings currentUser={currentUser} userProfile={userProfile} />}
                 {activeTab === "preferences" && (
                   <CustomerPreferences currentUser={currentUser} userProfile={userProfile} />
                 )}

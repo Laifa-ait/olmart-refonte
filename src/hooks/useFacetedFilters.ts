@@ -8,8 +8,16 @@ export interface SelectedFacets {
   materials: string[];
   brands: string[];
   wilayas: string[];
+  conditions: string[];
   priceRange: [number, number]; // [min, max]
+  minRating: number;
+  inStock: boolean;
+  onSale: boolean;
+  freeShipping: boolean;
+  acceptsCod: boolean;
 }
+
+export type ArrayFacetKey = "sizes" | "colors" | "materials" | "brands" | "wilayas" | "conditions";
 
 // Types representing the available options and their real-time matching product count
 export interface FacetOption {
@@ -23,6 +31,7 @@ export interface AvailableFacets {
   materials: FacetOption[];
   brands: FacetOption[];
   wilayas: FacetOption[];
+  conditions: FacetOption[];
   minPrice: number;
   maxPrice: number;
 }
@@ -45,7 +54,13 @@ export function useFacetedFilters(products: Product[], activeCategory: string = 
     materials: [],
     brands: [],
     wilayas: [],
+    conditions: [],
     priceRange: [0, 150000], // Initial placeholder, will sync with category prices
+    minRating: 0,
+    inStock: false,
+    onSale: false,
+    freeShipping: false,
+    acceptsCod: false,
   });
 
   // Track if pricing has been manually modified by the user
@@ -135,10 +150,20 @@ export function useFacetedFilters(products: Product[], activeCategory: string = 
     if (activeCategory !== prevCategory) {
       setPrevCategory(activeCategory);
       setIsPriceModified(false);
-      setSelectedFacets((prev) => ({
-        ...prev,
+      setSelectedFacets({
+        sizes: [],
+        colors: [],
+        materials: [],
+        brands: [],
+        wilayas: [],
+        conditions: [],
         priceRange: [dynamicPriceLimits[0], dynamicPriceLimits[1]],
-      }));
+        minRating: 0,
+        inStock: false,
+        onSale: false,
+        freeShipping: false,
+        acceptsCod: false,
+      });
     }
   }, [activeCategory, prevCategory, dynamicPriceLimits]);
 
@@ -168,7 +193,7 @@ export function useFacetedFilters(products: Product[], activeCategory: string = 
   }, [dynamicPriceLimits, isPriceModified]);
 
   // Helper selectors to add or remove options from array facets
-  const toggleFacet = useCallback((facetKey: keyof Omit<SelectedFacets, "priceRange">, value: string) => {
+  const toggleFacet = useCallback((facetKey: ArrayFacetKey, value: string) => {
     setSelectedFacets((prev) => {
       const currentValues = prev[facetKey] as string[];
       const exists = currentValues.includes(value);
@@ -179,6 +204,17 @@ export function useFacetedFilters(products: Product[], activeCategory: string = 
         [facetKey]: updatedValues,
       };
     });
+  }, []);
+
+  const setBooleanFacet = useCallback(
+    (facetKey: "inStock" | "onSale" | "freeShipping" | "acceptsCod", value: boolean) => {
+      setSelectedFacets((prev) => ({ ...prev, [facetKey]: value }));
+    },
+    []
+  );
+
+  const setMinRating = useCallback((value: number) => {
+    setSelectedFacets((prev) => ({ ...prev, minRating: value }));
   }, []);
 
   const setPriceRange = useCallback((range: [number, number]) => {
@@ -197,7 +233,13 @@ export function useFacetedFilters(products: Product[], activeCategory: string = 
       materials: [],
       brands: [],
       wilayas: [],
+      conditions: [],
       priceRange: [dynamicPriceLimits[0], dynamicPriceLimits[1]],
+      minRating: 0,
+      inStock: false,
+      onSale: false,
+      freeShipping: false,
+      acceptsCod: false,
     });
     setIsPriceModified(false);
   }, [dynamicPriceLimits]);
@@ -209,6 +251,7 @@ export function useFacetedFilters(products: Product[], activeCategory: string = 
     const materialsMap: Record<string, number> = {};
     const brandsMap: Record<string, number> = {};
     const wilayasMap: Record<string, number> = {};
+    const conditionsMap: Record<string, number> = {};
 
     categoryProducts.forEach((prod) => {
       if (Array.isArray(prod.sizes)) {
@@ -235,6 +278,9 @@ export function useFacetedFilters(products: Product[], activeCategory: string = 
       if (prod.wilaya) {
         wilayasMap[prod.wilaya] = (wilayasMap[prod.wilaya] || 0) + 1;
       }
+      if (prod.condition) {
+        conditionsMap[prod.condition] = (conditionsMap[prod.condition] || 0) + 1;
+      }
     });
 
     const sortFn = (a: FacetOption, b: FacetOption) => b.count - a.count;
@@ -253,6 +299,9 @@ export function useFacetedFilters(products: Product[], activeCategory: string = 
         .map(([value, count]) => ({ value, count }))
         .sort(sortFn),
       wilayas: Object.entries(wilayasMap)
+        .map(([value, count]) => ({ value, count }))
+        .sort(sortFn),
+      conditions: Object.entries(conditionsMap)
         .map(([value, count]) => ({ value, count }))
         .sort(sortFn),
       minPrice: dynamicPriceLimits[0],
@@ -311,6 +360,28 @@ export function useFacetedFilters(products: Product[], activeCategory: string = 
         }
       }
 
+      if (
+        deferredSelectedFacets.conditions.length > 0 &&
+        !deferredSelectedFacets.conditions.includes(prod.condition || "")
+      ) {
+        return false;
+      }
+      if (
+        deferredSelectedFacets.minRating > 0 &&
+        (prod.sellerRating ?? prod.rating ?? 0) < deferredSelectedFacets.minRating
+      ) {
+        return false;
+      }
+      if (deferredSelectedFacets.inStock && (prod.stock ?? 0) <= 0) return false;
+      if (
+        deferredSelectedFacets.onSale &&
+        !(prod.onSale || (prod.promoPrice != null && prod.promoPrice > 0 && prod.promoPrice < prod.price))
+      ) {
+        return false;
+      }
+      if (deferredSelectedFacets.freeShipping && !prod.freeShipping) return false;
+      if (deferredSelectedFacets.acceptsCod && !prod.acceptsCod) return false;
+
       return true;
     });
   }, [categoryProducts, deferredSelectedFacets, deferredIsPriceModified]);
@@ -320,6 +391,8 @@ export function useFacetedFilters(products: Product[], activeCategory: string = 
     availableFacets,
     filteredProducts,
     toggleFacet,
+    setBooleanFacet,
+    setMinRating,
     setPriceRange,
     resetFilters,
     totalCount: filteredProducts.length,
@@ -329,6 +402,12 @@ export function useFacetedFilters(products: Product[], activeCategory: string = 
       selectedFacets.materials.length > 0 ||
       selectedFacets.brands.length > 0 ||
       selectedFacets.wilayas.length > 0 ||
+      selectedFacets.conditions.length > 0 ||
+      selectedFacets.minRating > 0 ||
+      selectedFacets.inStock ||
+      selectedFacets.onSale ||
+      selectedFacets.freeShipping ||
+      selectedFacets.acceptsCod ||
       isPriceModified,
   };
 }

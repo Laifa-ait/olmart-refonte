@@ -13,12 +13,7 @@ interface SellerMobileDrawerProps {
   currentUser: User | null;
 }
 
-export const SellerMobileDrawer: React.FC<SellerMobileDrawerProps> = ({
-  isOpen,
-  onClose,
-  navItems,
-  currentUser,
-}) => {
+export const SellerMobileDrawer: React.FC<SellerMobileDrawerProps> = ({ isOpen, onClose, navItems, currentUser }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -40,16 +35,16 @@ export const SellerMobileDrawer: React.FC<SellerMobileDrawerProps> = ({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 bottom-0 start-0 w-[85%] max-w-sm bg-white z-50 lg:hidden flex flex-col shadow-2xl"
+            className="fixed top-0 bottom-0 start-0 w-[85%] max-w-sm bg-[#fbf9fc] z-50 lg:hidden flex flex-col shadow-2xl border-e border-[#e8e1e9]"
             id="seller-mobile-drawer-panel"
           >
-            <div className="p-6 border-b border-zinc-50 flex items-center justify-between">
+            <div className="p-6 border-b border-[#eee8ef] bg-white flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-zinc-950 flex items-center justify-center text-white shadow-lg">
+                <div className="w-10 h-10 rounded-xl bg-[#5b4865] flex items-center justify-center text-white shadow-[0_6px_14px_rgba(54,39,61,0.2)]">
                   <Store className="w-5 h-5" />
                 </div>
                 <div>
-                  <h1 className="text-base font-sans font-bold tracking-tight rtl:tracking-normal text-zinc-950">
+                  <h1 className="text-base font-sans font-bold tracking-tight rtl:tracking-normal text-[#302638]">
                     {t("OLMA")}
                   </h1>
                   <p className="text-[9px] font-sans font-bold text-zinc-400 uppercase tracking-widest rtl:tracking-normal leading-none">
@@ -61,7 +56,7 @@ export const SellerMobileDrawer: React.FC<SellerMobileDrawerProps> = ({
                 type="button"
                 id="seller-mobile-drawer-close-btn"
                 onClick={onClose}
-                className="p-2 rounded-xl text-zinc-400 hover:text-zinc-950 hover:bg-zinc-50 transition-colors bg-transparent border-none cursor-pointer"
+                className="p-2 rounded-xl text-[#8a7d90] hover:text-[#302638] hover:bg-[#f7f4f8] transition-colors bg-transparent border-none cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -77,8 +72,8 @@ export const SellerMobileDrawer: React.FC<SellerMobileDrawerProps> = ({
                   className={({ isActive }) =>
                     `flex items-center gap-3 px-4 py-3.5 rounded-xl text-xs font-black transition-all ${
                       isActive
-                        ? "bg-[#ea580c] text-white shadow-lg shadow-orange-500/15"
-                        : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                        ? "bg-[#5b4865] text-white shadow-[0_8px_18px_rgba(54,39,61,0.16)]"
+                        : "text-[#756b7b] hover:bg-[#f7f4f8] hover:text-[#302638]"
                     }`
                   }
                 >
@@ -94,15 +89,15 @@ export const SellerMobileDrawer: React.FC<SellerMobileDrawerProps> = ({
                   onClose();
                   if (currentUser) navigate(`/store/${currentUser.uid}`);
                 }}
-                className="w-full flex items-center gap-3 px-4 py-3.5 mt-2 rounded-xl text-xs font-sans font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 transition-all cursor-pointer border-none text-start"
+                className="w-full flex items-center gap-3 px-4 py-3.5 mt-2 rounded-xl text-xs font-sans font-bold text-[#5b4865] bg-[#f1edf4] hover:bg-[#e9e1ec] transition-colors cursor-pointer border-none text-start"
               >
                 <Store className="w-4.5 h-4.5" />
                 {t("Voir ma vitrine")}
               </button>
             </nav>
 
-            <div className="p-6 border-t border-zinc-50">
-              <div className="bg-zinc-50 rounded-2xl p-4">
+            <div className="p-6 border-t border-[#eee8ef]">
+              <div className="bg-[#f8f5f9] rounded-2xl p-4">
                 <p className="text-[10px] font-sans font-bold text-zinc-400 uppercase tracking-widest rtl:tracking-normal mb-2 text-center">
                   {t("Support Vendeur")}
                 </p>
@@ -113,7 +108,7 @@ export const SellerMobileDrawer: React.FC<SellerMobileDrawerProps> = ({
                     onClose();
                     navigate("/dashboard/seller/support");
                   }}
-                  className="w-full bg-white text-zinc-950 py-2.5 rounded-xl font-sans font-bold text-[10px] uppercase tracking-widest rtl:tracking-normal shadow-sm hover:bg-zinc-100 transition-colors border-none cursor-pointer"
+                  className="w-full bg-white text-[#493852] py-2.5 rounded-xl font-sans font-bold text-[10px] uppercase tracking-widest rtl:tracking-normal shadow-sm ring-1 ring-[#e8e1e9] hover:bg-[#f7f4f8] transition-colors border-none cursor-pointer"
                 >
                   {t("Ouvrir un Ticket")}
                 </button>

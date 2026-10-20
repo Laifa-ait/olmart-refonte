@@ -11,18 +11,13 @@ interface SearchProductCardProps {
   onSelect: (productId: string, name: string) => void;
 }
 
-export const SearchProductCard: React.FC<SearchProductCardProps> = ({
-  product,
-  query,
-  onSelect
-}) => {
+export const SearchProductCard: React.FC<SearchProductCardProps> = ({ product, query, onSelect }) => {
   const { t } = useTranslation();
-  const name = product.name || product.title || "";
+  const name = product.name || "";
   const price = product.promoPrice || product.price || 0;
   const originalPrice = product.originalPrice || (product.promoPrice ? product.price : null);
-  const discountPercent = originalPrice && originalPrice > price
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
-    : 0;
+  const discountPercent =
+    originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   const highlightMatch = (text: string, q: string) => {
     if (!q.trim()) return text;
@@ -31,7 +26,7 @@ export const SearchProductCard: React.FC<SearchProductCardProps> = ({
       <span>
         {parts.map((part, i) =>
           part.toLowerCase() === q.trim().toLowerCase() ? (
-            <mark key={i} className="text-emerald-900 bg-emerald-100 font-bold px-0.5 rounded">
+            <mark key={i} className="text-[#493852] bg-[#f3e8ca] font-bold px-0.5 rounded">
               {part}
             </mark>
           ) : (
@@ -49,7 +44,7 @@ export const SearchProductCard: React.FC<SearchProductCardProps> = ({
     <button
       type="button"
       onClick={() => onSelect(product.id, name)}
-      className="w-full text-left p-3 hover:bg-emerald-50/40 border border-slate-200 hover:border-emerald-400/80 flex items-center gap-3.5 group transition-all duration-200 rounded-2xl outline-none bg-white cursor-pointer shadow-xs hover:shadow-md relative overflow-hidden"
+      className="w-full text-left p-3 hover:bg-[#fbf8fc] border border-[#e8e1e9] hover:border-[#cdbed2] flex items-center gap-3.5 group transition-all duration-200 rounded-2xl outline-none bg-white cursor-pointer shadow-xs hover:shadow-md relative overflow-hidden"
     >
       {/* Product Image */}
       <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200/80 relative">
@@ -85,19 +80,15 @@ export const SearchProductCard: React.FC<SearchProductCardProps> = ({
           )}
         </div>
 
-        <h4 className="font-bold text-[13.5px] sm:text-[14px] text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug mt-0.5">
+        <h4 className="font-bold text-[13.5px] sm:text-[14px] text-[#302638] group-hover:text-[#5b4865] transition-colors line-clamp-2 leading-snug mt-0.5">
           {highlightMatch(name, query)}
         </h4>
 
         {/* Pricing & Badges */}
         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-          <span className="text-sm sm:text-base font-black text-emerald-700 tracking-tight">
-            {formatPrice(price)}
-          </span>
+          <span className="text-sm sm:text-base font-black text-[#5b4865] tracking-tight">{formatPrice(price)}</span>
           {originalPrice && originalPrice > price && (
-            <span className="text-xs text-slate-400 line-through">
-              {formatPrice(originalPrice)}
-            </span>
+            <span className="text-xs text-slate-400 line-through">{formatPrice(originalPrice)}</span>
           )}
           {product.rating ? (
             <span className="flex items-center gap-0.5 text-amber-600 font-bold text-xs ms-auto">
@@ -126,7 +117,7 @@ export const SearchProductCard: React.FC<SearchProductCardProps> = ({
         </div>
       </div>
 
-      <div className="shrink-0 p-1.5 rounded-full bg-slate-50 group-hover:bg-emerald-600 text-slate-400 group-hover:text-white transition-all">
+      <div className="shrink-0 p-1.5 rounded-full bg-[#f5f1f6] group-hover:bg-[#5b4865] text-[#8a7d90] group-hover:text-white transition-colors">
         <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
       </div>
     </button>

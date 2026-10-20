@@ -88,22 +88,27 @@ export const AdvancedSearchbar: React.FC<AdvancedSearchbarProps> = ({
 
   return (
     <>
-      {isOverlayActive && createPortal(
-        <div
-          onClick={() => {
-            setIsFocused(false);
-            setShowDropdown(false);
-            inputRef.current?.blur();
-          }}
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-[90] transition-opacity duration-200"
-        />,
-        document.body
-      )}
+      {isOverlayActive &&
+        createPortal(
+          <div
+            onClick={() => {
+              setIsFocused(false);
+              setShowDropdown(false);
+              inputRef.current?.blur();
+            }}
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-[90] transition-opacity duration-200"
+          />,
+          document.body
+        )}
 
       <div ref={containerRef} className={`relative w-full ${isOverlayActive ? "z-[105]" : "z-[10]"} ${className}`}>
-        <div className={`flex items-center w-full rounded-full transition-all duration-200 h-10 sm:h-11 p-1 bg-white ${
-          isOverlayActive ? "border-2 border-[#6B5874] shadow-lg ring-2 ring-[#B79A62]/20" : "border border-[#E7E1E8] hover:border-[#CFC5D1] shadow-xs"
-        }`}>
+        <div
+          className={`flex items-center w-full rounded-full transition-all duration-200 h-10 sm:h-11 p-1 bg-white ${
+            isOverlayActive
+              ? "border-2 border-[#6B5874] shadow-lg ring-2 ring-[#B79A62]/20"
+              : "border border-[#E7E1E8] hover:border-[#CFC5D1] shadow-xs"
+          }`}
+        >
           <div className="flex items-center justify-center shrink-0 text-slate-500 ps-3 pe-1.5">
             <Search className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[2.2]" />
           </div>
@@ -142,7 +147,10 @@ export const AdvancedSearchbar: React.FC<AdvancedSearchbarProps> = ({
           ) : localQuery ? (
             <button
               type="button"
-              onClick={() => { setLocalQuery(""); setResults([]); }}
+              onClick={() => {
+                setLocalQuery("");
+                setResults([]);
+              }}
               className="p-1 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 mx-1 cursor-pointer border-none bg-transparent"
             >
               <X className="w-4 h-4" />
@@ -159,18 +167,21 @@ export const AdvancedSearchbar: React.FC<AdvancedSearchbarProps> = ({
         </div>
 
         {isOverlayActive && (
-          <div className="absolute left-0 right-0 top-full mt-2 w-full md:left-1/2 md:-translate-x-1/2 md:w-[760px] lg:w-[860px] bg-white border border-slate-200/90 shadow-2xl z-[150] rounded-2xl md:rounded-3xl overflow-hidden max-h-[75vh] md:max-h-[80vh] overflow-y-auto">
+          <div className="absolute left-0 right-0 top-full mt-2 w-full md:left-1/2 md:-translate-x-1/2 md:w-[760px] lg:w-[860px] bg-[#fffefe] border border-[#e8e1e9] shadow-[0_24px_70px_rgba(35,25,40,0.2)] z-[150] rounded-2xl md:rounded-3xl overflow-hidden max-h-[75vh] md:max-h-[80vh] overflow-y-auto">
             <div className="p-3.5 sm:p-5 space-y-3.5">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              <div className="flex items-center justify-between pb-2 border-b border-[#eee8ef]">
+                <span className="text-xs font-bold uppercase tracking-wider text-[#5b4865]">
                   {localQuery.trim()
                     ? t("search_direct_results", "Résultats directs")
                     : t("explore_catalog", "Articles recommandés")}
                 </span>
                 <button
                   type="button"
-                  onClick={() => { setIsFocused(false); setShowDropdown(false); }}
-                  className="p-1 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 cursor-pointer border-none bg-transparent shrink-0"
+                  onClick={() => {
+                    setIsFocused(false);
+                    setShowDropdown(false);
+                  }}
+                  className="p-1 rounded-full hover:bg-[#f4eff5] text-slate-400 hover:text-[#5b4865] cursor-pointer border-none bg-transparent shrink-0"
                   aria-label="Fermer"
                 >
                   <X className="w-4 h-4" />

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import "./studio-tokens.css";
@@ -34,11 +35,7 @@ interface StudioWorkspaceProps {
   onDeleteMedia?: (id: string) => Promise<void>;
   selectedSectionId: string | null;
   setSelectedSectionId: (id: string | null) => void;
-  addSection: (
-    type: CustomPageSectionType,
-    defaultSettings: Record<string, unknown>,
-    defaultTitle?: string
-  ) => void;
+  addSection: (type: CustomPageSectionType, defaultSettings: Record<string, unknown>, defaultTitle?: string) => void;
   updateSection: (id: string, updatedData: Partial<CustomPageSection>) => void;
   reorderSections: (fromIndex: number, toIndex: number) => void;
   deleteSection: (id: string) => void;
@@ -80,12 +77,13 @@ export const StudioWorkspace: React.FC<StudioWorkspaceProps> = ({
   const [liveThemeOverride, setLiveThemeOverride] = useState<CustomPageTheme | null>(null);
 
   const selectedSection = sections.find((sec) => sec.id === selectedSectionId) || null;
-  const currentTheme: CustomPageTheme = liveThemeOverride || storeConfig?.theme || {
-    sector: "mode",
-    primaryColor: "#F97316",
-    canvasColor: "#F7F8FA",
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
-  };
+  const currentTheme: CustomPageTheme = liveThemeOverride ||
+    storeConfig?.theme || {
+      sector: "mode",
+      primaryColor: "#F97316",
+      canvasColor: "#F7F8FA",
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
+    };
 
   const isPublished = Boolean(publishedLayout && hasActiveSubscription);
 
@@ -109,37 +107,41 @@ export const StudioWorkspace: React.FC<StudioWorkspaceProps> = ({
       return;
     }
     const settings = selectedSection.settings as unknown as Record<string, unknown>;
-    const field = typeof settings.imageUrl === "string"
-      ? "imageUrl"
-      : typeof settings.posterUrl === "string"
-      ? "posterUrl"
-      : typeof settings.videoUrl === "string"
-      ? "videoUrl"
-      : selectedSection.type === "showcase_video"
-      ? "posterUrl"
-      : null;
+    const field =
+      typeof settings.imageUrl === "string"
+        ? "imageUrl"
+        : typeof settings.posterUrl === "string"
+          ? "posterUrl"
+          : typeof settings.videoUrl === "string"
+            ? "videoUrl"
+            : selectedSection.type === "showcase_video"
+              ? "posterUrl"
+              : null;
     if (field) {
       updateSection(selectedSection.id, {
         settings: { ...settings, [field]: url } as unknown as CustomPageSection["settings"],
       });
     } else {
-      const listField = selectedSection.type === "promo_carousel"
-        ? "slides"
-        : selectedSection.type === "featured_categories"
-        ? "categories"
-        : selectedSection.type === "curated_collections"
-        ? "collections"
-        : null;
-      const list = listField && Array.isArray(settings[listField])
-        ? settings[listField] as Array<Record<string, unknown>>
-        : [];
+      const listField =
+        selectedSection.type === "promo_carousel"
+          ? "slides"
+          : selectedSection.type === "featured_categories"
+            ? "categories"
+            : selectedSection.type === "curated_collections"
+              ? "collections"
+              : null;
+      const list =
+        listField && Array.isArray(settings[listField]) ? (settings[listField] as Array<Record<string, unknown>>) : [];
       if (!listField || list.length === 0) {
         toast.error("Ajoutez d'abord un élément dans cette section pour y placer un visuel.");
         return;
       }
       const firstItem = { ...list[0], imageUrl: url };
       updateSection(selectedSection.id, {
-        settings: { ...settings, [listField]: [firstItem, ...list.slice(1)] } as unknown as CustomPageSection["settings"],
+        settings: {
+          ...settings,
+          [listField]: [firstItem, ...list.slice(1)],
+        } as unknown as CustomPageSection["settings"],
       });
     }
     setNavMode("sections");
@@ -201,9 +203,7 @@ export const StudioWorkspace: React.FC<StudioWorkspaceProps> = ({
         {/* Zone 2: Arborescence des sections (100% on Mobile, 280px on Tablet/Desktop) */}
         <div
           className={`h-full min-w-0 ${
-            mobileColumn === "tree"
-              ? "block w-full flex-1"
-              : "hidden md:block md:w-[280px] md:shrink-0"
+            mobileColumn === "tree" ? "block w-full flex-1" : "hidden md:block md:w-[280px] md:shrink-0"
           }`}
         >
           <SectionTreePanel
@@ -247,9 +247,7 @@ export const StudioWorkspace: React.FC<StudioWorkspaceProps> = ({
         {/* Zone 4: Inspecteur droit de propriétés (100% on Mobile, 320px on Tablet/Desktop) */}
         <div
           className={`h-full min-w-0 ${
-            mobileColumn === "inspector"
-              ? "block w-full flex-1"
-              : "hidden md:block md:w-[320px] md:shrink-0"
+            mobileColumn === "inspector" ? "block w-full flex-1" : "hidden md:block md:w-[320px] md:shrink-0"
           }`}
         >
           <PropertiesInspector

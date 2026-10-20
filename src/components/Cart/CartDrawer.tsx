@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { ShoppingBag, Package, Trash2, Plus, Minus } from "lucide-react";
+import { ShoppingBag, Package, Trash2, Plus, Minus, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
@@ -21,7 +21,10 @@ export const CartDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
 
   // Group items by seller
   const groupedCart = useMemo(() => {
-    const groups: Record<string, { sellerName: string; items: (CartItem & { originalIndex: number })[]; total: number }> = {};
+    const groups: Record<
+      string,
+      { sellerName: string; items: (CartItem & { originalIndex: number })[]; total: number }
+    > = {};
     cart.forEach((item, index) => {
       const sellerId = item.sellerId || "unknown";
       const sellerName = item.sellerName || item.shopName || "Boutique Partenaire";
@@ -43,24 +46,31 @@ export const CartDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
     >
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-zinc-50/50">
         {cart.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center space-y-6 px-4 py-12">
-            <div className="w-20 h-20 bg-amber-500/10 rounded-3xl flex items-center justify-center text-amber-600 mb-2">
-              <Package className="w-10 h-10" />
+          <div className="flex h-full items-center justify-center px-2 py-8 sm:px-4">
+            <div className="w-full max-w-sm rounded-[1.75rem] border border-[#E9E2D8] bg-[#FFFEFC] px-6 py-8 text-center shadow-[0_12px_36px_rgba(47,39,49,0.06)] sm:px-8">
+              <div className="mx-auto mb-5 flex h-[4.25rem] w-[4.25rem] items-center justify-center rounded-[1.35rem] border border-[#E9E2D8] bg-[#F7F3EC] text-[#5B4865]">
+                <Package className="h-8 w-8 stroke-[1.8]" />
+              </div>
+              <div className="mx-auto max-w-xs space-y-2.5">
+                <h3 className="font-sans text-lg font-bold text-[#302536]">
+                  {t("Votre panier est curieusement vide")}
+                </h3>
+                <p className="text-sm leading-relaxed text-[#77717A]">
+                  {t("Découvrez nos sélections exclusives et trouvez votre bonheur.")}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  navigate("/shop");
+                }}
+                className="mt-6 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-none bg-[#5B4865] px-6 py-3.5 text-sm font-bold text-white shadow-[0_8px_18px_rgba(91,72,101,0.18)] transition-all hover:bg-[#493851] active:scale-[0.98]"
+              >
+                {t("Explorer la boutique")}
+                <ArrowRight className="h-4 w-4" />
+              </button>
             </div>
-            <div className="space-y-2 max-w-xs">
-              <h3 className="text-lg font-sans font-bold text-zinc-950">{t("Votre panier est curieusement vide")}</h3>
-              <p className="text-zinc-500 text-xs sm:text-sm leading-relaxed">{t("Découvrez nos sélections exclusives et trouvez votre bonheur.")}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                onClose();
-                navigate("/shop");
-              }}
-              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 hover:from-amber-400 hover:to-orange-400 text-zinc-950 font-bold text-sm shadow-md shadow-orange-500/20 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-2 border-none"
-            >
-              {t("Explorer la boutique")}
-            </button>
           </div>
         ) : (
           Object.values(groupedCart).map((group, groupIdx) => {
@@ -81,9 +91,7 @@ export const CartDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                       <span className="bg-zinc-900 text-white text-[10px] rtl:text-xs font-sans font-bold uppercase tracking-wider px-2 py-0.5 rounded-md">
                         {t("Colis")} {groupIdx + 1}
                       </span>
-                      <h3 className="font-sans font-bold text-sm text-zinc-900 leading-none">
-                        {group.sellerName}
-                      </h3>
+                      <h3 className="font-sans font-bold text-sm text-zinc-900 leading-none">{group.sellerName}</h3>
                     </div>
                     <span className="text-xs font-semibold text-zinc-500">
                       {group.items.length} {t("article(s)")}
@@ -94,8 +102,7 @@ export const CartDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                   {remaining > 0 ? (
                     <div className="space-y-1.5 pt-1">
                       <p className="text-[11px] sm:text-xs font-semibold text-zinc-600">
-                        {t("Ajoutez encore")}{" "}
-                        <span className="text-amber-600 font-bold">{formatPrice(remaining)}</span>{" "}
+                        {t("Ajoutez encore")} <span className="text-amber-600 font-bold">{formatPrice(remaining)}</span>{" "}
                         {t("pour amortir la livraison !")}
                       </p>
                       <div className="h-1.5 w-full bg-zinc-100 rounded-full overflow-hidden">
@@ -141,7 +148,8 @@ export const CartDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
                               aria-label="Supprimer l'article"
                               onClick={async () => {
                                 const ok = await showConfirmModal(
-                                  t("Êtes-vous sûr de vouloir retirer cet article de votre panier ?") || "Êtes-vous sûr de vouloir retirer cet article de votre panier ?",
+                                  t("Êtes-vous sûr de vouloir retirer cet article de votre panier ?") ||
+                                    "Êtes-vous sûr de vouloir retirer cet article de votre panier ?",
                                   t("Retirer un article") || "Retirer un article"
                                 );
                                 if (ok) {
@@ -201,9 +209,7 @@ export const CartDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         )}
       </div>
 
-      {cart.length > 0 && (
-        <CartDrawerFooter totalPrice={totalPrice} onClose={onClose} />
-      )}
+      {cart.length > 0 && <CartDrawerFooter totalPrice={totalPrice} onClose={onClose} />}
       <ConfirmationDialog />
     </SideDrawer>
   );

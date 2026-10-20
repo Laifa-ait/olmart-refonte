@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React from "react";
 import {
   X,
@@ -53,7 +54,11 @@ const SECTION_CATALOG: SectionOption[] = [
     description: "Diaporama animé pour mettre en valeur vos offres du moment et réductions.",
     defaultSettings: {
       slides: [
-        { id: "s1", imageUrl: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1200&q=80", title: "Offres Spéciales Semaine" },
+        {
+          id: "s1",
+          imageUrl: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=1200&q=80",
+          title: "Offres Spéciales Semaine",
+        },
       ],
       autoplay: true,
       intervalSec: 5,
@@ -113,7 +118,12 @@ const SECTION_CATALOG: SectionOption[] = [
     category: "Catalogue Produits",
     icon: Grid,
     description: "Affichez une grille de produits filtrable par catégorie.",
-    defaultSettings: { title: "Tous nos produits", subtitle: "Découvrez toute la boutique", maxItems: 12, layout: "grid" },
+    defaultSettings: {
+      title: "Tous nos produits",
+      subtitle: "Découvrez toute la boutique",
+      maxItems: 12,
+      layout: "grid",
+    },
   },
   {
     type: "brand_story",
@@ -157,7 +167,12 @@ const SECTION_CATALOG: SectionOption[] = [
     category: "Confiance & Contact",
     icon: ShieldCheck,
     description: "Présentez clairement vos conditions de retour et d'échange.",
-    defaultSettings: { title: "Retours & échanges", delayDays: 14, conditions: "Décrivez ici les conditions de retour.", returnShippingFeeBy: "buyer" },
+    defaultSettings: {
+      title: "Retours & échanges",
+      delayDays: 14,
+      conditions: "Décrivez ici les conditions de retour.",
+      returnShippingFeeBy: "buyer",
+    },
   },
   {
     type: "faq_accordion",
@@ -185,11 +200,7 @@ const SECTION_CATALOG: SectionOption[] = [
   },
 ];
 
-export const AddSectionModal: React.FC<AddSectionModalProps> = ({
-  isOpen,
-  onClose,
-  onAddSection,
-}) => {
+export const AddSectionModal: React.FC<AddSectionModalProps> = ({ isOpen, onClose, onAddSection }) => {
   if (!isOpen) return null;
 
   const categories: Array<SectionOption["category"]> = [
@@ -220,9 +231,7 @@ export const AddSectionModal: React.FC<AddSectionModalProps> = ({
         <div className="overflow-y-auto pr-1 space-y-5 flex-1">
           {categories.map((cat) => (
             <div key={cat} className="space-y-2">
-              <h3 className="text-[11px] font-bold uppercase tracking-wider text-orange-600 font-mono">
-                {cat}
-              </h3>
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-orange-600 font-mono">{cat}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                 {SECTION_CATALOG.filter((s) => s.category === cat).map((sec) => {
                   const Icon = sec.icon;

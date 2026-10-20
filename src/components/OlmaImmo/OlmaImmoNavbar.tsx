@@ -1,13 +1,13 @@
-import React, { useState, useCallback } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { LayoutGrid } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { useOlmaBookingsCount } from '../../hooks/useOlmaBookingsCount';
-import { UnifiedMessagingDrawer } from '../Chat/UnifiedMessagingDrawer';
-import { SuperAppSwitcherModal } from '../common/SuperAppSwitcherModal';
-import { OlmaImmoUserMenu } from './OlmaImmoUserMenu';
-import { OlmaLanguageSelector } from '../common/OlmaLanguageSelector';
+import React, { useState, useCallback } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { LayoutGrid } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { useOlmaBookingsCount } from "../../hooks/useOlmaBookingsCount";
+import { UnifiedMessagingDrawer } from "../Chat/UnifiedMessagingDrawer";
+import { SuperAppSwitcherModal } from "../common/SuperAppSwitcherModal";
+import { OlmaImmoUserMenu } from "./OlmaImmoUserMenu";
+import { OlmaLanguageSelector } from "../common/OlmaLanguageSelector";
 
 export const OlmaImmoNavbar: React.FC = React.memo(() => {
   const { t } = useTranslation();
@@ -20,16 +20,16 @@ export const OlmaImmoNavbar: React.FC = React.memo(() => {
   const handleOpenMessaging = useCallback(() => {
     if (!currentUser) {
       if (openAuthModal) openAuthModal();
-      else window.dispatchEvent(new CustomEvent('auth:openModal', { detail: { mode: 'login' } }));
+      else window.dispatchEvent(new CustomEvent("auth:openModal", { detail: { mode: "login" } }));
       return;
     }
     setIsMessagingOpen(true);
   }, [currentUser, openAuthModal]);
 
-  const isExplore = location.pathname === '/immo' && !location.search;
-  const isBuy = location.search.includes('type=sale');
-  const isRent = location.search.includes('type=rent_long');
-  const isVacation = location.search.includes('type=rent_short');
+  const isExplore = location.pathname === "/immo" && !location.search;
+  const isBuy = location.search.includes("type=sale");
+  const isRent = location.search.includes("type=rent_long");
+  const isVacation = location.search.includes("type=rent_short");
 
   return (
     <header className="sticky top-0 z-40 bg-[#F8FAFC]/95 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_4px_20px_-4px_rgba(30,58,138,0.03)]">
@@ -41,20 +41,20 @@ export const OlmaImmoNavbar: React.FC = React.memo(() => {
               <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#1E293B] font-['Playfair_Display',serif] select-none">
                 OLMA
               </span>
-              <span className="text-[11px] sm:text-xs font-bold tracking-widest text-slate-500 uppercase">
-                IMMO
-              </span>
+              <span className="text-[11px] sm:text-xs font-bold tracking-widest text-slate-500 uppercase">IMMO</span>
             </Link>
 
             <button
               type="button"
               onClick={() => setIsSwitcherOpen(true)}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200/70 bg-slate-100/90 px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition-all hover:bg-slate-200/80 hover:text-slate-950 sm:px-3 group"
-              title={t('nav_applications')}
-              aria-label={t('nav_applications')}
+              aria-haspopup="dialog"
+              aria-expanded={isSwitcherOpen}
+              className="group inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center gap-1.5 rounded-full border border-slate-200/70 bg-slate-100/90 px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition-all hover:bg-slate-200/80 hover:text-slate-950 sm:min-h-0 sm:min-w-0 sm:justify-start sm:px-3"
+              title={t("nav_applications")}
+              aria-label={t("nav_applications")}
             >
               <LayoutGrid className="w-3.5 h-3.5 text-amber-600 group-hover:scale-105 transition-transform" />
-              <span className="hidden sm:inline">{t('nav_applications')}</span>
+              <span className="hidden sm:inline">{t("nav_applications")}</span>
             </button>
           </div>
 
@@ -64,25 +64,25 @@ export const OlmaImmoNavbar: React.FC = React.memo(() => {
               to="/immo"
               className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-all duration-200 ${
                 isExplore
-                  ? 'bg-[#1E293B] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
+                  ? "bg-[#1E293B] text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white/80"
               }`}
             >
-              {t('nav_explorer')}
+              {t("nav_explorer")}
             </Link>
 
             <Link
               to="/immo?type=rent_short"
               className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-all duration-200 flex items-center gap-1.5 relative ${
                 isVacation
-                  ? 'bg-[#1E293B] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
+                  ? "bg-[#1E293B] text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-white/80"
               }`}
             >
-              <span>{t('nav_stays')}</span>
+              <span>{t("nav_stays")}</span>
               {activeBookingsCount > 0 && (
                 <span className="min-w-4 h-4 bg-[#059669] text-white text-[9px] font-extrabold rounded-full flex items-center justify-center px-1 shadow-2xs">
-                  {activeBookingsCount > 99 ? '99+' : activeBookingsCount}
+                  {activeBookingsCount > 99 ? "99+" : activeBookingsCount}
                 </span>
               )}
             </Link>
@@ -90,23 +90,19 @@ export const OlmaImmoNavbar: React.FC = React.memo(() => {
             <Link
               to="/immo?type=sale"
               className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-all duration-200 ${
-                isBuy
-                  ? 'bg-[#1E293B] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
+                isBuy ? "bg-[#1E293B] text-white shadow-xs" : "text-slate-600 hover:text-slate-900 hover:bg-white/80"
               }`}
             >
-              {t('nav_buy')}
+              {t("nav_buy")}
             </Link>
 
             <Link
               to="/immo?type=rent_long"
               className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-all duration-200 ${
-                isRent
-                  ? 'bg-[#1E293B] text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/80'
+                isRent ? "bg-[#1E293B] text-white shadow-xs" : "text-slate-600 hover:text-slate-900 hover:bg-white/80"
               }`}
             >
-              {t('nav_rent')}
+              {t("nav_rent")}
             </Link>
           </nav>
 
@@ -119,7 +115,7 @@ export const OlmaImmoNavbar: React.FC = React.memo(() => {
               id="olma-immo-nav-owner-link"
               className="text-xs font-medium text-slate-700 hover:text-slate-950 px-3.5 py-2 rounded-full border border-slate-200 hover:border-slate-300 transition-all hidden xl:inline-flex items-center cursor-pointer"
             >
-              <span>{t('nav_publish_property')}</span>
+              <span>{t("nav_publish_property")}</span>
             </Link>
 
             {/* Minimalist Profile Avatar in cool grey circle */}
@@ -129,20 +125,12 @@ export const OlmaImmoNavbar: React.FC = React.memo(() => {
       </div>
 
       {/* Unified Messaging Drawer Modal */}
-      {isMessagingOpen && (
-        <UnifiedMessagingDrawer
-          isOpen={isMessagingOpen}
-          onClose={() => setIsMessagingOpen(false)}
-        />
-      )}
+      {isMessagingOpen && <UnifiedMessagingDrawer isOpen={isMessagingOpen} onClose={() => setIsMessagingOpen(false)} />}
 
       {/* Super-App Switcher Modal */}
-      <SuperAppSwitcherModal
-        isOpen={isSwitcherOpen}
-        onClose={() => setIsSwitcherOpen(false)}
-      />
+      <SuperAppSwitcherModal isOpen={isSwitcherOpen} onClose={() => setIsSwitcherOpen(false)} />
     </header>
   );
 });
 
-OlmaImmoNavbar.displayName = 'OlmaImmoNavbar';
+OlmaImmoNavbar.displayName = "OlmaImmoNavbar";

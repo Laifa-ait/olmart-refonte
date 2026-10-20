@@ -1,5 +1,4 @@
-import React, { useRef, useState, useEffect, useMemo, useCallback, useId } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import React from "react";
 
 export interface CurvedNavItem<T = string> {
   id: T;
@@ -15,212 +14,46 @@ export interface CurvedBottomNavProps<T = string> {
   activeId: T;
   onChange: (id: T) => void;
   className?: string;
-  barColor?: string;
-  accentColor?: string;
 }
 
-const SPRING_TRANSITION = {
-  type: "spring" as const,
-  stiffness: 350,
-  damping: 26,
-  mass: 0.8,
-};
-
-/**
- * CurvedBottomNav - Barre de navigation mobile haut de gamme
- * "Curved Liquid / Jelly Floating Indicator" avec découpe vectorielle dynamique.
- */
+/** Barre mobile compacte, sans libellés, avec un onglet actif en relief. */
 export function CurvedBottomNav<T = string>({
   items,
   activeId,
   onChange,
   className = "",
-  barColor = "#ffffff",
-  accentColor = "#5B4865",
 }: CurvedBottomNavProps<T>): React.JSX.Element {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState<number>(375);
-  const maskId = useId().replace(/:/g, "_") + "_mask";
-  const filterId = useId().replace(/:/g, "_") + "_filter";
-
-  const activeIndex = useMemo(() => {
-    const idx = items.findIndex((it) => it.id === activeId);
-    return idx >= 0 ? idx : 0;
-  }, [items, activeId]);
-
-  const activeItem = items[activeIndex];
-  const ActiveIcon = activeItem?.icon;
-
-  const updateWidth = useCallback(() => {
-    if (containerRef.current) {
-      setContainerWidth(containerRef.current.offsetWidth);
-    }
-  }, []);
-
-  useEffect(() => {
-    updateWidth();
-    if (!containerRef.current) return;
-    const observer = new ResizeObserver(() => updateWidth());
-    observer.observe(containerRef.current);
-    window.addEventListener("resize", updateWidth);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", updateWidth);
-    };
-  }, [updateWidth]);
-
-  // Répartition équilibrée avec marge latérale pour ne jamais coller aux bordures d'écran
-  const count = items.length || 1;
-  const paddingX = 8;
-  const availableWidth = Math.max(0, containerWidth - paddingX * 2);
-  const itemWidth = availableWidth / count;
-  const activeCenterX = paddingX + (activeIndex + 0.5) * itemWidth;
-
-  const barHeight = 64;
-
   return (
-    <div
+    <nav
       dir="ltr"
-      ref={containerRef}
-      className={`relative w-full max-w-md mx-auto select-none ${className}`}
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 12px)" }}
+      aria-label="Navigation principale"
+      className={`relative mx-auto flex h-[68px] w-[calc(100%-24px)] max-w-md items-center justify-around rounded-[22px] border border-[#e8e1e9] bg-white/95 px-2 shadow-[0_8px_28px_rgba(35,25,40,0.14)] backdrop-blur-xl ${className}`}
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      {/* Fond de sécurité pour combler la zone sous les 64px (gestures / home indicator) */}
-      <div className="absolute inset-x-0 bottom-0 top-[60px] bg-white pointer-events-none" />
-
-      {/* 1. Structure vectorielle SVG : Barre continue avec masque d'échancrure glissante */}
-      <svg
-        width={containerWidth}
-        height={barHeight + 10}
-        className="absolute top-0 left-0 w-full h-[74px] pointer-events-none"
-        style={{ overflow: "visible" }}
-      >
-        <defs>
-          <filter id={filterId} x="-10%" y="-40%" width="120%" height="180%">
-            <feDropShadow dx="0" dy="-4" stdDeviation="7" floodColor="rgba(15, 23, 42, 0.08)" />
-            <feDropShadow dx="0" dy="-1" stdDeviation="2" floodColor="rgba(15, 23, 42, 0.04)" />
-          </filter>
-
-          <mask id={maskId}>
-            {/* Rectangle blanc opaque de base */}
-            <rect x="-100" y="0" width="3000" height="200" fill="white" />
-
-            {/* Découpe noire en vague liquide glissant avec spring physics */}
-            <motion.g
-              animate={{ x: activeCenterX }}
-              transition={SPRING_TRANSITION}
-            >
-              <path
-                d="M -46 -4 L -46 0 C -32 0, -22 32, 0 32 C 22 32, 32 0, 46 0 L 46 -4 Z"
-                fill="black"
-              />
-            </motion.g>
-          </mask>
-        </defs>
-
-        {/* Corps principal de la barre avec échancrure et ombre portée */}
-        <rect
-          x="0"
-          y="0"
-          width="100%"
-          height={barHeight}
-          fill={barColor}
-          mask={`url(#${maskId})`}
-          filter={`url(#${filterId})`}
-        />
-
-        {/* Ligne de bordure supérieure délicate qui longe la barre et épouse le creux */}
-        <line
-          x1="0"
-          y1="0"
-          x2="100%"
-          y2="0"
-          stroke="#E2E8F0"
-          strokeWidth="1.2"
-          strokeOpacity="0.85"
-          mask={`url(#${maskId})`}
-        />
-
-        {/* Tracé de l'échancrure fluide glissant avec spring physics */}
-        <motion.g
-          animate={{ x: activeCenterX }}
-          transition={SPRING_TRANSITION}
-        >
-          <path
-            d="M -46 0 C -32 0, -22 32, 0 32 C 22 32, 32 0, 46 0"
-            fill="none"
-            stroke="#E2E8F0"
-            strokeWidth="1.2"
-            strokeOpacity="0.85"
-          />
-        </motion.g>
-      </svg>
-
-      {/* 2. Bulle flottante circulaire (Indicateur actif liquide) */}
-      <motion.div
-        className="absolute -top-5 w-[54px] h-[54px] rounded-full flex items-center justify-center border-[3.5px] border-white pointer-events-none z-20 shadow-[0_10px_24px_-2px_rgba(75,59,85,0.32),0_3px_8px_rgba(15,23,42,0.08)]"
-        style={{
-          background: `linear-gradient(135deg, #81718A 0%, ${accentColor} 58%, #3F3048 100%)`,
-        }}
-        animate={{
-          x: activeCenterX - 27,
-        }}
-        transition={SPRING_TRANSITION}
-      >
-        <AnimatePresence mode="wait">
-          {ActiveIcon && (
-            <motion.div
-              key={String(activeId)}
-              initial={{ scale: 0, rotate: -20, opacity: 0 }}
-              animate={{ scale: 1, rotate: 0, opacity: 1 }}
-              exit={{ scale: 0, rotate: 20, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 480, damping: 24 }}
-              className="text-white flex items-center justify-center drop-shadow-xs"
-            >
-              <ActiveIcon className="w-5 h-5 stroke-[2.4]" />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-
-      {/* 3. Boutons interactifs (icônes uniquement, sans texte) */}
-      <div className="relative z-10 flex items-center justify-around h-[64px] w-full px-2">
-        {items.map((item) => {
-          const isActive = item.id === activeId;
-          const Icon = item.icon;
-
-          return (
-            <button
-              key={String(item.id)}
-              onClick={() => {
-                onChange(item.id);
-                item.onClick?.();
-              }}
-              aria-label={item.ariaLabel || item.label || String(item.id)}
-              className="relative flex-1 h-full flex flex-col items-center justify-center bg-transparent border-none cursor-pointer focus:outline-none select-none transition-transform active:scale-90"
-            >
-              <motion.div
-                animate={{
-                  opacity: isActive ? 0 : 0.9,
-                  scale: isActive ? 0.3 : 1,
-                  y: isActive ? -8 : 0,
-                }}
-                transition={SPRING_TRANSITION}
-                className="relative flex items-center justify-center text-slate-400 hover:text-[#5B4865] transition-colors"
-              >
-                <Icon className="w-5 h-5 stroke-[2]" />
-
-                {/* Badge de notification optionnel */}
-                {item.badge !== undefined && item.badge !== false && (
-                  <span className="absolute -top-1.5 -right-2.5 min-w-[16px] h-[16px] bg-[#6B5874] text-white rounded-full text-[9px] font-black flex items-center justify-center px-1 border-2 border-white shadow-xs">
-                    {item.badge}
-                  </span>
-                )}
-              </motion.div>
-            </button>
-          );
-        })}
-      </div>
-    </div>
+      {items.map((item) => {
+        const isActive = item.id === activeId;
+        const Icon = item.icon;
+        return (
+          <button
+            key={String(item.id)}
+            type="button"
+            onClick={() => {
+              onChange(item.id);
+              item.onClick?.();
+            }}
+            aria-label={item.ariaLabel || item.label || String(item.id)}
+            aria-current={isActive ? "page" : undefined}
+            className={`relative flex h-11 w-11 items-center justify-center rounded-[17px] border-0 transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b5874] focus-visible:ring-offset-2 ${isActive ? "bg-[#5b4865] text-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_3px_8px_rgba(54,39,61,0.22)]" : "bg-transparent text-[#8390a5] hover:bg-[#f7f4f7] hover:text-[#5b4865]"}`}
+          >
+            <Icon className="relative z-10 h-[21px] w-[21px] stroke-[2]" />
+            {item.badge !== undefined && item.badge !== false && (
+              <span className="absolute -right-0.5 -top-0.5 z-20 flex h-[17px] min-w-[17px] items-center justify-center rounded-full border-2 border-white bg-[#c49b4a] px-1 text-[9px] font-bold leading-none text-white">
+                {item.badge}
+              </span>
+            )}
+          </button>
+        );
+      })}
+    </nav>
   );
 }

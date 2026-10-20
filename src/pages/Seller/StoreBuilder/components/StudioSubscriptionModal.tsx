@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Send, AlertCircle, ShieldCheck, X } from "lucide-react";
 import { SubscriptionPlan, SubscriptionRequest } from "../../../../domains/seller/subscription.types";
 import { StoreConfig, CustomPageSection } from "../../../../domains/seller/customPage.types";
@@ -35,16 +35,14 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
   onRefreshStatus,
   onSubmitProof,
 }) => {
-  const [selectedPlanId, setSelectedPlanId] = useState<string>(
-    plans[1]?.id || plans[0]?.id || "pro_creator"
-  );
+  const [selectedPlanId, setSelectedPlanId] = useState<string>(plans[1]?.id || plans[0]?.id || "pro_creator");
 
-  const getStepForRequest = (): "review" | "choose" | "payment" | "pending" | "waiting" => {
+  const getStepForRequest = useCallback((): "review" | "choose" | "payment" | "pending" | "waiting" => {
     if (pendingRequest?.status === "payment_requested") return "payment";
     if (["payment_declared", "payment_confirmed"].includes(pendingRequest?.status || "")) return "pending";
     if (pendingRequest?.status === "pending") return "waiting";
     return "review";
-  };
+  }, [pendingRequest?.status]);
 
   const [step, setStep] = useState<"review" | "choose" | "payment" | "pending" | "waiting">(getStepForRequest);
 
@@ -58,7 +56,7 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
 
   useEffect(() => {
     if (isOpen) setStep(getStepForRequest());
-  }, [isOpen, pendingRequest?.id, pendingRequest?.status]);
+  }, [isOpen, pendingRequest?.id, getStepForRequest]);
 
   if (!isOpen) return null;
 
@@ -139,11 +137,7 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
 
         {/* STEP 1: Revue de la vitrine créée */}
         {step === "review" && (
-          <StoreReviewStep
-            storeConfig={storeConfig}
-            sections={sections}
-            onNext={() => setStep("choose")}
-          />
+          <StoreReviewStep storeConfig={storeConfig} sections={sections} onNext={() => setStep("choose")} />
         )}
 
         {/* STEP 2: Choisir le Forfait */}
@@ -186,12 +180,16 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
             <div className="space-y-1">
               <h4 className="text-base font-bold text-slate-900">Coordonnées de paiement en attente</h4>
               <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-                Les informations de paiement seront affichées ici dès qu'elles auront été transmises par l'équipe Olmart. Aucun virement n'est à effectuer avant leur réception.
+                Les informations de paiement seront affichées ici dès qu'elles auront été transmises par l'équipe
+                Olmart. Aucun virement n'est à effectuer avant leur réception.
               </p>
             </div>
             <button
               type="button"
-              onClick={async () => { await onRefreshStatus?.(); setStep("waiting"); }}
+              onClick={async () => {
+                await onRefreshStatus?.();
+                setStep("waiting");
+              }}
               className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl cursor-pointer transition-colors"
             >
               Actualiser le statut
@@ -207,12 +205,15 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
             <div className="space-y-1">
               <h4 className="text-base font-bold text-slate-900">Votre demande a bien été reçue</h4>
               <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-                Vous pouvez continuer à personnaliser votre boutique. L'activation sera possible après réception des instructions, déclaration du paiement et validation de l'abonnement.
+                Vous pouvez continuer à personnaliser votre boutique. L'activation sera possible après réception des
+                instructions, déclaration du paiement et validation de l'abonnement.
               </p>
             </div>
             <button
               type="button"
-              onClick={async () => { await onRefreshStatus?.(); }}
+              onClick={async () => {
+                await onRefreshStatus?.();
+              }}
               className="px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-xl cursor-pointer transition-colors"
             >
               Actualiser le statut
@@ -227,11 +228,11 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
               <ShieldCheck className="w-7 h-7" />
             </div>
             <div className="space-y-1">
-              <h4 className="text-base font-bold text-slate-900">
-                Dossier de publication transmis à l'Administration
-              </h4>
+              <h4 className="text-base font-bold text-slate-900">Dossier de publication transmis à l'Administration</h4>
               <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
-                Votre vitrine personnalisée et votre déclaration de virement sont transmises pour rapprochement comptable par l'équipe Olmart. Vous conservez votre accès complet au Studio pour peaufiner vos sections et votre catalogue.
+                Votre vitrine personnalisée et votre déclaration de virement sont transmises pour rapprochement
+                comptable par l'équipe Olmart. Vous conservez votre accès complet au Studio pour peaufiner vos sections
+                et votre catalogue.
               </p>
             </div>
             <button

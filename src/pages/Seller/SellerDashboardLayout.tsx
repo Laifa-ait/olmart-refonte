@@ -23,25 +23,22 @@ export const SellerDashboardLayout: React.FC = () => {
   const isStudio = location.pathname.includes("/store-builder") || location.pathname.includes("/studio");
 
   return (
-    <div className="flex h-screen bg-[#fafafa] overflow-hidden" id="seller-dashboard-root">
+    <div className="flex h-screen overflow-hidden bg-[#faf8fb] text-[#302638]" id="seller-dashboard-root">
       {/* Interactive Seller Tour */}
-      <SellerOnboardingTour
-        forceRun={forceTour}
-        onTourEnd={() => setForceTour(false)}
-      />
+      <SellerOnboardingTour forceRun={forceTour} onTourEnd={() => setForceTour(false)} />
 
       {/* Mobile Top Header - Hidden in Studio to prevent stacked headers */}
       {!isStudio && (
         <div
-          className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 py-3 flex items-center justify-between"
+          className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-b border-[#e8e1e9] px-4 py-3 flex items-center justify-between"
           id="seller-mobile-header"
         >
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center text-white shadow-sm">
+            <div className="w-8 h-8 rounded-lg bg-[#5b4865] flex items-center justify-center text-white shadow-sm">
               <Store className="w-4 h-4" />
             </div>
             <div>
-              <h1 className="text-sm font-sans font-bold tracking-tight rtl:tracking-normal text-slate-900 leading-none">
+              <h1 className="text-sm font-sans font-bold tracking-tight rtl:tracking-normal text-[#302638] leading-none">
                 {t("OLMA")}
               </h1>
               <p className="text-[8px] font-sans font-bold text-slate-400 uppercase tracking-widest rtl:tracking-normal mt-0.5">
@@ -56,7 +53,7 @@ export const SellerDashboardLayout: React.FC = () => {
                 type="button"
                 id="seller-mobile-header-store-btn"
                 onClick={() => navigate(`/store/${currentUser.uid}`)}
-                className="p-2 rounded-xl text-orange-600 bg-orange-50 hover:bg-orange-100 transition-colors border-none cursor-pointer"
+                className="p-2 rounded-xl text-[#5b4865] bg-[#f1edf4] hover:bg-[#e9e1ec] transition-colors border-none cursor-pointer"
               >
                 <Store className="w-4 h-4" />
               </button>
@@ -66,7 +63,7 @@ export const SellerDashboardLayout: React.FC = () => {
               type="button"
               id="seller-mobile-menu-toggle-btn"
               onClick={() => setIsMobileNavOpen(true)}
-              className="p-2 rounded-xl text-slate-600 hover:text-slate-950 hover:bg-slate-100 transition-colors border-none cursor-pointer"
+              className="p-2 rounded-xl text-[#6b5874] hover:text-[#302638] hover:bg-[#f5f1f6] transition-colors border-none cursor-pointer"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -86,16 +83,15 @@ export const SellerDashboardLayout: React.FC = () => {
       />
 
       {/* Desktop Persistent Sidebar */}
-      <SellerDesktopSidebar
-        navItems={navItems}
-        currentUser={currentUser}
-        onStartTour={() => setForceTour(true)}
-      />
+      <SellerDesktopSidebar navItems={navItems} currentUser={currentUser} onStartTour={() => setForceTour(true)} />
 
       {/* Main Content Area */}
-      <main className={`flex-1 overflow-y-auto bg-slate-50 ${isStudio ? "h-full pt-0" : "pt-14 lg:pt-0"}`} id="seller-main-content">
+      <main
+        className={`flex-1 overflow-y-auto bg-[#faf8fb] ${isStudio ? "h-full pt-0" : "pt-14 lg:pt-0"}`}
+        id="seller-main-content"
+      >
         {!isStudio && (
-          <div className="hidden lg:flex items-center justify-end px-8 py-4 border-b border-slate-200/60 bg-white/80 backdrop-blur-sm sticky top-0 z-30">
+          <div className="hidden lg:flex items-center justify-end px-8 py-4 border-b border-[#e8e1e9] bg-white/90 backdrop-blur-xl sticky top-0 z-30">
             <div className="flex items-center gap-4">
               <NotificationCenter />
             </div>

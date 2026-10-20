@@ -1,9 +1,51 @@
 import React, { useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { X, SlidersHorizontal, RotateCcw, ShieldCheck, MapPin, Tag, Palette, CheckCircle2, Star } from "lucide-react";
+import {
+  X,
+  SlidersHorizontal,
+  RotateCcw,
+  ShieldCheck,
+  MapPin,
+  Tag,
+  Palette,
+  CheckCircle2,
+  Star,
+  PackageCheck,
+  BadgePercent,
+  Truck,
+  Banknote,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getCategoryTranslation } from "../../utils/translations";
-import { AvailableFacets, SelectedFacets } from "../../hooks/useFacetedFilters";
+import type { AvailableFacets, ArrayFacetKey, SelectedFacets } from "../../hooks/useFacetedFilters";
+
+interface FilterCheckProps {
+  checked: boolean;
+  label: string;
+  detail: string;
+  icon: React.ReactNode;
+  onChange: (checked: boolean) => void;
+}
+
+const FilterCheck: React.FC<FilterCheckProps> = ({ checked, label, detail, icon, onChange }) => (
+  <label
+    className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-3 transition-colors ${checked ? "border-[#b9a6bd] bg-[#f7f3f7]" : "border-[#eee7df] bg-white hover:border-[#d8cbd9]"}`}
+  >
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#fbf7ed] text-[#9b7531]">
+      {icon}
+    </span>
+    <span className="min-w-0 flex-1">
+      <span className="block text-xs font-bold text-[#352b3b]">{label}</span>
+      <span className="mt-0.5 block text-[10px] text-slate-500">{detail}</span>
+    </span>
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={(event) => onChange(event.target.checked)}
+      className="h-4 w-4 accent-[#5b4865]"
+    />
+  </label>
+);
 
 interface DynamicFilterPanelProps {
   isOpen: boolean;
@@ -11,7 +53,9 @@ interface DynamicFilterPanelProps {
   activeCategory: string;
   selectedFacets: SelectedFacets;
   availableFacets: AvailableFacets;
-  toggleFacet: (facetKey: keyof Omit<SelectedFacets, "priceRange">, value: string) => void;
+  toggleFacet: (facetKey: ArrayFacetKey, value: string) => void;
+  setBooleanFacet: (facetKey: "inStock" | "onSale" | "freeShipping" | "acceptsCod", value: boolean) => void;
+  setMinRating: (value: number) => void;
   setPriceRange: (range: [number, number]) => void;
   resetFilters: () => void;
   totalCount: number;
@@ -25,12 +69,30 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
   selectedFacets,
   availableFacets,
   toggleFacet,
+  setBooleanFacet,
+  setMinRating,
   setPriceRange,
   resetFilters,
   totalCount,
   onApply,
 }) => {
   const { t } = useTranslation();
+  const activeFilterCount =
+    selectedFacets.sizes.length +
+    selectedFacets.colors.length +
+    selectedFacets.materials.length +
+    selectedFacets.brands.length +
+    selectedFacets.wilayas.length +
+    selectedFacets.conditions.length +
+    Number(selectedFacets.minRating > 0) +
+    Number(selectedFacets.inStock) +
+    Number(selectedFacets.onSale) +
+    Number(selectedFacets.freeShipping) +
+    Number(selectedFacets.acceptsCod) +
+    Number(
+      selectedFacets.priceRange[0] !== availableFacets.minPrice ||
+        selectedFacets.priceRange[1] !== availableFacets.maxPrice
+    );
   // Determine which facets are relevant to show based on the active category
   const activeFacetsConfig = useMemo(() => {
     const showSize =
@@ -98,23 +160,24 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed bottom-0 inset-x-0 h-[88vh] md:h-full md:left-auto md:right-0 md:w-[460px] bg-white md:rounded-l-[2.5rem] rounded-t-[2.5rem] shadow-2xl z-[200] flex flex-col overflow-hidden border-t md:border-t-0 md:border-l border-slate-100"
+            className="fixed bottom-0 inset-x-0 h-[88vh] md:h-full md:left-auto md:right-0 md:w-[460px] bg-[#fbf9f6] md:rounded-l-[2rem] rounded-t-[2rem] shadow-2xl z-[200] flex flex-col overflow-hidden border-t md:border-t-0 md:border-l border-[#e9e1d9]"
           >
             {/* Grab handle for mobile gesture recognition */}
             <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto my-3 shrink-0 md:hidden animate-pulse" />
 
             {/* Header section with Sandstone off-white and teracotta themes */}
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-transparent shrink-0">
+            <div className="px-6 py-4 border-b border-[#eee7df] flex items-center justify-between bg-white shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-slate-100 rounded-xl text-slate-900">
-                  <SlidersHorizontal className="w-5 h-5 text-slate-900" />
+                <div className="p-2 bg-[#f2ebf3] rounded-xl text-[#5b4865]">
+                  <SlidersHorizontal className="w-5 h-5 text-[#5b4865]" />
                 </div>
                 <div>
-                  <h3 className="font-sans font-bold text-sm tracking-tight rtl:tracking-normal text-slate-900 uppercase">
-                    {t("facet_filtering", "Filtrage par Facettes")}
+                  <h3 className="font-sans font-bold text-sm tracking-tight rtl:tracking-normal text-[#302536]">
+                    {t("facet_filtering", "Affiner les résultats")}
                   </h3>
-                  <p className="text-[10px] rtl:text-[12px] text-slate-500 font-bold">
-                    {t("active_category", "Catégorie active")} : {getCategoryTranslation(activeCategory, t)}
+                  <p className="text-[10px] rtl:text-[12px] text-slate-500 font-medium">
+                    {activeFilterCount} {activeFilterCount === 1 ? "filtre actif" : "filtres actifs"} ·{" "}
+                    {getCategoryTranslation(activeCategory, t)}
                   </p>
                 </div>
               </div>
@@ -122,13 +185,13 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
                 <button
                   onClick={resetFilters}
                   title={t("reset_all_filters", "Réinitialiser tous les filtres")}
-                  className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all cursor-pointer border-none bg-transparent"
+                  className="p-2 text-slate-500 hover:text-[#5b4865] hover:bg-[#f7f3f7] rounded-xl transition-all cursor-pointer border-none bg-transparent"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
                 <button
                   onClick={onClose}
-                  className="p-2 text-slate-900 hover:bg-slate-100 rounded-xl transition-all cursor-pointer border-none bg-transparent"
+                  className="p-2 text-slate-700 hover:bg-[#f7f3f7] rounded-xl transition-all cursor-pointer border-none bg-transparent"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -136,25 +199,22 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
             </div>
 
             {/* Main scrollable body with faceted filters sections */}
-            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8 custom-scrollbar">
-              {/* COD Cash On Delivery Safe Layer Info Message */}
-              <div className="p-4 bg-transparent rounded-2xl border border-slate-100 text-[11px] font-bold text-slate-700 space-y-1">
-                <div className="flex items-center gap-1.5 text-slate-900 uppercase tracking-wider rtl:tracking-normal text-[9px] rtl:text-[11px] font-sans font-bold">
-                  <ShieldCheck className="w-4 h-4 text-slate-900" />
-                  <span>{t("secure_delivery_cod", "Livraison Sécurisée (COD)")}</span>
-                </div>
-                <p>
-                  {t(
-                    "secure_delivery_desc",
-                    "Aucun paiement en ligne requis. Commandez simplement avec vos spécifications et réglez l'artisan à la livraison en main propre !"
-                  )}
-                </p>
+            <div className="flex-1 overflow-y-auto px-5 sm:px-6 py-5 space-y-7 custom-scrollbar">
+              <div className="grid grid-cols-2 gap-2 rounded-2xl bg-white border border-[#eee7df] p-3 text-[10px] font-semibold text-[#67596b]">
+                <span className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#b58c45]" />
+                  Achat sécurisé
+                </span>
+                <span className="flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-[#b58c45]" />
+                  Livraison 69 wilayas
+                </span>
               </div>
 
               {/* SECTION: Price Budget limits */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-[10px] rtl:text-[12px] font-sans font-bold uppercase text-slate-600 tracking-[0.14em] ms-0.5">
+                  <h4 className="text-[11px] rtl:text-[12px] font-sans font-bold uppercase text-[#514459] tracking-[0.12em] ms-0.5">
                     {t("desired_budget_dzd", "Budget souhaité (DZD)")}
                   </h4>
                   <button
@@ -164,13 +224,13 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
                         Math.min(availableFacets.maxPrice, Math.max(availableFacets.minPrice + 1000, 45000)),
                       ])
                     }
-                    className="text-[9px] rtl:text-[11px] font-sans font-bold uppercase text-slate-900 hover:underline cursor-pointer bg-transparent border-none"
+                    className="text-[9px] rtl:text-[11px] font-sans font-bold uppercase text-[#5b4865] hover:underline cursor-pointer bg-transparent border-none"
                   >
                     {t("under_45k_da", "Moins de 45K DA")}
                   </button>
                 </div>
 
-                <div className="space-y-4 bg-white p-5 rounded-3xl border border-slate-200">
+                <div className="space-y-4 bg-white p-4 rounded-2xl border border-[#eee7df]">
                   <div className="relative pt-2">
                     <input
                       type="range"
@@ -179,7 +239,7 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
                       step={Math.max(100, Math.round((availableFacets.maxPrice - availableFacets.minPrice) / 100))}
                       value={selectedFacets.priceRange[1]}
                       onChange={(e) => setPriceRange([selectedFacets.priceRange[0], Number(e.target.value)])}
-                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
+                      className="w-full h-1.5 bg-[#eadfea] rounded-lg appearance-none cursor-pointer accent-[#5b4865]"
                     />
                     <div className="flex justify-between text-[10px] rtl:text-[12px] text-slate-600 font-bold mt-2">
                       <span>{new Intl.NumberFormat("en-US").format(availableFacets.minPrice)}</span>
@@ -200,7 +260,7 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
                           type="text"
                           value={new Intl.NumberFormat("en-US").format(selectedFacets.priceRange[0])}
                           onChange={(e) => handlePriceChange(0, e.target.value)}
-                          className="w-full ps-3.5 pe-12 py-2.5 rounded-xl border border-slate-200 font-sans font-bold text-xs rtl:text-sm text-slate-900 focus:border-slate-400 outline-none bg-white"
+                          className="w-full ps-3.5 pe-12 py-2.5 rounded-xl border border-[#e8e1e8] font-sans font-bold text-xs rtl:text-sm text-slate-900 focus:border-[#9a849f] outline-none bg-white"
                         />
                         <span className="absolute end-3.5 top-1/2 -translate-y-1/2 text-[9px] rtl:text-[11px] font-sans font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-1 rounded-md">
                           {t("da", "DA")}
@@ -216,7 +276,7 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
                           type="text"
                           value={new Intl.NumberFormat("en-US").format(selectedFacets.priceRange[1])}
                           onChange={(e) => handlePriceChange(1, e.target.value)}
-                          className="w-full ps-3.5 pe-12 py-2.5 rounded-xl border border-slate-200 font-sans font-bold text-xs rtl:text-sm text-slate-900 focus:border-slate-400 outline-none bg-white"
+                          className="w-full ps-3.5 pe-12 py-2.5 rounded-xl border border-[#e8e1e8] font-sans font-bold text-xs rtl:text-sm text-slate-900 focus:border-[#9a849f] outline-none bg-white"
                         />
                         <span className="absolute end-3.5 top-1/2 -translate-y-1/2 text-[9px] rtl:text-[11px] font-sans font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-1 rounded-md">
                           {t("da", "DA")}
@@ -226,6 +286,91 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
                   </div>
                 </div>
               </div>
+
+              <section className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#514459]">
+                    Disponibilité & services
+                  </h4>
+                  <PackageCheck className="h-4 w-4 text-[#b58c45]" />
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  <FilterCheck
+                    checked={selectedFacets.inStock}
+                    label="En stock"
+                    detail="Articles disponibles immédiatement"
+                    icon={<PackageCheck className="h-4 w-4" />}
+                    onChange={(value) => setBooleanFacet("inStock", value)}
+                  />
+                  <FilterCheck
+                    checked={selectedFacets.onSale}
+                    label="En promotion"
+                    detail="Prix réduit ou offre active"
+                    icon={<BadgePercent className="h-4 w-4" />}
+                    onChange={(value) => setBooleanFacet("onSale", value)}
+                  />
+                  <FilterCheck
+                    checked={selectedFacets.freeShipping}
+                    label="Livraison gratuite"
+                    detail="Sans frais de livraison affichés"
+                    icon={<Truck className="h-4 w-4" />}
+                    onChange={(value) => setBooleanFacet("freeShipping", value)}
+                  />
+                  <FilterCheck
+                    checked={selectedFacets.acceptsCod}
+                    label="Paiement à la livraison"
+                    detail="Réglez votre commande à la réception"
+                    icon={<Banknote className="h-4 w-4" />}
+                    onChange={(value) => setBooleanFacet("acceptsCod", value)}
+                  />
+                </div>
+              </section>
+
+              <section className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#514459]">Note minimale</h4>
+                  <Star className="h-4 w-4 text-[#b58c45]" />
+                </div>
+                <div className="flex gap-2">
+                  {[0, 3, 4].map((rating) => (
+                    <button
+                      key={rating}
+                      type="button"
+                      onClick={() => setMinRating(rating)}
+                      className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl border px-3 py-2.5 text-xs font-bold transition-colors ${selectedFacets.minRating === rating ? "border-[#5b4865] bg-[#5b4865] text-white" : "border-[#eee7df] bg-white text-[#554b59] hover:border-[#cbbdce]"}`}
+                    >
+                      {rating === 0 ? (
+                        "Toutes"
+                      ) : (
+                        <>
+                          <Star className="h-3.5 w-3.5 fill-current text-[#d7b66c]" /> {rating}+
+                        </>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              {availableFacets.conditions.length > 0 && (
+                <section className="space-y-3">
+                  <h4 className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#514459]">État du produit</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {availableFacets.conditions.map((option) => {
+                      const selected = selectedFacets.conditions.includes(option.value);
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => toggleFacet("conditions", option.value)}
+                          className={`rounded-full border px-3 py-2 text-xs font-semibold transition-colors ${selected ? "border-[#5b4865] bg-[#5b4865] text-white" : "border-[#eee7df] bg-white text-slate-600 hover:border-[#cbbdce]"}`}
+                        >
+                          {option.value} <span className="opacity-70">({option.count})</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              )}
 
               {/* SECTION: Wilayas de provenance list */}
               {availableFacets.wilayas.length > 0 && (
@@ -395,10 +540,10 @@ export const DynamicFilterPanel: React.FC<DynamicFilterPanelProps> = ({
             </div>
 
             {/* Sticky Action Footer of the Panel */}
-            <div className="p-6 bg-white border-t border-slate-100 shrink-0">
+            <div className="p-5 bg-white border-t border-[#eee7df] shrink-0">
               <button
                 onClick={onApply}
-                className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-sans font-bold uppercase tracking-widest rtl:tracking-normal transition-all rounded-2rem shadow-md flex items-center justify-center gap-3 border-none cursor-pointer"
+                className="w-full rounded-full bg-[#4d3b55] py-3.5 text-xs font-sans font-bold text-white shadow-[0_8px_18px_rgba(77,59,85,0.2)] transition-all hover:bg-[#3c2d43] flex items-center justify-center gap-3 border-none cursor-pointer"
               >
                 <span>
                   {t("apply_filter", "Appliquer le filtre")} ({totalCount}{" "}

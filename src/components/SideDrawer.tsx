@@ -40,16 +40,16 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({ isOpen, onClose, title, 
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 32, stiffness: 320 }}
-            className="fixed right-0 top-0 h-full w-full max-w-md bg-white z-[250] shadow-2xl flex flex-col overscroll-contain border-l border-zinc-200/80 pb-0"
+            className="fixed right-0 top-0 h-full w-full max-w-md bg-[#fbf9fc] z-[250] shadow-2xl flex flex-col overscroll-contain border-l border-[#e8e1e9] pb-0"
             style={{ maxHeight: "100dvh", overflowY: "auto" }}
           >
-            <div className="p-5 sm:p-6 border-b border-zinc-100 flex items-center justify-between shrink-0 bg-transparent">
-              <h3 className="text-lg font-bold flex items-center gap-2 tracking-tight rtl:tracking-normal text-zinc-900">
+            <div className="p-5 sm:p-6 border-b border-[#eee8ef] flex items-center justify-between shrink-0 bg-white">
+              <h3 className="text-lg font-bold flex items-center gap-2 tracking-tight rtl:tracking-normal text-[#302638]">
                 {icon} {title}
               </h3>
               <button
                 onClick={onClose}
-                className="w-10 h-10 flex items-center justify-center bg-zinc-100/80 hover:bg-zinc-200/85 rounded-full text-zinc-600 hover:text-zinc-900 transition-all cursor-pointer border-none"
+                className="w-10 h-10 flex items-center justify-center bg-[#f5f1f6] hover:bg-[#ece5ef] rounded-full text-[#6b5874] transition-colors cursor-pointer border-none"
                 title={t("Fermer") || "Fermer"}
               >
                 <X className="w-5 h-5" />

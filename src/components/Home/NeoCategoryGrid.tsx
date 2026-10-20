@@ -47,28 +47,19 @@ export const NeoCategoryGrid: React.FC<{
   };
 
   return (
-    <section className="relative z-20 mx-auto mb-9 w-full max-w-[96rem] px-4 pt-1 sm:mb-12 sm:px-6 md:px-8">
-      <div className="mb-5 flex items-end justify-between gap-4 sm:mb-6">
+    <section className="relative z-20 mx-auto mb-6 w-full max-w-[96rem] px-4 pt-1 sm:mb-8 sm:px-6 md:px-8">
+      <div className="mb-3 flex items-end justify-between gap-4 sm:mb-4">
         <div>
-          <div className="mb-2 inline-flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.18em] text-emerald-800 sm:text-[11px]">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800">
-              <LayoutGrid className="h-3.5 w-3.5" />
-            </span>
-            {t("home.categories.badge", "Le catalogue Olmart")}
-          </div>
-          <h2 className="font-display text-2xl font-bold leading-tight tracking-[-0.035em] text-[#15271f] sm:text-3xl md:text-[2.15rem]">
+          <h2 className="font-display text-xl font-bold leading-tight tracking-[-0.035em] text-[#302638] sm:text-2xl md:text-[1.8rem]">
             {t("home.categories.explore_by", "Un univers pour chaque envie")}
           </h2>
-          <p className="mt-1.5 max-w-xl text-xs leading-5 text-slate-500 sm:text-sm">
-            {t("home.categories.swipe_hint", "Parcourez les catégories et trouvez ce qu’il vous faut.")}
-          </p>
         </div>
 
         <div className="hidden shrink-0 items-center gap-2 sm:flex">
           <button
             type="button"
             onClick={() => handleScroll("left")}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e8e1e9] bg-white text-[#5b4865] shadow-sm transition hover:border-[#cdbed2] hover:bg-[#f7f3f8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b5874]"
             aria-label={t("home.categories.previous", "Previous categories")}
           >
             <ChevronLeft className={`h-4 w-4 ${isRTL ? "rotate-180" : ""}`} />
@@ -76,7 +67,7 @@ export const NeoCategoryGrid: React.FC<{
           <button
             type="button"
             onClick={() => handleScroll("right")}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[#e8e1e9] bg-white text-[#5b4865] shadow-sm transition hover:border-[#cdbed2] hover:bg-[#f7f3f8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b5874]"
             aria-label={t("home.categories.next", "Next categories")}
           >
             <ChevronRight className={`h-4 w-4 ${isRTL ? "rotate-180" : ""}`} />
@@ -87,7 +78,7 @@ export const NeoCategoryGrid: React.FC<{
       <div className="relative">
         <div
           ref={scrollContainerRef}
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-3 pt-1 scrollbar-hide sm:gap-4"
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth pb-2 pt-1 scrollbar-hide sm:gap-4"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {categories.map((card, index) => {
@@ -106,8 +97,10 @@ export const NeoCategoryGrid: React.FC<{
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.3, delay: Math.min(index * 0.035, 0.2) }}
                 onClick={() => openCategory(card.key)}
-                className={`group relative flex h-[228px] w-[78vw] max-w-[340px] shrink-0 snap-start flex-col overflow-hidden rounded-[1.35rem] border text-start shadow-[0_8px_28px_-20px_rgba(15,23,42,0.45)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_38px_-24px_rgba(15,23,42,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 sm:h-[250px] sm:w-[286px] md:w-[310px] ${
-                  hasImage ? "border-white/70 bg-slate-900 text-white" : `border-white/90 bg-gradient-to-br ${style.background} text-[#1b3228]`
+                className={`group relative flex h-[166px] w-[68vw] max-w-[260px] shrink-0 snap-start flex-col overflow-hidden rounded-[1.3rem] border text-start shadow-[0_8px_28px_-20px_rgba(15,23,42,0.45)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_32px_-24px_rgba(35,25,40,0.35)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b5874] focus-visible:ring-offset-2 sm:h-[184px] sm:w-[250px] md:w-[270px] ${
+                  hasImage
+                    ? "border-white/70 bg-slate-900 text-white"
+                    : `border-white/90 bg-gradient-to-br ${style.background} text-[#1b3228]`
                 }`}
                 aria-label={`${t("home.category.discover", "Découvrir")} ${categoryName}`}
               >
@@ -121,36 +114,56 @@ export const NeoCategoryGrid: React.FC<{
                   />
                 ) : (
                   <>
-                    <div aria-hidden="true" className={`absolute -right-10 -top-12 h-44 w-44 rounded-full ${style.orb}`} />
-                    <div aria-hidden="true" className="absolute -right-2 top-9 h-24 w-24 rounded-full border border-current/10" />
-                    <Icon className={`absolute right-5 top-5 h-20 w-20 stroke-[1.15] opacity-80 transition duration-500 group-hover:rotate-[-8deg] group-hover:scale-110 ${style.icon}`} />
-                    <span className={`absolute right-6 top-[6.4rem] font-display text-[11px] font-semibold tracking-[0.2em] ${style.number}`}>
+                    <div
+                      aria-hidden="true"
+                      className={`absolute -right-7 -top-9 h-32 w-32 rounded-full ${style.orb}`}
+                    />
+                    <div
+                      aria-hidden="true"
+                      className="absolute -right-2 top-6 h-[4.5rem] w-[4.5rem] rounded-full border border-current/10"
+                    />
+                    <Icon
+                      className={`absolute right-4 top-4 h-14 w-14 stroke-[1.15] opacity-80 transition duration-500 group-hover:rotate-[-6deg] group-hover:scale-105 ${style.icon}`}
+                    />
+                    <span
+                      className={`absolute right-5 top-[4.7rem] font-display text-[9px] font-semibold tracking-[0.2em] ${style.number}`}
+                    >
                       0{(index % 9) + 1}
                     </span>
                   </>
                 )}
 
-                {hasImage && <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/15 to-transparent" />}
-                {!hasImage && <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white/45 to-transparent" />}
+                {hasImage && (
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/15 to-transparent" />
+                )}
+                {!hasImage && (
+                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white/45 to-transparent" />
+                )}
 
-                <div className="relative z-10 mt-auto flex items-end justify-between gap-3 p-5 sm:p-6">
+                <div className="relative z-10 mt-auto flex items-end justify-between gap-2.5 p-3.5 sm:p-4">
                   <div className="min-w-0">
                     {isFavorite && (
-                      <span className={`mb-2 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] ${hasImage ? "border-amber-200/30 bg-amber-300/20 text-amber-100 backdrop-blur" : "border-amber-300/70 bg-amber-100/80 text-amber-900"}`}>
+                      <span
+                        className={`mb-1.5 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.12em] ${hasImage ? "border-amber-200/30 bg-amber-300/20 text-amber-100 backdrop-blur" : "border-amber-300/70 bg-amber-100/80 text-amber-900"}`}
+                      >
                         <Sparkles className="h-3 w-3" />
                         {t("home.category.recommended_star", "Pour vous")}
                       </span>
                     )}
-                    <h3 className={`truncate font-display text-lg font-bold tracking-[-0.025em] sm:text-xl ${hasImage ? "text-white" : "text-[#172d23]"}`}>
+                    <h3
+                      className={`truncate font-display text-base font-bold tracking-[-0.025em] sm:text-lg ${hasImage ? "text-white" : "text-[#172d23]"}`}
+                    >
                       {categoryName}
                     </h3>
                     {card.subtitle && (
-                      <p className={`mt-1 line-clamp-1 text-xs ${hasImage ? "text-white/75" : "text-[#53675c]"}`}>
+                      <p className={`mt-0.5 line-clamp-1 text-[11px] ${hasImage ? "text-white/75" : "text-[#53675c]"}`}>
                         {t(card.subtitle, card.subtitle)}
                       </p>
                     )}
                   </div>
-                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${hasImage ? "bg-white text-slate-900" : "bg-[#173d2f] text-white"}`}>
+                  <span
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${hasImage ? "bg-white text-slate-900" : "bg-[#173d2f] text-white"}`}
+                  >
                     <ArrowRight className={`h-4 w-4 ${isRTL ? "rotate-180" : ""}`} />
                   </span>
                 </div>

@@ -15,7 +15,7 @@ export const SellerMobileBottomNav: React.FC = () => {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-xl border-t border-zinc-200/80 px-4 py-2 flex items-center justify-around lg:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.04)]"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-[#e8e1e9] px-4 py-2 flex items-center justify-around lg:hidden shadow-[0_-6px_22px_rgba(35,25,40,0.07)]"
       id="seller-mobile-bottom-nav"
     >
       {bottomItems.map((item) => (
@@ -25,13 +25,13 @@ export const SellerMobileBottomNav: React.FC = () => {
           end={item.end}
           className={({ isActive }) =>
             `flex flex-col items-center gap-1 py-1 px-3 rounded-xl transition-all ${
-              isActive ? "text-[#ea580c]" : "text-zinc-400 hover:text-zinc-600"
+              isActive ? "text-[#5b4865]" : "text-[#a094a7] hover:text-[#6b5874]"
             }`
           }
         >
           {({ isActive }) => (
             <>
-              <div className={`p-1 rounded-lg ${isActive ? "bg-orange-50" : ""}`}>
+              <div className={`p-1 rounded-lg ${isActive ? "bg-[#f1edf4]" : ""}`}>
                 <item.icon className="w-5 h-5" />
               </div>
               <span className="text-[10px] font-sans font-bold">{item.label}</span>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Inter:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap");
 @import "tailwindcss";
 
 @theme {
@@ -7,59 +7,60 @@
      Weights: 400 (regular), 600 (semibold), 700 (bold)
      Scale: text-xs, text-sm, text-base, text-lg, text-2xl, text-4xl
      ======================================================== */
-  --font-sans: "Inter", "Cairo", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans:
+    "Inter", "Cairo", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display: "Playfair Display", Georgia, serif;
   --font-arabic: "Cairo", system-ui, sans-serif;
 
   /* ========================================================
-     COLOR TOKENS — PREMIER MARKETPLACE PALETTE
-     - Primary: Emerald (#059669, #047857, #10B981, #ECFDF5)
-     - Accent: Warm Solar Amber (#F59E0B, #D97706, #FEF3C7)
-     - Neutral Ink: Slate (#0F172A, #334155, #64748B, #E2E8F0, #F8FAFC)
+     COLOR TOKENS — OLMART MARKETPLACE PALETTE
+     - Primary: Aubergine (#5B4865, #493852)
+     - Accent: Warm Gold (#D7B76C)
+     - Neutrals: Warm ivory and soft plum gray
      ======================================================== */
-  --color-palette-1: #ECFDF5;
-  --color-palette-2: #A7F3D0;
-  --color-palette-3: #10B981;
-  --color-palette-4: #059669;
-  --color-palette-5: #047857;
+  --color-palette-1: #f7f3f8;
+  --color-palette-2: #d8cbdd;
+  --color-palette-3: #9a87a1;
+  --color-palette-4: #5b4865;
+  --color-palette-5: #493852;
 
-  --color-brand-primary: #059669;
-  --color-brand-primary-hover: #047857;
-  --color-brand-primary-dark: #065F46;
-  --color-brand-primary-light: #ECFDF5;
-  --color-brand-accent: #F59E0B;
-  --color-brand-accent-hover: #D97706;
-  --color-brand-accent-light: #FEF3C7;
+  --color-brand-primary: #5b4865;
+  --color-brand-primary-hover: #493852;
+  --color-brand-primary-dark: #36273d;
+  --color-brand-primary-light: #f1edf4;
+  --color-brand-accent: #d7b76c;
+  --color-brand-accent-hover: #b38d45;
+  --color-brand-accent-light: #f7f0df;
   --color-brand-trust: #059669;
   --color-brand-trust-hover: #047857;
-  --color-brand-trust-light: #ECFDF5;
-  --color-brand-error: #DC2626;
-  --color-brand-error-light: #FEE2E2;
+  --color-brand-trust-light: #ecfdf5;
+  --color-brand-error: #dc2626;
+  --color-brand-error-light: #fee2e2;
 
   /* Semantic UI Surfaces */
   --color-surface: #ffffff;
-  --color-surface-subtle: #F8FAFC;
-  --color-surface-muted: #F1F5F9;
-  --color-border-subtle: #F1F5F9;
-  --color-border-default: #E2E8F0;
-  --color-border-strong: #CBD5E1;
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #334155;
-  --color-text-muted: #64748B;
-  --color-text-subtle: #94A3B8;
+  --color-surface-subtle: #fbf9fc;
+  --color-surface-muted: #f5f1f6;
+  --color-border-subtle: #eee8ef;
+  --color-border-default: #e8e1e9;
+  --color-border-strong: #d8cfdc;
+  --color-text-primary: #302638;
+  --color-text-secondary: #514657;
+  --color-text-muted: #7c7481;
+  --color-text-subtle: #a094a7;
 
   /* ========================================================
      OLMA AUTO V2 DESIGN TOKENS (Navy 950 / Lime 400 Palette)
      ======================================================== */
-  --color-olma-navy-950: #0B1730;
-  --color-olma-navy-900: #101E3D;
-  --color-olma-navy-800: #172B4D;
-  --color-olma-navy-700: #23416A;
-  --color-olma-lime-400: #D9F66F;
-  --color-olma-lime-500: #C5E94F;
-  --color-olma-surface: #FFFFFF;
-  --color-olma-bg: #F5F7FA;
-  --color-olma-border: #E2E8F0;
+  --color-olma-navy-950: #0b1730;
+  --color-olma-navy-900: #101e3d;
+  --color-olma-navy-800: #172b4d;
+  --color-olma-navy-700: #23416a;
+  --color-olma-lime-400: #d9f66f;
+  --color-olma-lime-500: #c5e94f;
+  --color-olma-surface: #ffffff;
+  --color-olma-bg: #f5f7fa;
+  --color-olma-border: #e2e8f0;
 
   /* ========================================================
      ELEVATION / SHADOW TOKENS (Strictly 2 Functional Levels)
@@ -80,8 +81,8 @@
      - rounded-2xl (cards, modals, containers: 16px)
      - rounded-full (pills, badges, avatars)
      ======================================================== */
-  --radius-lg: 0.5rem;   /* 8px */
-  --radius-2xl: 1rem;    /* 16px */
+  --radius-lg: 0.5rem; /* 8px */
+  --radius-2xl: 1rem; /* 16px */
   --radius-full: 9999px;
 
   --animate-fade-in: fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -99,8 +100,8 @@
 }
 
 body {
-  background-color: #F8FAFC !important;
-  color: #0F172A !important;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -120,7 +121,8 @@ body {
 }
 
 /* RTL overrides for global font families and text direction properties */
-html[dir="rtl"], [dir="rtl"] {
+html[dir="rtl"],
+[dir="rtl"] {
   --font-sans: "Cairo", sans-serif;
   --font-display: "Cairo", sans-serif;
   font-family: "Cairo", sans-serif;
@@ -171,7 +173,7 @@ html[dir="rtl"], [dir="rtl"] {
   height: 6px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-track {
@@ -181,12 +183,12 @@ html[dir="rtl"], [dir="rtl"] {
 @layer components {
   /* Canonical Primary Action Button */
   .btn-primary {
-    @apply bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold text-sm px-6 py-3 rounded-xl shadow-xs hover:shadow-floating transition-all duration-200 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    @apply bg-[#5B4865] hover:bg-[#493852] active:bg-[#36273D] text-white font-semibold text-sm px-6 py-3 rounded-xl shadow-xs hover:shadow-floating transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#6B5874] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   /* Canonical Secondary Action Button */
   .btn-secondary {
-    @apply border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-800 font-semibold text-sm px-6 py-3 rounded-xl shadow-xs transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    @apply border border-[#E8E1E9] bg-white hover:bg-[#FBF9FC] active:bg-[#F5F1F6] text-[#514657] font-semibold text-sm px-6 py-3 rounded-xl shadow-xs transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-[#6B5874] focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
   }
 
   /* Canonical Surface Card */
@@ -209,3 +211,70 @@ html[dir="rtl"], [dir="rtl"] {
 /* Scoped Olma Immo Theme Tokens */
 @import "./components/OlmaImmo/styles/theme.css";
 
+/* Buyer dashboard's older Google-blue components inherit the Olmart palette. */
+#buyer-dashboard-root [class*="text-[#1a73e8]"] {
+  color: #5b4865 !important;
+}
+#buyer-dashboard-root [class*="bg-[#1a73e8]"] {
+  background-color: #5b4865 !important;
+}
+#buyer-dashboard-root [class*="bg-[#e8f0fe]"] {
+  background-color: #f1edf4 !important;
+}
+#buyer-dashboard-root [class*="border-[#1a73e8]"] {
+  border-color: #6b5874 !important;
+}
+#buyer-dashboard-root [class*="ring-[#1a73e8]"] {
+  --tw-ring-color: rgb(107 88 116 / 20%) !important;
+}
+#buyer-dashboard-root [class*="hover:bg-[#e8f0fe]"]:hover {
+  background-color: #f1edf4 !important;
+}
+#buyer-dashboard-root [class*="border-[#dadce0]"] {
+  border-color: #e8e1e9 !important;
+}
+#buyer-dashboard-root [class*="bg-[#f8fafd]"],
+#buyer-dashboard-root [class*="bg-[#f0f4f9]"] {
+  background-color: #fbf9fc !important;
+}
+#buyer-dashboard-root [class*="bg-[#e9eef6]"] {
+  background-color: #f5f1f6 !important;
+}
+#buyer-dashboard-root [class*="hover:bg-[#f8fafd]"]:hover {
+  background-color: #fbf9fc !important;
+}
+
+/* Seller tools use Olmart plum for primary actions while keeping status colors intact. */
+#seller-dashboard-root [class~="bg-orange-600"] {
+  background-color: #5b4865 !important;
+}
+#seller-dashboard-root [class~="bg-orange-500"] {
+  background-color: #5b4865 !important;
+}
+#seller-dashboard-root [class~="hover:bg-orange-700"]:hover {
+  background-color: #493852 !important;
+}
+#seller-dashboard-root [class~="hover:bg-orange-600"]:hover {
+  background-color: #493852 !important;
+}
+#seller-dashboard-root [class~="bg-orange-50"] {
+  background-color: #f1edf4 !important;
+}
+#seller-dashboard-root [class~="hover:bg-orange-100"]:hover {
+  background-color: #e9e1ec !important;
+}
+#seller-dashboard-root [class~="text-orange-600"] {
+  color: #5b4865 !important;
+}
+#seller-dashboard-root [class~="text-orange-700"] {
+  color: #493852 !important;
+}
+#seller-dashboard-root [class~="text-orange-500"] {
+  color: #8a6b35 !important;
+}
+#seller-dashboard-root [class~="border-orange-500"] {
+  border-color: #6b5874 !important;
+}
+#seller-dashboard-root [class~="hover:text-orange-700"]:hover {
+  color: #493852 !important;
+}
