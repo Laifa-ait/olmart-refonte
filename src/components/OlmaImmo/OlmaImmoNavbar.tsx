@@ -49,12 +49,12 @@ export const OlmaImmoNavbar: React.FC = React.memo(() => {
             <button
               type="button"
               onClick={() => setIsSwitcherOpen(true)}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-100/90 text-slate-700 hover:text-slate-950 hover:bg-slate-200/80 border border-slate-200/70 transition-all cursor-pointer shadow-2xs group"
-              title="Ouvrir les applications Olmart"
-              aria-label="Applications Olmart"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200/70 bg-slate-100/90 px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs transition-all hover:bg-slate-200/80 hover:text-slate-950 sm:px-3 group"
+              title={t('nav_applications')}
+              aria-label={t('nav_applications')}
             >
               <LayoutGrid className="w-3.5 h-3.5 text-amber-600 group-hover:scale-105 transition-transform" />
-              <span>{t('nav_applications')}</span>
+              <span className="hidden sm:inline">{t('nav_applications')}</span>
             </button>
           </div>
 

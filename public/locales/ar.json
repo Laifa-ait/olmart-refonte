@@ -6456,5 +6456,18 @@
   "Cité, numéro de rue...": "الحي، رقم الشارع...",
   "/ Heure": "/ بالساعة",
   "/ m²": "/ بالمتر المربع",
-  "/ Jour": "/ باليوم"
+  "/ Jour": "/ باليوم",
+  "home_ecosystem_eyebrow": "حساب واحد، عوالم متعددة",
+  "home_ecosystem_title": "كل خدمات أولمارت حسب احتياجاتك.",
+  "home_ecosystem_intro": "تسوّق، وابحث عن سكن، وتواصل مع حرفي، أو استكشف السيارات. لكل خدمة فضاؤها الخاص، وجميعها هنا.",
+  "home_ecosystem_account": "حسابك يرافقك في كل الأقسام",
+  "home_ecosystem_open": "اكتشف هذا القسم",
+  "home_ecosystem_marketplace_label": "منتجات ومتاجر",
+  "home_ecosystem_marketplace_description": "اكتشف المنتجات والمتاجر من البائعين في مختلف أنحاء الجزائر.",
+  "home_ecosystem_immo_label": "بيع وإيجار",
+  "home_ecosystem_immo_description": "تصفح الإعلانات العقارية وابحث عن العقار المناسب لك.",
+  "home_ecosystem_artisans_label": "خدمات قريبة منك",
+  "home_ecosystem_artisans_description": "اعثر على حرفي وأرسل طلباً للحصول على عرض سعر.",
+  "home_ecosystem_auto_label": "سيارات وقطع غيار",
+  "home_ecosystem_auto_description": "تصفح السيارات وقارن بين الطرازات واكتشف قطع الغيار."
 }

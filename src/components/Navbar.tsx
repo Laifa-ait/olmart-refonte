@@ -333,6 +333,16 @@ export const Navbar: React.FC = () => {
                   </span>
                 )}
               </button>
+
+              <button
+                type="button"
+                onClick={() => setIsSwitcherOpen(true)}
+                aria-label={t("nav_applications")}
+                title={t("nav_applications")}
+                className="flex items-center justify-center text-slate-700 hover:text-emerald-700 hover:bg-slate-100 transition-all cursor-pointer bg-transparent border-none w-10 h-10 rounded-full active:scale-95"
+              >
+                <LayoutGrid className="w-5 h-5 stroke-[1.8]" />
+              </button>
               
               <button
                 type="button"

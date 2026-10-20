@@ -6456,5 +6456,18 @@
   "Cité, numéro de rue...": "Neighborhood, street number...",
   "/ Heure": "/ Hour",
   "/ m²": "/ m²",
-  "/ Jour": "/ Day"
+  "/ Jour": "/ Day",
+  "home_ecosystem_eyebrow": "One account, several worlds",
+  "home_ecosystem_title": "All of OLMART, for what you need.",
+  "home_ecosystem_intro": "Shop, find a home, contact a tradesperson, or explore cars. Each service has its own space, all in one place.",
+  "home_ecosystem_account": "Your account goes with you",
+  "home_ecosystem_open": "Explore this space",
+  "home_ecosystem_marketplace_label": "Products & shops",
+  "home_ecosystem_marketplace_description": "Discover products and shops from sellers across Algeria.",
+  "home_ecosystem_immo_label": "Buy & rent",
+  "home_ecosystem_immo_description": "Browse property listings and find a place that suits you.",
+  "home_ecosystem_artisans_label": "Local services",
+  "home_ecosystem_artisans_description": "Find a professional and request a quote.",
+  "home_ecosystem_auto_label": "Vehicles & parts",
+  "home_ecosystem_auto_description": "Browse vehicles, compare models, and explore parts."
 }

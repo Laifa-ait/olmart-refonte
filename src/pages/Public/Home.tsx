@@ -12,6 +12,7 @@ import { Helmet } from "react-helmet-async";
 import { useUserHabits } from "../../hooks/useUserHabits";
 import { useHomeData } from "../../hooks/useHomeData";
 import { useHomeCategoryConfig } from "./hooks/useHomeCategoryConfig";
+import { EcosystemHub } from "../../components/Home/EcosystemHub";
 
 interface HomeHeroBanner extends Partial<Banner> {
   id: string;
@@ -181,6 +182,8 @@ export const Home: React.FC = () => {
           )}
         </div>
       </section>
+
+      <EcosystemHub />
 
       {/* b) La grille de catégories */}
       <NeoCategoryGrid

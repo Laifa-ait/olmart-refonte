@@ -6456,5 +6456,18 @@
   "Cité, numéro de rue...": "Cité, numéro de rue...",
   "/ Heure": "/ Heure",
   "/ m²": "/ m²",
-  "/ Jour": "/ Jour"
+  "/ Jour": "/ Jour",
+  "home_ecosystem_eyebrow": "Un seul compte, plusieurs univers",
+  "home_ecosystem_title": "Tout OLMART, selon vos besoins.",
+  "home_ecosystem_intro": "Achetez, trouvez un logement, contactez un artisan ou explorez l’automobile. Chaque service a son espace, tous sont réunis ici.",
+  "home_ecosystem_account": "Votre compte vous suit partout",
+  "home_ecosystem_open": "Découvrir cet espace",
+  "home_ecosystem_marketplace_label": "Produits & boutiques",
+  "home_ecosystem_marketplace_description": "Découvrez des produits et des boutiques de vendeurs à travers l’Algérie.",
+  "home_ecosystem_immo_label": "Vente & location",
+  "home_ecosystem_immo_description": "Parcourez les annonces immobilières et trouvez un bien qui vous correspond.",
+  "home_ecosystem_artisans_label": "Services de proximité",
+  "home_ecosystem_artisans_description": "Trouvez un professionnel et envoyez votre demande de devis.",
+  "home_ecosystem_auto_label": "Véhicules & pièces",
+  "home_ecosystem_auto_description": "Consultez les véhicules, comparez les modèles et explorez les pièces."
 }
