@@ -88,7 +88,7 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="w-full min-h-[380px] sm:min-h-[460px] md:min-h-[500px] relative rounded-3xl overflow-hidden group shadow-xl border border-slate-800 select-none touch-pan-y bg-slate-950"
+      className="group relative h-[480px] w-full select-none touch-pan-y overflow-hidden rounded-[1.75rem] border border-white/80 bg-[#0d2c24] shadow-[0_24px_70px_-35px_rgba(15,42,32,0.75)] sm:h-[500px] lg:h-[520px]"
     >
       {/* Sliding Strip */}
       <motion.div
@@ -116,7 +116,7 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
             type="button"
             onClick={isRTL ? handleNext : handlePrev}
             aria-label="Previous Slide"
-            className={`absolute top-1/2 -translate-y-1/2 z-20 w-11 h-11 flex items-center justify-center rounded-xl bg-slate-900/80 hover:bg-slate-900 backdrop-blur-md border border-slate-700/60 text-white shadow-lg transition-all opacity-0 group-hover:opacity-100 duration-200 cursor-pointer ${
+            className={`absolute top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/90 text-slate-900 shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 sm:opacity-0 sm:group-hover:opacity-100 ${
               isRTL ? "right-4 sm:right-6" : "left-4 sm:left-6"
             }`}
           >
@@ -126,7 +126,7 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
             type="button"
             onClick={isRTL ? handlePrev : handleNext}
             aria-label="Next Slide"
-            className={`absolute top-1/2 -translate-y-1/2 z-20 w-11 h-11 flex items-center justify-center rounded-xl bg-slate-900/80 hover:bg-slate-900 backdrop-blur-md border border-slate-700/60 text-white shadow-lg transition-all opacity-0 group-hover:opacity-100 duration-200 cursor-pointer ${
+            className={`absolute top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/90 text-slate-900 shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 sm:opacity-0 sm:group-hover:opacity-100 ${
               isRTL ? "left-4 sm:left-6" : "right-4 sm:right-6"
             }`}
           >
@@ -137,7 +137,7 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
 
       {/* Slide Indicators with Active Progress Pill */}
       {activeBanners.length > 1 && (
-        <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/70 backdrop-blur-md border border-slate-800 shadow-md">
+        <div className="absolute bottom-4 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/15 bg-slate-950/45 px-3 py-2 shadow-lg backdrop-blur-md sm:bottom-6">
           {activeBanners.map((_, idx) => {
             const isActive = currentIndex === idx;
             return (

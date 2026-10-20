@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, MapPin, ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Banner } from "../../domains/home/homepage.types";
 import { getOptimizedImageUrl } from "../../utils/imageUtils";
@@ -12,6 +12,11 @@ interface BentoHeroSlideProps {
   lang: string;
 }
 
+const DEFAULT_CAMPAIGN_IMAGES = {
+  first: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=85&w=1600",
+  second: "https://images.unsplash.com/photo-1528255671579-01b9e182ed1d?auto=format&fit=crop&q=85&w=1600",
+};
+
 export const BentoHeroSlide: React.FC<BentoHeroSlideProps> = ({
   banner,
   index,
@@ -20,139 +25,111 @@ export const BentoHeroSlide: React.FC<BentoHeroSlideProps> = ({
   lang,
 }) => {
   const { t } = useTranslation();
-
   const isDefault1 = banner.id === "default-1" || banner.id === "1";
   const isDefault2 = banner.id === "default-2" || banner.id === "2";
 
   const getTranslatedValue = (b: Banner, key: "title" | "subtitle" | "button_text") => {
-    if (b.translations?.[lang]?.[key]) {
-      return b.translations[lang][key];
-    }
-    const flatKey = `${key}_${lang}` as keyof Banner;
-    const flatVal = b[flatKey];
-    if (typeof flatVal === "string" && flatVal) {
-      return flatVal;
-    }
-    const rawVal =
-      (key === "title"
-        ? b.title || b.name
-        : key === "subtitle"
+    if (b.translations?.[lang]?.[key]) return b.translations[lang][key];
+
+    const flatVal = b[`${key}_${lang}` as keyof Banner];
+    if (typeof flatVal === "string" && flatVal) return flatVal;
+
+    const rawVal = (key === "title"
+      ? b.title || b.name
+      : key === "subtitle"
         ? b.subtitle
         : b.button_text || b.ctaText || b.buttonText) || "";
-    if (rawVal) {
-      return t(rawVal, rawVal);
-    }
-    return "";
+    return rawVal ? t(rawVal, rawVal) : "";
   };
 
   const title = getTranslatedValue(banner, "title");
   const subtitle = getTranslatedValue(banner, "subtitle");
   const buttonText = getTranslatedValue(banner, "button_text");
-
-  const rawDesktop = banner.desktop_image || banner.desktopImage || banner.imageUrl;
-  const desktopImageUrl = getOptimizedImageUrl(rawDesktop, 1200);
+  const defaultImage = isDefault1 ? DEFAULT_CAMPAIGN_IMAGES.first : isDefault2 ? DEFAULT_CAMPAIGN_IMAGES.second : "";
+  const rawDesktop = defaultImage || banner.desktop_image || banner.desktopImage || banner.imageUrl || "/images/placeholders/product.svg";
   const rawMobile = banner.mobile_image || banner.mobileImageUrl || rawDesktop;
-  const mobileImageUrl = getOptimizedImageUrl(rawMobile, 800);
+  const desktopImageUrl = getOptimizedImageUrl(rawDesktop, 1600);
+  const mobileImageUrl = getOptimizedImageUrl(rawMobile, 1000);
+
+  const displayTitle = isDefault1
+    ? t("home.hero.headline_1", "Grandes promos, belles découvertes")
+    : isDefault2
+      ? t("home.hero.headline_2", "Le meilleur du shopping algérien")
+      : title || t("home.hero.default_title", "Votre prochain coup de cœur vous attend");
+  const displaySubtitle = isDefault1
+    ? t("home.hero.sub_1", "Les nouveautés et les bonnes affaires de vos boutiques préférées, réunies au même endroit.")
+    : isDefault2
+      ? t("home.hero.sub_2", "Découvrez des produits sélectionnés auprès de vendeurs algériens et faites-vous livrer partout.")
+      : subtitle;
 
   return (
-    <div
-      key={banner.id || index}
-      className="h-full flex-shrink-0 relative overflow-hidden flex items-center"
+    <article
+      className="relative flex h-full min-h-[430px] w-full flex-shrink-0 overflow-hidden bg-[#0d2c24] sm:min-h-[470px] lg:min-h-[520px]"
       style={{ width: `${100 / totalBanners}%` }}
+      role="group"
+      aria-roledescription="slide"
+      aria-label={`${index + 1} / ${totalBanners}`}
     >
-      {isDefault1 ? (
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-slate-950 via-emerald-950 to-teal-950 overflow-hidden">
-          <div className="absolute -top-24 -end-24 w-96 h-96 bg-emerald-500/20 blur-[120px] rounded-full pointer-events-none" />
-          <div className="absolute -bottom-24 start-1/3 w-80 h-80 bg-amber-500/20 blur-[100px] rounded-full pointer-events-none" />
-
-          {/* High-conversion product showcase image */}
+      <div className="absolute inset-0 sm:start-[42%] sm:w-[58%]">
+        <picture className="absolute inset-0 block h-full w-full">
+          {(banner.mobile_image || banner.mobileImageUrl) && (
+            <source media="(max-width: 640px)" srcSet={mobileImageUrl} />
+          )}
           <img
-            loading="eager"
-            src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=900"
-            alt={title || "Grande Braderie"}
-            className="absolute end-0 sm:end-8 md:end-16 bottom-0 h-[85%] sm:h-[92%] md:h-[98%] w-auto object-contain object-bottom pointer-events-none drop-shadow-2xl"
+            loading={index === 0 ? "eager" : "lazy"}
+            src={desktopImageUrl}
+            alt={displayTitle}
+            className="h-full w-full object-cover object-center"
             referrerPolicy="no-referrer"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent sm:hidden pointer-events-none" />
-        </div>
-      ) : isDefault2 ? (
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-emerald-950 via-slate-950 to-emerald-900 overflow-hidden">
-          <div className="absolute -top-24 -end-24 w-96 h-96 bg-amber-400/20 blur-[120px] rounded-full pointer-events-none" />
-          <div className="absolute -bottom-24 start-1/4 w-80 h-80 bg-emerald-500/20 blur-[100px] rounded-full pointer-events-none" />
-
-          <img
-            loading="eager"
-            src="https://images.unsplash.com/photo-1528255671579-01b9e182ed1d?auto=format&fit=crop&q=80&w=900"
-            alt={title || "Promotions"}
-            className="absolute end-0 sm:end-8 md:end-16 bottom-0 h-[85%] sm:h-[92%] md:h-[98%] w-auto object-contain object-bottom pointer-events-none drop-shadow-2xl"
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent sm:hidden pointer-events-none" />
-        </div>
-      ) : (
-        <div className="absolute inset-0 w-full h-full">
-          <picture className="absolute inset-0 w-full h-full">
-            {(banner.mobile_image || banner.mobileImageUrl) && (
-              <source media="(max-width: 640px)" srcSet={mobileImageUrl} />
-            )}
-            <img
-              loading="eager"
-              src={desktopImageUrl}
-              alt={title || "Hero Banner"}
-              className="absolute inset-0 w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-            />
-          </picture>
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/35 to-transparent z-0 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/45 to-transparent rtl:bg-gradient-to-l z-0 pointer-events-none" />
-        </div>
-      )}
-
-      {/* Content wrapper */}
-      <div className="absolute inset-y-0 start-0 p-6 sm:p-10 md:p-14 flex flex-col justify-center items-start z-10 max-w-[92%] sm:max-w-[70%] md:max-w-[58%]">
-        {/* Title with crisp high-contrast formatting */}
-        <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-sans font-black tracking-tight mb-2 sm:mb-3 max-w-2xl leading-[1.08] text-start text-white drop-shadow-md">
-          {isDefault1
-            ? t("home.hero.headline_1", "Grandes Promos & Nouveautés Tendance")
-            : isDefault2
-            ? t("home.hero.headline_2", "Le Meilleur de la Marketplace Algérienne")
-            : title || t("home.hero.default_title", "Votre Univers Shopping")}
-        </h2>
-
-        {/* Subtitle */}
-        <p className="text-xs sm:text-sm md:text-base mb-6 sm:mb-8 max-w-lg text-start font-sans font-normal text-slate-200 leading-relaxed line-clamp-2">
-          {isDefault1
-            ? t(
-                "home.hero.sub_1",
-                "Profitez des meilleures réductions du moment avec livraison sécurisée dans toutes les wilayas."
-              )
-            : isDefault2
-            ? t(
-                "home.hero.sub_2",
-                "Des milliers de produits certifiés, prix transparents et protection acheteur jusqu'à la réception."
-              )
-            : subtitle}
-        </p>
-
-        {/* High-conversion CTA Button */}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onBannerClick(banner);
-          }}
-          className="group relative inline-flex items-center gap-2.5 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-sans font-black text-xs sm:text-sm tracking-tight text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-white hover:to-amber-300 shadow-md shadow-amber-950/30 hover:shadow-lg active:scale-98 transition-all duration-200 cursor-pointer border-none"
-        >
-          <span>
-            {isDefault1
-              ? t("home.hero.shop_now", "Profiter des offres")
-              : buttonText || t("cat_explore", "Découvrir la boutique")}
-          </span>
-          <div className="w-6 h-6 rounded-lg bg-slate-950/15 flex items-center justify-center group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition-transform">
-            <ArrowUpRight className="w-4 h-4 rtl:rotate-90 rtl:scale-x-[-1] text-slate-950 stroke-[2.5]" />
-          </div>
-        </button>
+        </picture>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0d2c24] via-[#0d2c24]/55 to-[#0d2c24]/10 sm:bg-gradient-to-l sm:from-[#0d2c24] sm:via-[#0d2c24]/25 sm:to-transparent rtl:sm:bg-gradient-to-r" />
+        <div aria-hidden="true" className="absolute inset-0 bg-emerald-950/10 mix-blend-multiply" />
       </div>
-    </div>
+
+      <div aria-hidden="true" className="pointer-events-none absolute -left-24 -top-28 hidden h-80 w-80 rounded-full border border-white/10 sm:block" />
+      <div aria-hidden="true" className="pointer-events-none absolute -left-10 -top-14 hidden h-52 w-52 rounded-full border border-white/[0.07] sm:block" />
+
+      <div className="relative z-10 mt-auto flex w-full flex-col items-start justify-end px-6 pb-14 text-start sm:my-auto sm:w-[61%] sm:justify-center sm:px-9 sm:py-12 md:px-14 lg:w-[59%]">
+        <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.08] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-50/90 backdrop-blur-sm sm:text-[11px]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#d5f274] shadow-[0_0_12px_rgba(213,242,116,0.8)]" />
+          {t("home.hero.eyebrow", "OLMART · LE SHOPPING ALGÉRIEN")}
+        </span>
+
+        <h2 className="max-w-[13ch] text-[clamp(2rem,5vw,4.6rem)] font-black leading-[0.98] tracking-[-0.055em] text-white [text-wrap:balance]">
+          {displayTitle}
+        </h2>
+        {displaySubtitle && (
+          <p className="mt-4 max-w-xl text-sm leading-6 text-white/75 sm:mt-5 sm:text-base sm:leading-7">
+            {displaySubtitle}
+          </p>
+        )}
+
+        <div className="mt-6 flex flex-wrap items-center gap-3 sm:mt-8">
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onBannerClick(banner);
+            }}
+            className="group inline-flex min-h-12 items-center gap-3 rounded-full bg-[#d5f274] px-5 py-3 text-sm font-extrabold text-[#153b2e] shadow-[0_8px_26px_rgba(0,0,0,0.2)] transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#0d2c24]"
+          >
+            <span>{isDefault1 ? t("home.hero.shop_now", "Explorer les offres") : buttonText || t("cat_explore", "Découvrir")}</span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#153b2e]/10 transition group-hover:bg-[#153b2e]/15">
+              <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 rtl:rotate-[-90deg]" />
+            </span>
+          </button>
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-white/75 sm:text-sm">
+            <ShieldCheck className="h-4 w-4 text-[#d5f274]" />
+            {t("home.hero.trust", "Protection de vos achats")}
+          </span>
+        </div>
+      </div>
+
+      <div className="absolute bottom-5 end-5 z-10 hidden items-center gap-2 rounded-full border border-white/15 bg-[#0d2c24]/55 px-3 py-2 text-[11px] font-semibold text-white/90 backdrop-blur-md sm:inline-flex md:bottom-7 md:end-7">
+        <MapPin className="h-3.5 w-3.5 text-[#d5f274]" />
+        {t("home.hero.delivery", "Livraison dans les 69 wilayas")}
+      </div>
+    </article>
   );
 };

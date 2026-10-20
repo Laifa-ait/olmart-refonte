@@ -12,7 +12,6 @@ import { Helmet } from "react-helmet-async";
 import { useUserHabits } from "../../hooks/useUserHabits";
 import { useHomeData } from "../../hooks/useHomeData";
 import { useHomeCategoryConfig } from "./hooks/useHomeCategoryConfig";
-import { EcosystemHub } from "../../components/Home/EcosystemHub";
 
 interface HomeHeroBanner extends Partial<Banner> {
   id: string;
@@ -155,7 +154,7 @@ export const Home: React.FC = () => {
   }, [dbBanners, filterByTargeting, t]);
 
   return (
-    <div className="font-sans relative overflow-hidden w-full">
+    <div className="relative w-full overflow-hidden bg-[#f6f7f3] font-sans text-slate-950">
       <Helmet>
         <title>{t("seo_home_title")}</title>
         <meta name="description" content={t("seo_home_description")} />
@@ -172,20 +171,20 @@ export const Home: React.FC = () => {
       </Helmet>
       <h1 className="sr-only">{t("home.sr_title")}</h1>
 
-      {/* a) Le hero */}
-      <section className="w-full bg-transparent py-2 sm:py-4 relative overflow-hidden">
-        <div className="max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8">
+      {/* Marketplace landing hero */}
+      <section className="relative w-full overflow-hidden pb-7 pt-4 sm:pb-10 sm:pt-7 lg:pt-9">
+        <div aria-hidden="true" className="pointer-events-none absolute -right-32 -top-40 h-[28rem] w-[28rem] rounded-full bg-emerald-200/35 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-48 h-[22rem] w-[22rem] rounded-full bg-amber-100/60 blur-3xl" />
+        <div className="relative mx-auto w-full max-w-[96rem] px-4 sm:px-6 md:px-8">
           {isBannersLoading ? (
-            <div className="w-full min-h-[400px] sm:min-h-[500px] bg-zinc-200 animate-pulse rounded-3xl border border-zinc-100 mt-0" />
+            <div className="min-h-[430px] w-full animate-pulse rounded-[2rem] border border-white bg-white/80 shadow-sm sm:min-h-[480px] lg:min-h-[520px]" />
           ) : (
             <BentoHero banners={targetedHeroBanners} />
           )}
         </div>
       </section>
 
-      <EcosystemHub />
-
-      {/* b) La grille de catégories */}
+      {/* The application switcher owns cross-platform navigation; keep this page focused on shopping. */}
       <NeoCategoryGrid
         categories={sortedCategoryCards}
         favoriteCategory={getCategorieFavorite()}

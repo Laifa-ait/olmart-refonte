@@ -128,6 +128,9 @@ export const SuperAppSwitcherModal: React.FC<SuperAppSwitcherModalProps> = ({
             exit={{ scale: 0.95, opacity: 0, y: 15 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="relative w-full max-w-2xl bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl shadow-[0_25px_60px_-15px_rgba(15,23,42,0.2)] overflow-hidden text-slate-900 z-10 max-h-[90vh] flex flex-col"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="olmart-app-switcher-title"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 sm:px-6 py-4 sm:py-5 border-b border-slate-100 bg-slate-50/80">
@@ -136,7 +139,7 @@ export const SuperAppSwitcherModal: React.FC<SuperAppSwitcherModalProps> = ({
                   <LayoutGrid className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                  <h3 id="olmart-app-switcher-title" className="text-base sm:text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
                     Écosystème Olmart
                     <span className="text-[10px] uppercase font-black tracking-wider bg-amber-100/90 text-amber-900 px-2.5 py-0.5 rounded-full border border-amber-300/80">
                       Super-App DZ

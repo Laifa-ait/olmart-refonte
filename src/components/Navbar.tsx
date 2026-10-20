@@ -5,11 +5,6 @@ import {
   Heart,
   ShoppingBag,
   Globe,
-  Wrench,
-  Building2,
-  Store,
-  Car,
-  Scale,
   Truck,
   Headphones,
   LayoutGrid,
@@ -139,92 +134,20 @@ export const Navbar: React.FC = () => {
         className="bg-slate-900 text-slate-300 text-xs font-medium px-4 sm:px-6 lg:px-12 py-2 gap-4 overflow-x-auto whitespace-nowrap scrollbar-hide justify-between items-center relative hidden lg:flex border-b border-slate-800"
       >
         <div className="flex items-center mx-auto w-full max-w-[90rem] justify-between relative z-10">
-          {/* Universes Navigation Hub */}
-          <div className="flex items-center gap-1.5">
+          {/* The platform list is intentionally opened from this button. */}
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setIsSwitcherOpen(true)}
-              className="px-2.5 py-1 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 hover:text-white cursor-pointer group shadow-xs mr-1"
-              title={t("Ouvrir le commutateur d'univers Olmart Super-App", "Ouvrir le commutateur d'univers Olmart Super-App")}
+              className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition hover:border-white/20 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+              aria-haspopup="dialog"
+              aria-label={t("nav_applications", "Applications Olmart")}
+              title={t("nav_applications", "Applications Olmart")}
             >
-              <LayoutGrid className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform text-emerald-400" />
-              <span>{t("Univers", "Univers")}</span>
+              <LayoutGrid className="h-4 w-4 text-amber-300 transition-transform group-hover:rotate-12" />
+              <span>{t("nav_applications", "Applications")}</span>
+              <span className="hidden xl:inline text-[10px] font-medium text-slate-400">Olmart</span>
             </button>
-
-            <Link
-              to="/shop"
-              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                location.pathname === "/" || location.pathname.startsWith("/shop")
-                  ? "bg-emerald-600 text-white shadow-xs font-bold"
-                  : "text-slate-300 hover:text-white hover:bg-slate-800/80"
-              }`}
-            >
-              <ShoppingBag className="w-3.5 h-3.5" />
-              <span>{t("Marketplace", "Marketplace")}</span>
-            </Link>
-
-            <Link
-              to="/bricolage"
-              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                location.pathname.startsWith("/bricolage")
-                  ? "bg-emerald-600 text-white shadow-xs font-bold"
-                  : "text-slate-300 hover:text-white hover:bg-slate-800/80"
-              }`}
-            >
-              <Wrench className="w-3.5 h-3.5 text-slate-400" />
-              <span>{t("Olma Bricolage", "Olma Bricolage")}</span>
-              <span className="text-[9px] uppercase px-1.5 py-0.2 rounded-full bg-slate-800 text-emerald-400 font-bold border border-slate-700">
-                {t("Artisans", "Artisans")}
-              </span>
-            </Link>
-
-            <Link
-              to="/auto"
-              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                location.pathname.startsWith("/auto")
-                  ? "bg-emerald-600 text-white shadow-xs font-bold"
-                  : "text-slate-300 hover:text-white hover:bg-slate-800/80"
-              }`}
-            >
-              <Car className="w-3.5 h-3.5 text-slate-400" />
-              <span>{t("Olma Auto", "Olma Auto")}</span>
-            </Link>
-
-            <Link
-              to="/immo"
-              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                location.pathname.startsWith("/immo")
-                  ? "bg-emerald-600 text-white shadow-xs font-bold"
-                  : "text-slate-300 hover:text-white hover:bg-slate-800/80"
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5 text-slate-400" />
-              <span>{t("Olma Immo", "Olma Immo")}</span>
-            </Link>
-
-            <Link
-              to="/shops"
-              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                location.pathname.startsWith("/shops")
-                  ? "bg-emerald-600 text-white shadow-xs font-bold"
-                  : "text-slate-300 hover:text-white hover:bg-slate-800/80"
-              }`}
-            >
-              <Store className="w-3.5 h-3.5 text-slate-400" />
-              <span>{t("Boutiques", "Boutiques")}</span>
-            </Link>
-
-            <Link
-              to="/comparator"
-              className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                location.pathname.startsWith("/comparator")
-                  ? "bg-emerald-600 text-white shadow-xs font-bold"
-                  : "text-slate-300 hover:text-white hover:bg-slate-800/80"
-              }`}
-            >
-              <Scale className="w-3.5 h-3.5 text-slate-400" />
-              <span>{t("Comparateur", "Comparateur")}</span>
-            </Link>
           </div>
 
           {/* Quick Tools & Seller CTA */}
