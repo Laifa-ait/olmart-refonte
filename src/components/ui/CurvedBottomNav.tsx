@@ -36,7 +36,7 @@ export function CurvedBottomNav<T = string>({
   onChange,
   className = "",
   barColor = "#ffffff",
-  accentColor = "#059669",
+  accentColor = "#5B4865",
 }: CurvedBottomNavProps<T>): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState<number>(375);
@@ -158,9 +158,9 @@ export function CurvedBottomNav<T = string>({
 
       {/* 2. Bulle flottante circulaire (Indicateur actif liquide) */}
       <motion.div
-        className="absolute -top-5 w-[54px] h-[54px] rounded-full flex items-center justify-center border-[3.5px] border-white pointer-events-none z-20 shadow-[0_10px_24px_-2px_rgba(5,150,105,0.4),0_3px_8px_rgba(15,23,42,0.08)]"
+        className="absolute -top-5 w-[54px] h-[54px] rounded-full flex items-center justify-center border-[3.5px] border-white pointer-events-none z-20 shadow-[0_10px_24px_-2px_rgba(75,59,85,0.32),0_3px_8px_rgba(15,23,42,0.08)]"
         style={{
-          background: `linear-gradient(135deg, #10B981 0%, ${accentColor} 55%, #047857 100%)`,
+          background: `linear-gradient(135deg, #81718A 0%, ${accentColor} 58%, #3F3048 100%)`,
         }}
         animate={{
           x: activeCenterX - 27,
@@ -206,13 +206,13 @@ export function CurvedBottomNav<T = string>({
                   y: isActive ? -8 : 0,
                 }}
                 transition={SPRING_TRANSITION}
-                className="relative flex items-center justify-center text-slate-400 hover:text-emerald-600 transition-colors"
+                className="relative flex items-center justify-center text-slate-400 hover:text-[#5B4865] transition-colors"
               >
                 <Icon className="w-5 h-5 stroke-[2]" />
 
                 {/* Badge de notification optionnel */}
                 {item.badge !== undefined && item.badge !== false && (
-                  <span className="absolute -top-1.5 -right-2.5 min-w-[16px] h-[16px] bg-emerald-600 text-white rounded-full text-[9px] font-black flex items-center justify-center px-1 border-2 border-white shadow-xs">
+                  <span className="absolute -top-1.5 -right-2.5 min-w-[16px] h-[16px] bg-[#6B5874] text-white rounded-full text-[9px] font-black flex items-center justify-center px-1 border-2 border-white shadow-xs">
                     {item.badge}
                   </span>
                 )}

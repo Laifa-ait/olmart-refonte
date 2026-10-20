@@ -177,7 +177,7 @@ export const SuperAppSwitcherModal: React.FC<SuperAppSwitcherModalProps> = ({
             {/* Footer */}
             <div className="px-5 sm:px-6 py-3.5 border-t border-slate-100 bg-slate-50/90 flex items-center justify-between text-xs text-slate-600">
               <span className="flex items-center gap-2 font-semibold text-slate-700">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-[#D7B76C] animate-pulse" />
                 Compte Unique & Session Unifiée
               </span>
               <span className="text-slate-800 font-extrabold">69 Wilayas d'Algérie</span>

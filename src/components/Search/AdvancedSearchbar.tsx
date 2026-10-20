@@ -102,7 +102,7 @@ export const AdvancedSearchbar: React.FC<AdvancedSearchbarProps> = ({
 
       <div ref={containerRef} className={`relative w-full ${isOverlayActive ? "z-[105]" : "z-[10]"} ${className}`}>
         <div className={`flex items-center w-full rounded-full transition-all duration-200 h-10 sm:h-11 p-1 bg-white ${
-          isOverlayActive ? "border-2 border-emerald-600 shadow-lg ring-2 ring-emerald-500/20" : "border border-slate-200 hover:border-slate-300 shadow-xs"
+          isOverlayActive ? "border-2 border-[#6B5874] shadow-lg ring-2 ring-[#B79A62]/20" : "border border-[#E7E1E8] hover:border-[#CFC5D1] shadow-xs"
         }`}>
           <div className="flex items-center justify-center shrink-0 text-slate-500 ps-3 pe-1.5">
             <Search className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[2.2]" />
@@ -138,7 +138,7 @@ export const AdvancedSearchbar: React.FC<AdvancedSearchbarProps> = ({
           </div>
 
           {isSearching ? (
-            <Loader2 className="w-4 h-4 animate-spin mx-1 text-emerald-600 shrink-0" />
+            <Loader2 className="w-4 h-4 animate-spin mx-1 text-[#6B5874] shrink-0" />
           ) : localQuery ? (
             <button
               type="button"
@@ -152,7 +152,7 @@ export const AdvancedSearchbar: React.FC<AdvancedSearchbarProps> = ({
           <button
             type="button"
             onClick={handleSearchSubmit}
-            className="h-full px-4 sm:px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-[13px] rounded-full shadow-xs flex items-center justify-center gap-1 active:scale-95 transition-all shrink-0 cursor-pointer border-none"
+            className="h-full px-4 sm:px-5 bg-[#5B4865] hover:bg-[#493852] text-white font-bold text-xs sm:text-[13px] rounded-full shadow-xs flex items-center justify-center gap-1 active:scale-95 transition-all shrink-0 cursor-pointer border-none"
           >
             <span>{t("Rechercher", "Rechercher")}</span>
           </button>

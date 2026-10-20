@@ -173,11 +173,11 @@ export const Home: React.FC = () => {
 
       {/* Marketplace landing hero */}
       <section className="relative w-full overflow-hidden pb-7 pt-4 sm:pb-10 sm:pt-7 lg:pt-9">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-32 -top-40 h-[28rem] w-[28rem] rounded-full bg-emerald-200/35 blur-3xl" />
-        <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-48 h-[22rem] w-[22rem] rounded-full bg-amber-100/60 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -right-32 -top-40 h-[28rem] w-[28rem] rounded-full bg-[#E8DFEB]/55 blur-3xl" />
+        <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-48 h-[22rem] w-[22rem] rounded-full bg-[#F3E9D1]/60 blur-3xl" />
         <div className="relative mx-auto w-full max-w-[96rem] px-4 sm:px-6 md:px-8">
           {isBannersLoading ? (
-            <div className="min-h-[430px] w-full animate-pulse rounded-[2rem] border border-white bg-white/80 shadow-sm sm:min-h-[480px] lg:min-h-[520px]" />
+            <div className="min-h-[460px] w-full animate-pulse rounded-[1.5rem] border border-white bg-white/80 shadow-sm sm:min-h-[430px] lg:min-h-[390px] 2xl:min-h-[410px]" />
           ) : (
             <BentoHero banners={targetedHeroBanners} />
           )}

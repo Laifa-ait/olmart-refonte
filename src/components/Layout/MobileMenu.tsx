@@ -1,7 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Info, LogOut, Globe } from "lucide-react";
+import { X, Info, LogOut, Globe, Store } from "lucide-react";
 import { useMobileMenu } from "../../hooks/useMobileMenu";
 import { useMegaMenu } from "../../context/MegaMenuContext";
 import { useUI } from "../../context/UIContext";
@@ -54,10 +54,10 @@ export const MobileMenu: React.FC = () => {
               } w-[86vw] max-w-[360px] bg-white z-[290] shadow-2xl flex flex-col overflow-hidden border-l border-zinc-200/80`}
             >
               {/* Drawer Header */}
-              <div className="flex items-center justify-between px-4.5 pt-4 pb-3 relative z-10 border-b border-zinc-100">
+              <div className="flex items-center justify-between px-4 py-3 relative z-10 border-b border-zinc-100">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#0088A8] text-white flex items-center justify-center font-bold text-xs shadow-2xs">
-                    OL
+                  <div className="w-7 h-7 rounded-lg bg-[#5B4865] text-[#E3CB8D] flex items-center justify-center shadow-2xs">
+                    <Store className="w-4 h-4 stroke-[2]" />
                   </div>
                   <h2 className="text-base font-bold text-zinc-900 tracking-tight">
                     {t("Menu")}
@@ -74,7 +74,7 @@ export const MobileMenu: React.FC = () => {
               </div>
 
               {/* Scrollable Content */}
-              <div className="flex-1 overflow-y-auto px-4 py-3.5 space-y-3.5 scrollbar-hide relative z-10">
+              <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5 scrollbar-hide relative z-10">
                 {/* Carte Profil Utilisateur avec Avatar Réel et Boutons Ergonomiques */}
                 <MobileUserCard
                   currentUser={currentUser}
@@ -101,7 +101,7 @@ export const MobileMenu: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleLanguageToggle}
-                  className="w-full flex items-center justify-between p-2.5 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200/80 shadow-2xs transition-all cursor-pointer text-left rtl:text-right"
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-white hover:bg-zinc-50 border border-zinc-200/80 transition-colors cursor-pointer text-left rtl:text-right"
                 >
                   <div className="flex items-center gap-2.5">
                     <div className="w-7 h-7 rounded-lg bg-zinc-100 flex items-center justify-center text-zinc-700">
@@ -111,7 +111,7 @@ export const MobileMenu: React.FC = () => {
                       {t("Langue d'affichage")}
                     </span>
                   </div>
-                  <span className="uppercase text-[11px] font-bold text-[#0088A8] bg-[#0088A8]/10 px-2 py-0.5 rounded-md">
+                  <span className="uppercase text-[11px] font-bold text-[#5B4865] bg-[#F1EDF2] px-2 py-0.5 rounded-md">
                     {(i18n.language || "FR").split("-")[0]}
                   </span>
                 </button>
@@ -125,11 +125,11 @@ export const MobileMenu: React.FC = () => {
               </div>
 
               {/* Pied de Page Épuré */}
-              <div className="p-3.5 bg-zinc-50 border-t border-zinc-200/80 shrink-0 space-y-2.5 z-20 pb-safe">
+              <div className="p-3 bg-white border-t border-zinc-200/80 shrink-0 space-y-2 z-20 pb-safe">
                 <button
                   type="button"
                   onClick={fetchAboutText}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-white hover:bg-zinc-100 rounded-xl text-zinc-700 font-semibold text-xs transition-colors border border-zinc-200/80 shadow-2xs cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-zinc-50 hover:bg-zinc-100 rounded-xl text-zinc-700 font-semibold text-xs transition-colors border border-zinc-200/80 cursor-pointer"
                 >
                   <Info className="w-4 h-4 text-zinc-500" />
                   <span>{t("À propos d'Olmart")}</span>
@@ -142,7 +142,7 @@ export const MobileMenu: React.FC = () => {
                       logout();
                       closeMenu();
                     }}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl transition-all border border-rose-200/90 shadow-2xs cursor-pointer active:scale-98"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-[#F4F0F5] hover:bg-[#EBE4EE] text-[#5B4865] font-bold text-xs rounded-xl transition-all border border-[#E2D9E5] shadow-2xs cursor-pointer active:scale-98"
                   >
                     <LogOut className="w-4 h-4 stroke-[2.2]" />
                     <span>{t("Se déconnecter", "Se déconnecter")}</span>

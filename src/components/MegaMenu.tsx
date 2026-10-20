@@ -94,13 +94,13 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isVisible = true }) => {
         borderBottomWidth: isVisible ? "1px" : "0px",
       }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className={`relative w-full z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 text-slate-800 font-sans block shadow-2xs ${
+        className={`relative w-full z-40 bg-[#FBFAF8]/95 backdrop-blur-md border-b border-[#E8E2E8] text-slate-800 font-sans block shadow-2xs ${
         activeCategory ? "overflow-visible" : "overflow-hidden"
       }`}
     >
       {/* Category Pills Bar */}
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8">
-        <ul className="flex items-center gap-2 sm:gap-2.5 overflow-x-auto scrollbar-hide py-2.5 sm:py-3">
+        <ul className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-hide py-2 sm:py-2.5">
           {categoriesData.map((category) => {
             const IconComponent = CATEGORY_ICONS[category.name] || Box;
             const isActive = activeCategory === category.id;
@@ -111,10 +111,10 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isVisible = true }) => {
                 <button
                   type="button"
                   onClick={() => toggleCategory(category.id)}
-                  className={`py-2 px-4.5 sm:px-5 rounded-full transition-all duration-200 cursor-pointer border flex items-center gap-2.5 text-sm font-semibold min-h-[42px] shrink-0 active:scale-95 ${
+                  className={`py-1.5 px-3.5 sm:px-4 rounded-full transition-all duration-200 cursor-pointer border flex items-center gap-2 text-[13px] font-semibold min-h-[36px] shrink-0 active:scale-95 ${
                     isActive
-                      ? "bg-[#065F46] text-white border-[#065F46] shadow-sm ring-2 ring-[#065F46]/20 font-bold"
-                      : "bg-white hover:bg-slate-50 text-slate-800 hover:text-slate-950 border-slate-200 shadow-2xs"
+                      ? "bg-[#5B4865] text-white border-[#5B4865] shadow-sm ring-2 ring-[#B79A62]/20 font-bold"
+                      : "bg-white hover:bg-[#F5F1F4] text-slate-700 hover:text-[#3D3045] border-[#E7E1E8] shadow-2xs"
                   }`}
                 >
                   <span className="w-5 h-5 flex items-center justify-center shrink-0">
@@ -122,7 +122,7 @@ export const MegaMenu: React.FC<MegaMenuProps> = ({ isVisible = true }) => {
                       categoryName={category.name}
                       categoryId={category.id}
                       isActive={isActive}
-                      className="w-5 h-5 object-contain select-none"
+                      className="w-[18px] h-[18px] object-contain select-none"
                       fallbackIcon={IconComponent}
                     />
                   </span>

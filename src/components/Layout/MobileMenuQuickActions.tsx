@@ -23,9 +23,9 @@ export const MobileMenuQuickActions: React.FC<MobileMenuQuickActionsProps> = ({
       id: "catalog",
       label: t("Catalogue"),
       icon: ShoppingBag,
-      color: "text-[#0088A8]",
-      bg: "bg-[#0088A8]/10",
-      border: "border-[#0088A8]/20",
+      color: "text-[#5B4865]",
+      bg: "bg-[#F1EDF2]",
+      border: "border-[#E2D9E5]",
       onClick: () => {
         onNavigate("/shop");
         onClose();
@@ -35,9 +35,9 @@ export const MobileMenuQuickActions: React.FC<MobileMenuQuickActionsProps> = ({
       id: "wishlist",
       label: t("Favoris"),
       icon: Heart,
-      color: "text-rose-600",
-      bg: "bg-rose-50",
-      border: "border-rose-200/60",
+      color: "text-[#9A7A43]",
+      bg: "bg-[#FBF6E9]",
+      border: "border-[#EDE1C3]",
       onClick: () => {
         onNavigate("/shop#wishlist");
         onClose();
@@ -71,7 +71,7 @@ export const MobileMenuQuickActions: React.FC<MobileMenuQuickActionsProps> = ({
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <div className="grid grid-cols-4 overflow-hidden rounded-2xl border border-zinc-200 bg-white divide-x divide-zinc-100 rtl:divide-x-reverse">
       {actions.map((act) => {
         const Icon = act.icon;
         return (
@@ -79,18 +79,18 @@ export const MobileMenuQuickActions: React.FC<MobileMenuQuickActionsProps> = ({
             key={act.id}
             type="button"
             onClick={act.onClick}
-            className="flex flex-col items-center justify-center p-2.5 rounded-2xl bg-white hover:bg-zinc-50 active:scale-95 transition-all border border-zinc-200/80 shadow-2xs group cursor-pointer text-center relative"
+            className="relative flex min-w-0 flex-col items-center justify-center gap-1.5 px-1 py-2.5 text-center transition-colors hover:bg-zinc-50 active:bg-zinc-100 cursor-pointer group"
           >
             <div
-              className={`w-9 h-9 rounded-xl ${act.bg} ${act.color} flex items-center justify-center transition-transform group-hover:scale-105 border ${act.border}`}
+              className={`w-8 h-8 rounded-xl ${act.bg} ${act.color} flex items-center justify-center transition-transform group-hover:scale-105 border ${act.border}`}
             >
-              <Icon className="w-4.5 h-4.5 stroke-[2]" />
+              <Icon className="w-4 h-4 stroke-[2]" />
             </div>
-            <span className="text-[11px] font-semibold text-zinc-800 mt-1.5 truncate max-w-full">
+            <span className="max-w-full truncate text-[10px] font-semibold text-zinc-700">
               {act.label}
             </span>
             {act.badge && (
-              <span className="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-[#0088A8] text-white shadow-xs">
+              <span className="absolute right-1 top-1 rounded-full bg-[#6B5874] px-1.5 py-0.5 text-[9px] font-bold text-white shadow-xs">
                 {act.badge}
               </span>
             )}

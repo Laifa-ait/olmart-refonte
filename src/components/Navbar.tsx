@@ -9,6 +9,7 @@ import {
   Headphones,
   LayoutGrid,
   ArrowLeft,
+  Store,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation, Link } from "react-router-dom";
@@ -17,7 +18,6 @@ import { useCart } from "../context/CartContext";
 import { useShop } from "../context/ShopContext";
 import { useUI } from "../context/UIContext";
 import { Language } from "../domains/home/homepage.types";
-import { MegaMenu } from "./MegaMenu";
 import { AdvancedSearchbar as Searchbar } from "./Search/AdvancedSearchbar";
 import { NotificationCenter } from "./NotificationCenter";
 import { SuperAppSwitcherModal } from "./common/SuperAppSwitcherModal";
@@ -28,28 +28,7 @@ export interface OlmaLogoProps {
 }
 
 export const OlmaLogo: React.FC<OlmaLogoProps> = ({ className = "w-8 h-8" }) => (
-  <svg
-    viewBox="92 70 154 175"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-    role="img"
-    aria-label="Olmart Emblem"
-  >
-    <g fill="none" stroke="#064f50" strokeLinecap="square" strokeLinejoin="miter">
-      <path d="M241 113 L170 74 L98 116 L98 198 L170 239 L241 199" strokeWidth="5.2" />
-      <path d="M237 116 L170 80 L104 119 L104 195 L170 233 L237 196" strokeWidth="2.2" />
-      <path d="M126 136 L135 123 L198 123 L207 136" strokeWidth="2.8" />
-      <path
-        d="M126 136 L207 136 L207 140 C207 147 201 152 195 152 C189 152 184 147 184 141 C184 148 179 153 172 153 C165 153 160 148 160 141 C160 148 155 153 148 153 C141 153 136 148 136 141 C136 148 132 152 126 152 C120 152 125 143 126 136 Z"
-        strokeWidth="2.8"
-      />
-      <path d="M132 153 L132 196 L202 196 L202 153" strokeWidth="2.8" />
-      <path d="M143 196 L143 162 L161 162 L161 196" strokeWidth="2.8" />
-      <circle cx="155" cy="180" r="1.7" fill="#064f50" stroke="none" />
-      <rect x="171" y="162" width="21" height="21" strokeWidth="2.8" />
-    </g>
-  </svg>
+  <Store className={className} strokeWidth={1.8} role="img" aria-label="Boutique Olmart" />
 );
 
 export const Navbar: React.FC = () => {
@@ -68,41 +47,16 @@ export const Navbar: React.FC = () => {
   const lang = i18n.language as Language;
 
   const [isScrolled, setIsScrolled] = useState(false);
-  const [showCategories, setShowCategories] = useState(true);
-  const lastScrollY = React.useRef(0);
-  const scrollUpAmount = React.useRef(0);
 
   const cartCount = React.useMemo(() => cart.reduce((acc, i) => acc + i.quantity, 0), [cart]);
 
   useEffect(() => {
     let ticking = false;
-    lastScrollY.current = window.scrollY;
-    scrollUpAmount.current = 0;
 
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-
-          // Always show when near the top
-          if (currentScrollY < 350) {
-            setShowCategories(true);
-            scrollUpAmount.current = 0;
-          } else {
-            const diff = currentScrollY - lastScrollY.current;
-            if (diff > 20) {
-              scrollUpAmount.current = 0;
-              setShowCategories(false);
-            } else if (diff < -5) {
-              scrollUpAmount.current += Math.abs(diff);
-              if (scrollUpAmount.current > 60) {
-                setShowCategories(true);
-              }
-            }
-          }
-
-          setIsScrolled(currentScrollY > 20);
-          lastScrollY.current = currentScrollY;
+          setIsScrolled(window.scrollY > 20);
           ticking = false;
         });
         ticking = true;
@@ -131,7 +85,7 @@ export const Navbar: React.FC = () => {
     <>
       <div
         id="olmart-top-utility-bar"
-        className="bg-slate-900 text-slate-300 text-xs font-medium px-4 sm:px-6 lg:px-12 py-2 gap-4 overflow-x-auto whitespace-nowrap scrollbar-hide justify-between items-center relative hidden lg:flex border-b border-slate-800"
+        className="bg-[#241D2D] text-slate-300 text-xs font-medium px-4 sm:px-6 lg:px-12 py-1.5 gap-4 overflow-x-auto whitespace-nowrap scrollbar-hide justify-between items-center relative hidden lg:flex border-b border-white/10"
       >
         <div className="flex items-center mx-auto w-full max-w-[90rem] justify-between relative z-10">
           {/* The platform list is intentionally opened from this button. */}
@@ -139,12 +93,12 @@ export const Navbar: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsSwitcherOpen(true)}
-              className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition hover:border-white/20 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+              className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.07] px-3.5 py-1.5 text-xs font-bold text-white shadow-xs transition hover:border-white/20 hover:bg-white/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D7B76C]"
               aria-haspopup="dialog"
               aria-label={t("nav_applications", "Applications Olmart")}
               title={t("nav_applications", "Applications Olmart")}
             >
-              <LayoutGrid className="h-4 w-4 text-amber-300 transition-transform group-hover:rotate-12" />
+              <LayoutGrid className="h-4 w-4 text-[#D7B76C] transition-transform group-hover:rotate-12" />
               <span>{t("nav_applications", "Applications")}</span>
               <span className="hidden xl:inline text-[10px] font-medium text-slate-400">Olmart</span>
             </button>
@@ -182,7 +136,7 @@ export const Navbar: React.FC = () => {
                   navigate("/auth?role=seller");
                 }
               }}
-              className="px-3 py-1 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-black transition-all shadow-xs cursor-pointer border-none uppercase tracking-wider text-[11px]"
+              className="px-3.5 py-1.5 rounded-full bg-[#D7B76C] hover:bg-[#E5CE91] text-[#2B2331] font-extrabold transition-all shadow-xs cursor-pointer border-none uppercase tracking-wider text-[10px]"
             >
               {t("sell_on_olma")}
             </button>
@@ -192,14 +146,14 @@ export const Navbar: React.FC = () => {
 
       <nav className={`${
         isProductPage
-          ? "sticky top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-emerald-100 shadow-xs"
+          ? "sticky top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E9E3EA] shadow-xs"
           : `sticky top-0 z-[100] bg-white/95 backdrop-blur-md border-b border-slate-200 transition-shadow duration-200 ${
               isScrolled ? "shadow-[0_4px_20px_rgba(15,23,42,0.06)]" : "shadow-xs"
             }`
-      } py-2 sm:py-2.5`}>
+      } py-1.5 sm:py-2`}>
         {/* On mobile for Product Details: Dedicated sticky search bar with back button */}
         {isProductPage && (
-          <div className="flex lg:hidden items-center justify-between w-full gap-2.5 h-11 px-3 pointer-events-auto">
+          <div className="flex md:hidden items-center justify-between w-full gap-2.5 h-11 px-3 pointer-events-auto">
             <button
               type="button"
               onClick={() => {
@@ -221,39 +175,83 @@ export const Navbar: React.FC = () => {
           </div>
         )}
 
-        <div className={`${isProductPage ? "hidden lg:flex" : "flex"} flex-col lg:flex-row lg:items-center px-4 sm:px-6 md:px-8 mx-auto w-full max-w-[90rem] justify-between relative gap-2 sm:gap-3 lg:gap-0 ${
-          location.pathname === "/" && showCategories ? "pb-2 sm:pb-3" : ""
-        }`}>
-          
-          <div className="flex items-center justify-between w-full lg:w-auto h-11 sm:h-12">
-            {/* Logo on Left */}
-            <div className="flex shrink-0 items-center justify-start lg:w-1/4">
+        <div className={`${isProductPage ? "hidden md:grid" : "grid"} grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[auto_minmax(0,1fr)_auto] xl:grid-cols-[minmax(0,1fr)_minmax(20rem,1.6fr)_minmax(0,1fr)] items-center px-4 sm:px-6 md:px-8 mx-auto w-full max-w-[90rem] relative gap-x-2 sm:gap-x-3 md:gap-x-2 xl:gap-x-5 gap-y-2 xl:gap-y-0`}>
+          {/* Logo */}
+          <div className="col-start-1 row-start-1 flex h-11 min-w-0 items-center justify-start sm:h-12">
               <button
                  onClick={handleLogoClick}
                  className="flex items-center gap-2 shrink-0 select-none cursor-pointer group bg-transparent border-none p-0"
                  aria-label="Accueil Olmart"
                >
-                 <img
-                   src="/olmart_logo.svg"
-                   alt="OLMART"
-                   className="h-8 sm:h-9 md:h-10 w-auto object-contain transition-transform duration-200 group-hover:scale-102"
-                 />
+                 <span className="flex items-center gap-2.5 transition-transform duration-200 group-hover:scale-[1.02]">
+                   <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#F3EFF4] text-[#4B3B55] ring-1 ring-[#E6DEE8] sm:h-[34px] sm:w-[34px]">
+                     <Store className="h-[19px] w-[19px] stroke-[1.8]" aria-hidden="true" />
+                   </span>
+                   <span className="font-sans text-[17px] font-extrabold leading-none tracking-[0.1em] text-[#35283F] sm:text-[18px]">
+                     OLMART
+                   </span>
+                 </span>
               </button>
+          </div>
+
+          {!isCategoriesPage && (
+            <div className={`col-span-2 row-start-2 flex min-w-0 w-full items-center justify-center md:col-start-2 md:col-span-1 md:row-start-1 ${isProductPage ? "xl:px-12 xl:max-w-2xl" : "xl:px-8 xl:max-w-3xl"}`}>
+              <div className="w-full min-w-0">
+                <Searchbar variant={isProductPage ? "discreet" : "default"} />
+              </div>
             </div>
-            
-             {/* Actions for Mobile */}
-            <div className="flex items-center justify-end gap-1.5 sm:gap-2 lg:hidden relative shrink-0">
+          )}
+
+          {/* Commandes accessibles au pouce sur téléphone, complètes sur tablette. */}
+          <div className="col-start-2 row-start-1 flex shrink-0 items-center justify-end gap-0.5 sm:gap-1 md:col-start-3 md:row-start-1 md:gap-0.5 xl:hidden">
                <button
                 type="button"
                 onClick={() => setIsCartOpen(true)}
                 aria-label={t("Mon Panier") || "Mon Panier"}
-                className="flex items-center justify-center text-slate-700 hover:text-emerald-700 hover:bg-slate-100 transition-all cursor-pointer relative bg-transparent border-none w-10 h-10 rounded-full active:scale-95"
+                className="relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-transparent text-slate-700 transition-all hover:bg-[#F5F2F4] hover:text-[#5B4865] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B79A62] active:scale-95 md:h-11 md:w-11"
               >
                 <ShoppingBag className="w-5 h-5 stroke-[1.8]" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black shadow-xs border border-white tabular-nums">
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#6B5874] text-white flex items-center justify-center text-[10px] font-black shadow-xs border border-white tabular-nums">
                     {cartCount}
                   </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsWishlistOpen(true)}
+                aria-label={wishlist.length > 0 ? `${t("Favoris") || "Favoris"} (${wishlist.length})` : t("Favoris") || "Favoris"}
+                className="relative hidden h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-transparent text-slate-700 transition-all hover:bg-[#F5F2F4] hover:text-[#5B4865] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B79A62] active:scale-95 sm:flex"
+              >
+                <Heart className="h-5 w-5 stroke-[1.8]" />
+                {wishlist.length > 0 && (
+                  <span className="absolute right-0 top-0 flex h-[17px] min-w-[17px] items-center justify-center rounded-full border border-white bg-[#6B5874] px-1 text-[9px] font-bold text-white shadow-xs">
+                    {wishlist.length}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (!currentUser) navigate("/auth", { replace: true });
+                  else setIsAccountMenuOpen(true);
+                }}
+                aria-label="Compte utilisateur"
+                className="hidden h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-transparent text-slate-700 transition-all hover:bg-[#F5F2F4] hover:text-[#5B4865] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B79A62] active:scale-95 sm:flex"
+              >
+                {currentUser ? (
+                  <UserAvatar
+                    photoURL={userProfile?.photoURL || currentUser.photoURL}
+                    displayName={userProfile?.displayName || currentUser.displayName}
+                    email={currentUser.email}
+                    providerData={currentUser.providerData}
+                    size="sm"
+                    alt={userProfile?.displayName || "Profil"}
+                  />
+                ) : (
+                  <UserIcon className="h-5 w-5 stroke-[1.8]" />
                 )}
               </button>
 
@@ -262,7 +260,7 @@ export const Navbar: React.FC = () => {
                 onClick={() => setIsSwitcherOpen(true)}
                 aria-label={t("nav_applications")}
                 title={t("nav_applications")}
-                className="flex items-center justify-center text-slate-700 hover:text-emerald-700 hover:bg-slate-100 transition-all cursor-pointer bg-transparent border-none w-10 h-10 rounded-full active:scale-95"
+                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-transparent text-slate-700 transition-all hover:bg-[#F5F2F4] hover:text-[#5B4865] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B79A62] active:scale-95 md:h-11 md:w-11"
               >
                 <LayoutGrid className="w-5 h-5 stroke-[1.8]" />
               </button>
@@ -271,22 +269,13 @@ export const Navbar: React.FC = () => {
                 type="button"
                 onClick={() => setIsMobileMenuOpen(true)}
                 aria-label={t("Menu") || "Menu"}
-                className="flex items-center justify-center text-slate-700 hover:text-emerald-700 hover:bg-slate-100 transition-all cursor-pointer bg-transparent border-none w-10 h-10 rounded-full active:scale-95"
+                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-transparent text-slate-700 transition-all hover:bg-[#F5F2F4] hover:text-[#5B4865] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B79A62] active:scale-95 md:h-11 md:w-11"
               >
                 <Menu className="w-5 h-5 stroke-[1.8]" />
               </button>
-            </div>
           </div>
 
-          {!isCategoriesPage && (
-            <div className={`flex-1 flex items-center justify-center w-full px-0 ${isProductPage ? "lg:px-12 max-w-2xl" : "lg:px-8 max-w-3xl"} order-last lg:order-none gap-2`}>
-              <div className="w-full">
-                <Searchbar variant={isProductPage ? "discreet" : "default"} />
-              </div>
-            </div>
-          )}
-
-          <div className="hidden lg:flex items-center justify-end gap-3 sm:gap-5 relative lg:w-1/4 shrink-0">
+          <div className="hidden xl:col-start-3 xl:row-start-1 xl:flex min-w-0 items-center justify-end gap-2 xl:gap-3 relative shrink-0">
             <div className="hidden lg:block">
               <NotificationCenter />
             </div>
@@ -306,7 +295,7 @@ export const Navbar: React.FC = () => {
                 aria-expanded={isLangDropdownOpen}
                 aria-haspopup="true"
                 aria-label="Changer de langue"
-                className="flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-emerald-700 hover:bg-slate-100 border border-slate-200 transition-all h-10 px-3 bg-slate-50 rounded-full cursor-pointer"
+                className="flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-[#5B4865] hover:bg-[#F7F4F1] border border-[#E7E1E8] transition-all h-9 px-3 bg-[#FBFAF8] rounded-full cursor-pointer"
               >
                 <Globe className="w-4 h-4 text-slate-500" />
                 <span className="uppercase">{lang ? lang.split("-")[0] : "fr"}</span>
@@ -327,11 +316,11 @@ export const Navbar: React.FC = () => {
                           setIsLangDropdownOpen(false);
                         }}
                         className={`w-full text-left rtl:text-right px-4 py-2.5 text-sm font-medium transition-colors bg-transparent border-none cursor-pointer flex items-center justify-between gap-2 hover:bg-slate-50 ${
-                          lang === l.code ? "text-emerald-700 font-bold" : "text-slate-600"
+                          lang === l.code ? "text-[#5B4865] font-bold" : "text-slate-600"
                         }`}
                       >
                         <span>{l.name}</span>
-                        {lang === l.code && <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />}
+                        {lang === l.code && <span className="w-1.5 h-1.5 rounded-full bg-[#B79A62]" />}
                       </button>
                     ))}
                   </div>
@@ -341,11 +330,11 @@ export const Navbar: React.FC = () => {
 
             <button
               onClick={() => setIsWishlistOpen(true)}
-              className="hidden lg:flex items-center justify-center text-slate-700 hover:text-emerald-700 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer relative bg-slate-50 w-10 h-10 rounded-full"
+              className="hidden lg:flex items-center justify-center text-slate-700 hover:text-[#5B4865] hover:bg-[#F7F4F1] border border-[#E7E1E8] transition-all cursor-pointer relative bg-[#FBFAF8] w-10 h-10 rounded-full"
             >
               <Heart className="w-5 h-5 stroke-[1.5] text-slate-600" />
               {wishlist.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[9px] font-bold shadow-sm border border-white">
+                <span className="absolute -top-1 -right-1 w-4.5 h-4.5 rounded-full bg-[#6B5874] text-white flex items-center justify-center text-[9px] font-bold shadow-sm border border-white">
                   {wishlist.length}
                 </span>
               )}
@@ -356,11 +345,11 @@ export const Navbar: React.FC = () => {
               type="button"
               onClick={() => setIsCartOpen(true)}
               aria-label={t("Mon Panier") || "Mon Panier"}
-              className="flex items-center justify-center text-slate-700 hover:text-emerald-700 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer relative bg-slate-50 w-10 h-10 rounded-full active:scale-95"
+              className="flex items-center justify-center text-slate-700 hover:text-[#5B4865] hover:bg-[#F7F4F1] border border-[#E7E1E8] transition-all cursor-pointer relative bg-[#FBFAF8] w-10 h-10 rounded-full active:scale-95"
             >
               <ShoppingBag className="w-5 h-5 stroke-[1.8] text-slate-700" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black shadow-xs border border-white tabular-nums">
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#6B5874] text-white flex items-center justify-center text-[10px] font-black shadow-xs border border-white tabular-nums">
                   {cartCount}
                 </span>
               )}
@@ -390,8 +379,8 @@ export const Navbar: React.FC = () => {
                 aria-label="Compte utilisateur"
                 className={`flex items-center justify-center transition-all cursor-pointer w-10 h-10 rounded-full border ${
                   currentUser
-                    ? "p-0.5 border-slate-300 hover:ring-2 hover:ring-emerald-500/30 hover:border-emerald-600 bg-white"
-                    : "text-slate-700 hover:text-emerald-700 hover:bg-slate-100 border-slate-200 bg-slate-50"
+                    ? "p-0.5 border-slate-300 hover:ring-2 hover:ring-[#B79A62]/30 hover:border-[#B79A62] bg-white"
+                    : "text-slate-700 hover:text-[#5B4865] hover:bg-[#F7F4F1] border-[#E7E1E8] bg-[#FBFAF8]"
                 }`}
               >
                 {currentUser ? (
@@ -412,7 +401,7 @@ export const Navbar: React.FC = () => {
             {/* PC Version Hamburger / Sandwich Menu on the Right */}
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="hidden lg:flex items-center justify-center text-slate-700 hover:text-emerald-700 hover:bg-slate-100 border border-slate-200 transition-all cursor-pointer bg-slate-50 w-10 h-10 rounded-full shrink-0"
+              className="hidden lg:flex items-center justify-center text-slate-700 hover:text-[#5B4865] hover:bg-[#F7F4F1] border border-[#E7E1E8] transition-all cursor-pointer bg-[#FBFAF8] w-10 h-10 rounded-full shrink-0"
               title={t("menu") || "Menu"}
             >
               <Menu className="w-5 h-5 stroke-[1.5] text-slate-600" />
@@ -420,7 +409,6 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {location.pathname === "/" && <MegaMenu isVisible={showCategories} />}
       </nav>
 
       {/* Super-App Switcher Modal */}

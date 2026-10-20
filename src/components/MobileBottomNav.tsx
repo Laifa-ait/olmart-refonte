@@ -127,7 +127,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ hideOnRoutes =
   ];
 
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[200] pointer-events-none">
+    <div className="sm:hidden fixed bottom-0 left-0 right-0 z-[200] pointer-events-none">
       <div className="pointer-events-auto">
         <CurvedBottomNav
           items={navItems}

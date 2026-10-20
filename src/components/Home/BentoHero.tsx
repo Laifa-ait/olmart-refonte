@@ -88,7 +88,7 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="group relative h-[480px] w-full select-none touch-pan-y overflow-hidden rounded-[1.75rem] border border-white/80 bg-[#0d2c24] shadow-[0_24px_70px_-35px_rgba(15,42,32,0.75)] sm:h-[500px] lg:h-[520px]"
+      className="group relative h-[460px] w-full select-none touch-pan-y overflow-hidden rounded-[1.5rem] border border-white/80 bg-[#302638] shadow-[0_20px_55px_-35px_rgba(49,38,56,0.42)] sm:h-[430px] lg:h-[390px] 2xl:h-[410px]"
     >
       {/* Sliding Strip */}
       <motion.div
@@ -116,7 +116,7 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
             type="button"
             onClick={isRTL ? handleNext : handlePrev}
             aria-label="Previous Slide"
-            className={`absolute top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/90 text-slate-900 shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 sm:opacity-0 sm:group-hover:opacity-100 ${
+            className={`absolute top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/90 text-slate-900 shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B79A62] sm:opacity-0 sm:group-hover:opacity-100 ${
               isRTL ? "right-4 sm:right-6" : "left-4 sm:left-6"
             }`}
           >
@@ -126,7 +126,7 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
             type="button"
             onClick={isRTL ? handlePrev : handleNext}
             aria-label="Next Slide"
-            className={`absolute top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/90 text-slate-900 shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 sm:opacity-0 sm:group-hover:opacity-100 ${
+            className={`absolute top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/90 text-slate-900 shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B79A62] sm:opacity-0 sm:group-hover:opacity-100 ${
               isRTL ? "left-4 sm:left-6" : "right-4 sm:right-6"
             }`}
           >
