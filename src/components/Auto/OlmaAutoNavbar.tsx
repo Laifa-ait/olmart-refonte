@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   Search,
-  Bell,
   Menu,
-  SlidersHorizontal,
   Plus,
   Heart,
   Scale,
@@ -141,9 +139,18 @@ export const OlmaAutoNavbar: React.FC = () => {
 
               {/* Bouton Favoris Rapide Desktop & Tablette */}
               <Link
+                to="/auto/catalog"
+                aria-label="Rechercher un véhicule"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#23416A] bg-[#172B4D] text-slate-300 transition-colors hover:text-white lg:hidden"
+              >
+                <Search className="h-4 w-4" />
+              </Link>
+
+              <Link
                 to="/auto/catalog?tab=favorites"
-                className="relative p-2 rounded-xl bg-[#172B4D] border border-[#23416A] text-slate-300 hover:text-white transition-colors"
+                className="relative hidden rounded-xl border border-[#23416A] bg-[#172B4D] p-2 text-slate-300 transition-colors hover:text-white md:inline-flex"
                 title="Mes favoris"
+                aria-label={`Mes favoris${favoritesCount ? `, ${favoritesCount}` : ""}`}
               >
                 <Heart className="w-4 h-4" />
                 {favoritesCount > 0 && (
@@ -153,32 +160,12 @@ export const OlmaAutoNavbar: React.FC = () => {
                 )}
               </Link>
 
-              {/* Bouton Filtres rapide pour mobile */}
-              <Link
-                to="/auto/catalog"
-                className="md:hidden p-2 rounded-xl bg-[#172B4D] border border-[#23416A] text-slate-300 hover:text-white transition-colors"
-                title="Catalogue & Filtres"
-              >
-                <SlidersHorizontal className="w-4 h-4" />
-              </Link>
-
-              {/* Icône Cloche Notification */}
-              <button
-                type="button"
-                onClick={() => navigate("/dashboard/seller/auto")}
-                aria-label="Notifications"
-                className="p-2 rounded-xl bg-[#172B4D] border border-[#23416A] text-slate-300 hover:text-white relative transition-colors cursor-pointer"
-              >
-                <Bell className="w-4 h-4" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#D9F66F]" />
-              </button>
-
               {/* Bouton Hamburger Menu */}
               <button
                 type="button"
                 onClick={() => setIsDrawerOpen(true)}
                 aria-label="Menu principal"
-                className="p-2 rounded-xl bg-[#172B4D] border border-[#23416A] text-slate-300 hover:text-white transition-colors cursor-pointer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[#23416A] bg-[#172B4D] text-slate-300 transition-colors hover:text-white md:hidden"
               >
                 <Menu className="w-4 h-4" />
               </button>

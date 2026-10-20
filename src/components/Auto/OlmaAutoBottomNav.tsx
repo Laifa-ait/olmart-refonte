@@ -22,7 +22,7 @@ export const OlmaAutoBottomNav: React.FC = () => {
       else window.dispatchEvent(new CustomEvent("auth:openModal", { detail: { mode: "login" } }));
       return;
     }
-    navigate("/dashboard/seller/auto");
+    navigate("/profile");
   };
 
   const navItems = [
@@ -65,47 +65,30 @@ export const OlmaAutoBottomNav: React.FC = () => {
   ];
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-[#0B1730]/98 backdrop-blur-md border-t border-[#172B4D] shadow-[0_-4px_25px_rgba(0,0,0,0.5)] px-2 py-1.5 pb-safe">
-      <nav className="flex items-center justify-around max-w-md mx-auto relative">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-2 pt-2 shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur-xl pb-[max(0.5rem,env(safe-area-inset-bottom))] md:hidden">
+      <nav aria-label="Navigation Olma Auto" className="mx-auto flex max-w-md items-center justify-around gap-1">
         {navItems.map((item) => {
           const Icon = item.icon;
-
-          if (item.isSpecial) {
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={item.onClick}
-                className="flex flex-col items-center justify-center -mt-6 group cursor-pointer focus:outline-none"
-                aria-label={item.label}
-              >
-                <div
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 border-2 border-[#0B1730] shadow-[0_8px_20px_rgba(217,246,111,0.4)] ${
-                    item.isActive
-                      ? "bg-gradient-to-br from-[#E2FB7D] to-[#C5E94F] text-[#0B1730] scale-105 ring-2 ring-[#D9F66F]"
-                      : "bg-gradient-to-br from-[#D9F66F] via-[#E2FB7D] to-[#C5E94F] text-[#0B1730] group-hover:scale-105"
-                  }`}
-                >
-                  <Icon className="w-6 h-6 stroke-[3]" />
-                </div>
-                <span className="text-[10px] font-black text-[#D9F66F] mt-1 tracking-tight">
-                  {item.label}
-                </span>
-              </button>
-            );
-          }
-
           return (
             <button
               key={item.id}
               type="button"
               onClick={item.onClick}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors cursor-pointer ${
-                item.isActive ? "text-[#D9F66F]" : "text-slate-400 hover:text-slate-200"
+              aria-current={item.isActive ? "page" : undefined}
+              className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#172B4D] ${
+                item.isSpecial
+                  ? "text-[#172B4D]"
+                  : item.isActive
+                    ? "bg-[#f0f5d9] text-[#172B4D]"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
               }`}
             >
-              <Icon className="w-5 h-5 stroke-[2.2]" />
-              <span className="text-[10px] font-bold mt-1 tracking-tight">{item.label}</span>
+              <span className={`flex h-8 w-9 items-center justify-center rounded-xl ${item.isSpecial ? "bg-[#D9F66F]" : ""}`}>
+                <Icon className={`h-5 w-5 ${item.isSpecial ? "stroke-[2.5]" : "stroke-[2]"}`} />
+              </span>
+              <span className={`max-w-full truncate text-[10px] leading-none ${item.isActive || item.isSpecial ? "font-bold" : "font-medium"}`}>
+                {item.label}
+              </span>
             </button>
           );
         })}

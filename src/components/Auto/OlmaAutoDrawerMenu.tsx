@@ -3,8 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   X,
   Heart,
-  Bookmark,
-  Bell,
   Warehouse,
   MessageSquare,
   Settings,
@@ -55,26 +53,24 @@ export const OlmaAutoDrawerMenu: React.FC<OlmaAutoDrawerMenuProps> = ({
 
   const menuSections = [
     {
-      title: "Mon Activité Auto",
+      title: "Explorer",
       items: [
-        { label: "Mes annonces", icon: Car, path: "/dashboard/seller/auto" },
+        { label: "Toutes les annonces", icon: Car, path: "/auto/catalog" },
+        { label: "Pièces détachées & casse", icon: Wrench, path: "/auto/pieces" },
+        { label: "Estimation du prix", icon: Calculator, path: "/auto/estimation" },
+        { label: "Comparer des véhicules", icon: Scale, path: "/auto/comparer" },
+      ],
+    },
+    {
+      title: "Mon espace",
+      items: [
         { label: "Mes favoris", icon: Heart, path: "/auto/catalog?tab=favorites" },
-        { label: "Recherches sauvegardées", icon: Bookmark, path: "/auto/catalog?tab=saved" },
-        { label: "Mes alertes", icon: Bell, path: "/auto/catalog?tab=alerts" },
-        { label: "Mon garage vendeur", icon: Warehouse, path: "/dashboard/seller/auto" },
+        { label: "Mes annonces et mon garage", icon: Warehouse, path: "/dashboard/seller/auto" },
         { label: "Mes messages", icon: MessageSquare, path: "/messages" },
       ],
     },
     {
-      title: "Services & Univers",
-      items: [
-        { label: "Pièces détachées & Casse", icon: Wrench, path: "/auto/pieces" },
-        { label: "Estimation (Cote argus)", icon: Calculator, path: "/auto/estimation" },
-        { label: "Comparateur de véhicules", icon: Scale, path: "/auto/comparer" },
-      ],
-    },
-    {
-      title: "Compte & Assistance",
+      title: "Aide",
       items: [
         { label: "Paramètres du compte", icon: Settings, path: "/dashboard/buyer/settings" },
         { label: "Aide & support", icon: HelpCircle, path: "/aide" },

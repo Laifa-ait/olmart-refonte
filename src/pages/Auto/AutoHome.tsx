@@ -1,22 +1,20 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight, ShieldCheck, Building2, Flame } from "lucide-react";
-import { AutoHeroShowroom } from "../../components/Auto/AutoHeroShowroom";
-import { AutoPopularBrandsSection } from "../../components/Auto/AutoPopularBrandsSection";
-import { AutoBodyTypesSection } from "../../components/Auto/AutoBodyTypesSection";
-import { AutoShowroomsSection } from "../../components/Auto/AutoShowroomsSection";
-import { AutoTrustSection } from "../../components/Auto/AutoTrustSection";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, SlidersHorizontal } from "lucide-react";
+import { AutoFilterDrawer } from "../../components/Auto/AutoFilterDrawer";
 import { VehicleCard } from "../../components/Auto/VehicleCard";
 import { autoClient } from "../../domains/auto/auto.client";
 import { autoSearchCache } from "../../domains/auto/auto.cache";
-import { VehicleCatalogItemDto } from "../../domains/auto/auto.types";
-
-type VitrineFilterTab = "all" | "safia" | "showroom" | "budget200";
+import { VehicleCatalogItemDto, VehicleFilterParams } from "../../domains/auto/auto.types";
+import { searchBrandsAndModels } from "../../domains/auto/auto.brands";
 
 export const AutoHome: React.FC = () => {
+  const navigate = useNavigate();
   const [vehicles, setVehicles] = useState<VehicleCatalogItemDto[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<VitrineFilterTab>("all");
+  const [searchText, setSearchText] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState<VehicleFilterParams>({});
 
   useEffect(() => {
     let isMounted = true;
@@ -47,198 +45,120 @@ export const AutoHome: React.FC = () => {
     };
   }, []);
 
-  const filteredVehicles = useMemo(() => {
-    switch (activeTab) {
-      case "safia":
-        return vehicles.filter((v) => v.paperStatus === "safia");
-      case "showroom":
-        return vehicles.filter((v) => v.sellerType === "concessionnaire" || v.sellerType === "professionnel");
-      case "budget200":
-        return vehicles.filter((v) => v.price <= 2000000);
-      default:
-        return vehicles;
+  const activeFilterCount = Object.entries(filters).filter(
+    ([key, value]) => key !== "page" && key !== "limit" && key !== "sort" && value !== undefined && value !== ""
+  ).length;
+
+  const openResults = () => {
+    const next = { ...filters };
+    const term = searchText.trim();
+    if (term) {
+      const match = searchBrandsAndModels(term, 1)[0];
+      if (match && match.model.toLocaleLowerCase().includes(term.toLocaleLowerCase())) {
+        next.brand = match.brand;
+        next.model = match.model;
+      } else if (match && match.brand.toLocaleLowerCase() === term.toLocaleLowerCase()) {
+        next.brand = match.brand;
+      } else {
+        next.brand = term;
+      }
     }
-  }, [vehicles, activeTab]);
+    const params = new URLSearchParams();
+    Object.entries(next).forEach(([key, value]) => {
+      if (value !== undefined && value !== "") params.set(key, String(value));
+    });
+    navigate(`/auto/catalog${params.size ? `?${params.toString()}` : ""}`);
+  };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] pb-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-        {/* 1. Hero Showroom avec Recherche Épurée et Badges Logos */}
-        <AutoHeroShowroom />
-
-        {/* 2. Section Exclusive des Marques Automobiles avec Vrais Logos Vectoriels */}
-        <AutoPopularBrandsSection />
-
-        {/* Raccourcis Univers Auto : Safia & Pièces */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-          <Link
-            to="/auto/catalog?paperStatus=safia"
-            className="group flex items-center justify-between p-3.5 bg-white rounded-2xl border border-slate-200/90 hover:border-[#172B4D] hover:shadow-md transition-all cursor-pointer"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#0B1730] text-[#D9F66F] flex items-center justify-center font-black">
-                <ShieldCheck className="w-5 h-5 text-[#D9F66F]" />
-              </div>
-              <div>
-                <h3 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-[#172B4D]">
-                  Véhicules Carte Grise Safia
-                </h3>
-                <p className="text-[11px] text-slate-500">100% Papiers garantis et contrôlés</p>
-              </div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#172B4D] group-hover:translate-x-0.5 transition-transform" />
-          </Link>
-
-          <Link
-            to="/auto/pieces"
-            className="group flex items-center justify-between p-3.5 bg-white rounded-2xl border border-slate-200/90 hover:border-[#172B4D] hover:shadow-md transition-all cursor-pointer"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#172B4D] text-[#D9F66F] flex items-center justify-center font-black">
-                <Building2 className="w-5 h-5 text-[#D9F66F]" />
-              </div>
-              <div>
-                <h3 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-[#172B4D]">
-                  Pièces Détachées Mécaniques
-                </h3>
-                <p className="text-[11px] text-slate-500">Casse auto & pièces d'origine certifiées</p>
-              </div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#172B4D] group-hover:translate-x-0.5 transition-transform" />
-          </Link>
-        </div>
-
-        {/* 3. Silhouettes de Carrosserie en Grille Aérée */}
-        <AutoBodyTypesSection />
-
-        {/* 4. Vitrine des Dernières Annonces Automobiles */}
-        <section className="mb-12">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base sm:text-xl font-black text-slate-900 tracking-tight">
-                  Véhicules Récents en Algérie
-                </h2>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black">
-                  <Flame className="w-3 h-3 text-emerald-600" />
-                  <span>En direct</span>
+    <div className="min-h-screen bg-[#f7f8fb] pb-24">
+      <div className="mx-auto max-w-7xl px-4 pb-8 pt-4 sm:px-6 sm:pt-6 lg:px-8">
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            openResults();
+          }}
+          className="mb-8 flex gap-2 rounded-[1.35rem] border border-slate-200 bg-white p-2 shadow-sm sm:mb-10 sm:p-2.5"
+          role="search"
+          aria-label="Rechercher un véhicule"
+        >
+          <div className="flex min-w-0 flex-1 items-center gap-3 pl-3">
+            <Search className="h-5 w-5 shrink-0 text-slate-400" aria-hidden="true" />
+            <input
+              type="search"
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
+              placeholder="Marque ou modèle"
+              aria-label="Marque ou modèle du véhicule"
+              className="h-11 min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+            />
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(true)}
+              aria-label={`Ouvrir les filtres${activeFilterCount ? `, ${activeFilterCount} actifs` : ""}`}
+              className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-semibold text-slate-700 transition hover:border-[#172B4D]/30 hover:bg-slate-100"
+            >
+              <SlidersHorizontal className="h-4 w-4 text-[#172B4D]" />
+              <span className="hidden sm:inline">Filtres</span>
+              {activeFilterCount > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#0B1730] px-1 text-[10px] font-bold text-white">
+                  {activeFilterCount}
                 </span>
-              </div>
-              <p className="text-xs text-[#64748B] mt-0.5">
-                Annonces vérifiées par des particuliers et professionnels · 69 Wilayas
-              </p>
-            </div>
-
-            <Link
-              to="/auto/catalog"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[#172B4D] hover:text-[#0B1730] group transition-colors shrink-0"
-            >
-              <span>Voir tout le catalogue</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
+              )}
+            </button>
           </div>
+          <button
+            type="submit"
+            className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#0B1730] px-4 text-sm font-semibold text-white transition hover:bg-[#172B4D] sm:px-5"
+          >
+            <Search className="h-4 w-4" />
+            <span className="hidden sm:inline">Rechercher</span>
+          </button>
+        </form>
 
-          {/* Filtres de vitrine segmentés au design moderne et tactile */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
-            <button
-              type="button"
-              onClick={() => setActiveTab("all")}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all duration-200 min-h-[40px] cursor-pointer whitespace-nowrap ${
-                activeTab === "all"
-                  ? "bg-[#0B1730] text-white shadow-md shadow-[#0B1730]/20 border border-[#0B1730]"
-                  : "bg-white text-slate-700 hover:text-slate-900 border border-slate-200 hover:border-slate-300 shadow-2xs"
-              }`}
-            >
-              Toutes les annonces
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("safia")}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all duration-200 min-h-[40px] cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                activeTab === "safia"
-                  ? "bg-[#0B1730] text-[#D9F66F] shadow-md shadow-[#0B1730]/20 border border-[#23416A]"
-                  : "bg-white text-slate-700 hover:text-slate-900 border border-slate-200 hover:border-slate-300 shadow-2xs"
-              }`}
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#D9F66F]" />
-              <span>Carte Grise Safia</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("showroom")}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all duration-200 min-h-[40px] cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                activeTab === "showroom"
-                  ? "bg-[#0B1730] text-[#D9F66F] shadow-md shadow-[#0B1730]/20 border border-[#23416A]"
-                  : "bg-white text-slate-700 hover:text-slate-900 border border-slate-200 hover:border-slate-300 shadow-2xs"
-              }`}
-            >
-              <Building2 className="w-3.5 h-3.5 text-[#D9F66F]" />
-              <span>Showrooms Pro</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("budget200")}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all duration-200 min-h-[40px] cursor-pointer whitespace-nowrap ${
-                activeTab === "budget200"
-                  ? "bg-[#0B1730] text-[#D9F66F] shadow-md shadow-[#0B1730]/20 border border-[#23416A]"
-                  : "bg-white text-slate-700 hover:text-slate-900 border border-slate-200 hover:border-slate-300 shadow-2xs"
-              }`}
-            >
-              Moins de 200M
-            </button>
+        <section aria-labelledby="auto-recent-heading">
+          <div className="mb-4 flex items-end justify-between gap-3">
+            <div>
+              <h1 id="auto-recent-heading" className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">
+                Annonces récentes
+              </h1>
+              <p className="mt-1 text-xs text-slate-500">Les derniers véhicules publiés sur Olma Auto</p>
+            </div>
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {[...Array(3)].map((_, i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-2xl border border-slate-200 p-4 h-64 animate-pulse"
+                  className="h-64 animate-pulse rounded-2xl border border-slate-200 bg-white p-4"
                 />
               ))}
             </div>
-          ) : filteredVehicles.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-              {filteredVehicles.map((vehicle) => (
+          ) : vehicles.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+              {vehicles.map((vehicle) => (
                 <VehicleCard key={vehicle.id} vehicle={vehicle} />
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-8 sm:p-12 text-center max-w-xl mx-auto shadow-xs">
-              <div className="w-14 h-14 rounded-2xl bg-[#0B1730] text-[#D9F66F] flex items-center justify-center mx-auto mb-4 shadow-sm">
-                <ShieldCheck className="w-7 h-7" />
-              </div>
-              <h3 className="text-base font-black text-slate-900 mb-1.5">
-                Aucun véhicule dans cette sélection pour le moment
-              </h3>
-              <p className="text-xs text-slate-500 mb-5 leading-relaxed">
-                Le catalogue se remplit quotidiennement d'annonces certifiées en Algérie. Vous
-                pouvez être le premier à proposer votre voiture dans cette catégorie !
+            <div className="mx-auto max-w-xl rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-12">
+              <h2 className="text-base font-bold text-slate-900">Aucune annonce pour le moment</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                Les nouveaux véhicules publiés apparaîtront ici. Lancez une recherche pour parcourir tout le catalogue.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Link
-                  to="/auto/deposer"
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-[#D9F66F] to-[#C5E94F] text-[#0B1730] shadow-[0_4px_14px_rgba(217,246,111,0.4)] hover:brightness-105 transition-all"
-                >
-                  Déposer une annonce gratuite
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("all")}
-                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
-                >
-                  Réinitialiser le filtre
-                </button>
-              </div>
             </div>
           )}
         </section>
 
-        {/* 5. Showrooms Partenaires Certifiés */}
-        <AutoShowroomsSection />
-
-        {/* 6. Guide de Confiance & Sécurité Transactionnelle */}
-        <AutoTrustSection />
+        <AutoFilterDrawer
+          isOpen={filtersOpen}
+          onClose={() => setFiltersOpen(false)}
+          filters={filters}
+          onChange={(updated) => setFilters((current) => ({ ...current, ...updated }))}
+          onReset={() => setFilters({})}
+          onApply={openResults}
+        />
       </div>
     </div>
   );
