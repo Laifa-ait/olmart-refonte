@@ -5,12 +5,16 @@ import { useNavigate } from "react-router-dom";
 interface MobileStudioHeaderProps {
   shopName?: string;
   isPublished?: boolean;
+  hasActiveSubscription?: boolean;
+  hasPendingRequest?: boolean;
   onPublish: () => void;
   onOpenMenu?: () => void;
 }
 
 export const MobileStudioHeader: React.FC<MobileStudioHeaderProps> = ({
   isPublished,
+  hasActiveSubscription = false,
+  hasPendingRequest = false,
   onPublish,
   onOpenMenu,
 }) => {
@@ -52,15 +56,25 @@ export const MobileStudioHeader: React.FC<MobileStudioHeaderProps> = ({
           isPublished ? "bg-[#16A34A] hover:bg-[#15803D]" : "bg-[#F97316] hover:bg-[#EA580C]"
         }`}
       >
-        {isPublished ? (
+        {hasPendingRequest && !hasActiveSubscription ? (
           <>
             <CheckCircle2 className="w-4 h-4" />
-            <span>Publié</span>
+            <span>Suivi</span>
+          </>
+        ) : isPublished ? (
+          <>
+            <Send className="w-4 h-4" />
+            <span>Mettre à jour</span>
+          </>
+        ) : hasActiveSubscription ? (
+          <>
+            <Send className="w-4 h-4" />
+            <span>Publier</span>
           </>
         ) : (
           <>
             <Send className="w-4 h-4" />
-            <span>Publier</span>
+            <span>Activer</span>
           </>
         )}
       </button>

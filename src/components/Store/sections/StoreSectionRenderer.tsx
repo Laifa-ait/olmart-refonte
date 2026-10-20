@@ -12,6 +12,7 @@ interface StoreSectionRendererProps {
   products: Product[];
   isEditable?: boolean;
   isSelected?: boolean;
+  previewViewport?: "mobile" | "tablet" | "desktop";
   onSelectSection?: (sectionId: string) => void;
 }
 
@@ -21,6 +22,7 @@ export const StoreSectionRenderer: React.FC<StoreSectionRendererProps> = ({
   products,
   isEditable,
   isSelected,
+  previewViewport,
   onSelectSection,
 }) => {
   if (!section.isVisible && !isEditable) {
@@ -34,9 +36,15 @@ export const StoreSectionRenderer: React.FC<StoreSectionRendererProps> = ({
   };
 
   const hiddenOpacityClass = !section.isVisible && isEditable ? "opacity-50 grayscale" : "";
+  const sectionSettings = section.settings as unknown as { hideOnMobile?: boolean; hideOnDesktop?: boolean };
+  const responsiveClass = !isEditable && sectionSettings.hideOnMobile
+    ? "hidden md:block"
+    : !isEditable && sectionSettings.hideOnDesktop
+    ? "block md:hidden"
+    : "";
 
   return (
-    <div className={`relative transition-all ${hiddenOpacityClass}`}>
+    <div id={typeof sectionSettings.anchorId === "string" ? sectionSettings.anchorId : undefined} className={`relative transition-all ${hiddenOpacityClass} ${responsiveClass}`}>
       {!section.isVisible && isEditable && (
         <span className="absolute top-2 right-2 z-20 bg-gray-800 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
           Masquée
@@ -49,6 +57,7 @@ export const StoreSectionRenderer: React.FC<StoreSectionRendererProps> = ({
           theme={theme}
           isEditable={isEditable}
           isSelected={isSelected}
+          previewViewport={previewViewport}
           onSelect={handleSelect}
         />
       )}

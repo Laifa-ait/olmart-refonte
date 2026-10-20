@@ -10,6 +10,9 @@ export const SectionStyleTab: React.FC<SectionStyleTabProps> = ({
   styles,
   onStylesChange,
 }) => {
+  const paddingValue = typeof styles.paddingY === "number"
+    ? styles.paddingY
+    : ({ sm: 16, md: 32, lg: 48, xl: 64 }[styles.paddingY || "md"]);
   return (
     <div className="space-y-4">
       {/* Background Color */}
@@ -19,14 +22,14 @@ export const SectionStyleTab: React.FC<SectionStyleTabProps> = ({
           <input
             type="color"
             value={styles.backgroundColor || "#ffffff"}
-            onChange={(e) => onStylesChange("backgroundColor", e.target.value)}
+            onChange={(e) => onStylesChange("backgroundColor", e.target.value || undefined)}
             className="w-8 h-8 rounded-lg border border-slate-200 cursor-pointer bg-transparent"
           />
           <input
             type="text"
             value={styles.backgroundColor || ""}
             placeholder="Hérité du thème"
-            onChange={(e) => onStylesChange("backgroundColor", e.target.value)}
+            onChange={(e) => onStylesChange("backgroundColor", e.target.value || undefined)}
             className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white"
           />
         </div>
@@ -39,31 +42,45 @@ export const SectionStyleTab: React.FC<SectionStyleTabProps> = ({
           <input
             type="color"
             value={styles.textColor || "#0f172a"}
-            onChange={(e) => onStylesChange("textColor", e.target.value)}
+            onChange={(e) => onStylesChange("textColor", e.target.value || undefined)}
             className="w-8 h-8 rounded-lg border border-slate-200 cursor-pointer bg-transparent"
           />
           <input
             type="text"
             value={styles.textColor || ""}
             placeholder="Hérité du thème"
-            onChange={(e) => onStylesChange("textColor", e.target.value)}
+            onChange={(e) => onStylesChange("textColor", e.target.value || undefined)}
             className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white"
           />
         </div>
+      </div>
+
+      <div className="space-y-1.5 border-t border-slate-200 pt-3">
+        <label className="block text-[11px] font-semibold text-slate-700">Arrondi de cette section</label>
+        <select
+          value={styles.borderRadius || "md"}
+          onChange={(e) => onStylesChange("borderRadius", e.target.value)}
+          className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-800 focus:border-orange-500 focus:outline-none"
+        >
+          <option value="none">Carré</option>
+          <option value="sm">Léger</option>
+          <option value="md">Arrondi</option>
+          <option value="lg">Très arrondi</option>
+        </select>
       </div>
 
       {/* Padding Y Slider */}
       <div className="space-y-1.5 pt-2 border-t border-slate-200">
         <div className="flex justify-between items-center text-xs">
           <span className="font-semibold text-slate-700 text-[11px]">Espacement vertical</span>
-          <span className="font-mono text-orange-600 font-bold">{styles.paddingY ?? 32}px</span>
+          <span className="font-mono text-orange-600 font-bold">{paddingValue}px</span>
         </div>
         <input
           type="range"
           min={0}
           max={96}
           step={8}
-          value={styles.paddingY ?? 32}
+          value={paddingValue}
           onChange={(e) => onStylesChange("paddingY", parseInt(e.target.value, 10))}
           className="w-full accent-orange-500 cursor-pointer"
         />

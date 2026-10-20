@@ -48,12 +48,35 @@ export const LiveCanvasPreview: React.FC<LiveCanvasPreviewProps> = ({
       {/* Web Fonts for real-time live preview */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=DM+Sans:wght@400;500;700&family=Outfit:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+        [data-studio-preview-viewport="mobile"] [class~="md:grid-cols-4"],
+        [data-studio-preview-viewport="mobile"] [class~="sm:grid-cols-3"],
+        [data-studio-preview-viewport="mobile"] [class~="lg:grid-cols-4"] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+        [data-studio-preview-viewport="mobile"] [class~="sm:grid-cols-2"],
+        [data-studio-preview-viewport="mobile"] [class~="lg:grid-cols-3"] { grid-template-columns: minmax(0, 1fr) !important; }
+        [data-studio-preview-viewport="mobile"] [class~="md:flex-row"],
+        [data-studio-preview-viewport="mobile"] [class~="sm:flex-row"] { flex-direction: column !important; }
+        [data-studio-preview-viewport="mobile"] [class~="md:w-1/2"] { width: 100% !important; }
+        [data-studio-preview-viewport="mobile"] [class~="md:h-80"] { height: 12rem !important; }
+        [data-studio-preview-viewport="mobile"] [class~="md:p-8"] { padding: 1.25rem !important; }
+        [data-studio-preview-viewport="mobile"] [class~="md:w-64"] { width: 14rem !important; }
+        [data-studio-preview-viewport="mobile"] [class~="md:text-5xl"] { font-size: 2rem !important; }
+        [data-studio-preview-viewport="mobile"] [class~="md:text-3xl"] { font-size: 1.5rem !important; }
+        [data-studio-preview-viewport="mobile"] [class~="md:text-xl"] { font-size: 1rem !important; }
+        [data-studio-preview-viewport="mobile"] [class~="md:text-base"] { font-size: 0.875rem !important; }
+        [data-studio-preview-viewport="mobile"] [class~="md:text-sm"] { font-size: 0.75rem !important; }
+        [data-studio-preview-viewport="mobile"] [class~="md:p-4"] { padding: 0.75rem !important; }
+        [data-studio-preview-viewport="mobile"] [class~="sm:text-right"] { text-align: left !important; }
+        [data-studio-preview-viewport="mobile"] [class~="sm:justify-end"] { justify-content: flex-start !important; }
+        [data-studio-preview-viewport="tablet"] [class~="md:grid-cols-4"],
+        [data-studio-preview-viewport="tablet"] [class~="lg:grid-cols-4"] { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+        [data-studio-preview-viewport="tablet"] [class~="lg:grid-cols-3"] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
       `}</style>
 
       <div className="flex flex-col items-center justify-start min-h-full w-full">
         {/* Frame wrapper */}
         <div
           className={`transition-all duration-200 ${containerClass}`}
+          data-studio-preview-viewport={viewport}
           style={canvasStyle}
         >
           {sections.length === 0 ? (
@@ -78,17 +101,22 @@ export const LiveCanvasPreview: React.FC<LiveCanvasPreviewProps> = ({
                   : undefined,
               }}
             >
-              {sections.map((section) => (
-                <StoreSectionRenderer
-                  key={section.id}
-                  section={section}
-                  theme={theme}
-                  products={products}
-                  isEditable={true}
-                  isSelected={section.id === selectedSectionId}
-                  onSelectSection={onSelectSection}
-                />
-              ))}
+              {sections.map((section) => {
+                const responsive = section.settings as unknown as { hideOnMobile?: boolean; hideOnDesktop?: boolean };
+                if ((viewport === "mobile" && responsive.hideOnMobile) || (viewport === "desktop" && responsive.hideOnDesktop)) return null;
+                return (
+                  <StoreSectionRenderer
+                    key={section.id}
+                    section={section}
+                    theme={theme}
+                    products={products}
+                    isEditable={true}
+                    isSelected={section.id === selectedSectionId}
+                    previewViewport={viewport}
+                    onSelectSection={onSelectSection}
+                  />
+                );
+              })}
             </div>
           )}
         </div>

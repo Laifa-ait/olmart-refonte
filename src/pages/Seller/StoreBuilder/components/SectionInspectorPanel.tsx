@@ -147,6 +147,7 @@ export const SectionInspectorPanel: React.FC<SectionInspectorPanelProps> = ({
       <div className="flex-1 overflow-y-auto p-4 space-y-4 text-[14px]">
         {activeTab === "content" && (
           <SectionContentTab
+            sectionType={section.type}
             settings={settings}
             products={products}
             onSettingsChange={handleSettingsChange}

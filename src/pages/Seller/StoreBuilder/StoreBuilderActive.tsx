@@ -6,11 +6,14 @@ import { StudioSubscriptionModal } from "./components/StudioSubscriptionModal";
 import {
   SubscriptionPlan,
   SubscriptionRequest,
+  SellerSubscription,
 } from "../../../domains/seller/subscription.types";
 import { RefreshCw } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface StoreBuilderActiveProps {
-  subscription?: unknown;
+  subscription?: SellerSubscription | null;
+  hasActiveSubscription?: boolean;
   daysRemaining?: number;
   sellerId?: string;
   plans?: SubscriptionPlan[];
@@ -23,14 +26,18 @@ interface StoreBuilderActiveProps {
     proofFileUrl?: string;
     receiptNote?: string;
   }) => Promise<void>;
+  onRefreshStatus?: () => Promise<void>;
 }
 
 export const StoreBuilderActive: React.FC<StoreBuilderActiveProps> = ({
-  daysRemaining = 14,
+  subscription,
+  hasActiveSubscription: hasActiveSubscriptionProp,
+  daysRemaining = 0,
   plans = [],
   pendingRequest,
   onRequestPlan,
   onSubmitProof,
+  onRefreshStatus,
 }) => {
   const {
     loading,
@@ -39,6 +46,7 @@ export const StoreBuilderActive: React.FC<StoreBuilderActiveProps> = ({
     sections,
     products,
     mediaGallery,
+    publishedLayout,
     selectedSectionId,
     setSelectedSectionId,
     addSection,
@@ -48,10 +56,17 @@ export const StoreBuilderActive: React.FC<StoreBuilderActiveProps> = ({
     duplicateSection,
     toggleVisibility,
     saveStoreConfig,
+    uploadMedia,
+    deleteMedia,
     publishStudio,
   } = useSellerStudio();
 
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
+
+  const openSubscriptionModal = () => {
+    setIsSubModalOpen(true);
+    void onRefreshStatus?.();
+  };
 
   if (loading) {
     return (
@@ -69,7 +84,16 @@ export const StoreBuilderActive: React.FC<StoreBuilderActiveProps> = ({
     );
   }
 
-  const isPublished = Boolean(storeConfig?.isPublished);
+  const hasActiveSubscription = hasActiveSubscriptionProp ?? Boolean(subscription);
+  const isPublished = Boolean(publishedLayout && hasActiveSubscription);
+  const sectionLimit = hasActiveSubscription ? subscription?.limits?.maxCustomSections : undefined;
+  const handlePublishStudio = () => {
+    if (typeof sectionLimit === "number" && sections.length > sectionLimit) {
+      toast.error(`Votre formule autorise ${sectionLimit} sections. Réduisez votre vitrine avant de la publier.`);
+      return;
+    }
+    void publishStudio();
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#F7F8FA]">
@@ -77,15 +101,22 @@ export const StoreBuilderActive: React.FC<StoreBuilderActiveProps> = ({
         daysRemaining={daysRemaining}
         pendingRequest={pendingRequest}
         isPublished={isPublished}
-        onOpenSubModal={() => setIsSubModalOpen(true)}
+        hasActiveSubscription={hasActiveSubscription}
+        sectionCount={sections.length}
+        sectionLimit={sectionLimit}
+        onOpenSubModal={openSubscriptionModal}
       />
 
       <StudioWorkspace
         saveStatus={saveStatus}
         storeConfig={storeConfig}
+        publishedLayout={publishedLayout}
+        hasActiveSubscription={hasActiveSubscription}
         sections={sections}
         products={products}
         mediaGallery={mediaGallery}
+        onUploadMedia={uploadMedia}
+        onDeleteMedia={deleteMedia}
         selectedSectionId={selectedSectionId}
         setSelectedSectionId={setSelectedSectionId}
         addSection={addSection}
@@ -95,9 +126,9 @@ export const StoreBuilderActive: React.FC<StoreBuilderActiveProps> = ({
         duplicateSection={duplicateSection}
         toggleVisibility={toggleVisibility}
         saveStoreConfig={saveStoreConfig}
-        publishStudio={publishStudio}
+        publishStudio={handlePublishStudio}
         pendingRequest={pendingRequest}
-        onRequestPublication={() => setIsSubModalOpen(true)}
+        onRequestPublication={openSubscriptionModal}
       />
 
       {onRequestPlan && onSubmitProof && (
@@ -109,6 +140,7 @@ export const StoreBuilderActive: React.FC<StoreBuilderActiveProps> = ({
           storeConfig={storeConfig}
           sections={sections}
           onRequestPlan={onRequestPlan}
+          onRefreshStatus={onRefreshStatus}
           onSubmitProof={onSubmitProof}
         />
       )}

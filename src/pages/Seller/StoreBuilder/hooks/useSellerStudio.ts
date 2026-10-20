@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { apiGet, apiPut, apiPost } from "../../../../lib/api";
+import { storage } from "../../../../lib/firebase";
+import { useAuth } from "../../../../context/AuthContext";
 import {
   StudioDataResponse,
   StoreConfig,
@@ -14,12 +17,14 @@ import { toast } from "react-hot-toast";
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 export function useSellerStudio() {
+  const { currentUser } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [storeConfig, setStoreConfig] = useState<StoreConfig | null>(null);
   const [sections, setSections] = useState<CustomPageSection[]>([]);
   const [historyList, setHistoryList] = useState<StoreHistoryEntry[]>([]);
   const [mediaGallery, setMediaGallery] = useState<MediaGalleryItem[]>([]);
+  const [publishedLayout, setPublishedLayout] = useState<StudioDataResponse["publishedLayout"]>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -41,6 +46,7 @@ export function useSellerStudio() {
         setSections(draftSections);
         setHistoryList(studioRes.data.historyList || []);
         setMediaGallery(studioRes.data.mediaGallery || []);
+        setPublishedLayout(studioRes.data.publishedLayout || null);
         if (draftSections.length > 0) {
           setSelectedSectionId(draftSections[0].id);
         }
@@ -175,6 +181,54 @@ export function useSellerStudio() {
     }
   };
 
+  const uploadMedia = useCallback(async (file: File): Promise<MediaGalleryItem> => {
+    if (!currentUser?.uid) throw new Error("Connectez-vous pour importer un média.");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      throw new Error("Formats acceptés : JPG, PNG et WebP.");
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error("Chaque image doit faire 5 Mo maximum.");
+    }
+
+    const extension = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
+    const safeName = file.name.replace(/[^a-zA-Z0-9_.-]/g, "_").slice(-70).replace(/\.[^.]+$/, "") || "image";
+    const fileName = `studio_${Date.now()}_${safeName}.${extension}`;
+    const fileRef = ref(storage, `shops/${currentUser.uid}/${fileName}`);
+    await uploadBytes(fileRef, file, { contentType: file.type });
+    const item: MediaGalleryItem = {
+      id: fileName,
+      url: await getDownloadURL(fileRef),
+      type: "image",
+      name: file.name.slice(0, 160),
+      sizeBytes: file.size,
+      uploadedAt: new Date().toISOString(),
+    };
+
+    const nextGallery = [item, ...mediaGallery.filter((existing) => existing.id !== item.id)].slice(0, 60);
+    try {
+      const response = await apiPut<{ success: boolean; data: StoreConfig }>("/api/v1/seller/store/config", {
+        mediaGallery: nextGallery.filter((entry) => entry.id.startsWith("studio_")),
+      });
+      if (response?.data) setStoreConfig(response.data);
+      setMediaGallery(nextGallery);
+      return item;
+    } catch (error) {
+      await deleteObject(fileRef).catch(() => undefined);
+      throw error;
+    }
+  }, [currentUser?.uid, mediaGallery]);
+
+  const deleteMedia = useCallback(async (id: string) => {
+    if (!currentUser?.uid || !id.startsWith("studio_")) return;
+    const item = mediaGallery.find((entry) => entry.id === id);
+    const nextGallery = mediaGallery.filter((entry) => entry.id !== id);
+    await apiPut("/api/v1/seller/store/config", {
+      mediaGallery: nextGallery.filter((entry) => entry.id.startsWith("studio_")),
+    });
+    setMediaGallery(nextGallery);
+    if (item) await deleteObject(ref(storage, `shops/${currentUser.uid}/${id}`)).catch(() => undefined);
+  }, [currentUser?.uid, mediaGallery]);
+
   const publishStudio = async (changeSummary?: string) => {
     try {
       setSaveStatus("saving");
@@ -211,6 +265,7 @@ export function useSellerStudio() {
     products,
     historyList,
     mediaGallery,
+    publishedLayout,
     selectedSectionId,
     setSelectedSectionId,
     hasUnsavedChanges,
@@ -221,6 +276,8 @@ export function useSellerStudio() {
     duplicateSection,
     toggleVisibility,
     saveStoreConfig,
+    uploadMedia,
+    deleteMedia,
     publishStudio,
     rollbackVersion,
     triggerAutoSave,

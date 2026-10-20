@@ -18,7 +18,8 @@ export type CustomPageSectionType =
 export interface CustomPageSectionStyles {
   backgroundColor?: string;
   textColor?: string;
-  paddingY?: "sm" | "md" | "lg" | "xl";
+  paddingY?: "sm" | "md" | "lg" | "xl" | number;
+  paddingX?: number;
   containerWidth?: "contained" | "full";
   borderRadius?: "none" | "sm" | "md" | "lg";
 }
@@ -98,7 +99,7 @@ export interface BrandStorySettings {
 
 export interface ShowcaseVideoSettings {
   title?: string;
-  videoUrl: string;
+  videoUrl?: string;
   posterUrl?: string;
   autoplay?: boolean;
   loop?: boolean;
@@ -230,8 +231,11 @@ export interface StoreConfig {
     phone?: string;
     email?: string;
   };
+  mediaGallery?: MediaGalleryItem[];
   updatedAt: string;
 }
+
+export type SellerStoreConfig = StoreConfig;
 
 export interface StoreLayoutVersion {
   versionNumber: number;

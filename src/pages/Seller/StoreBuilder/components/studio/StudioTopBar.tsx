@@ -19,6 +19,7 @@ interface StudioTopBarProps {
   shopName?: string;
   shopSlug?: string;
   isPublished?: boolean;
+  hasActiveSubscription?: boolean;
   pendingRequest?: SubscriptionRequest | null;
   onPublish: () => void;
   onRequestPublication?: () => void;
@@ -31,13 +32,15 @@ export const StudioTopBar: React.FC<StudioTopBarProps> = ({
   shopName = "Ma Boutique",
   shopSlug,
   isPublished,
+  hasActiveSubscription = false,
   pendingRequest,
   onPublish,
   onRequestPublication,
 }) => {
   const isPendingReview =
+    !hasActiveSubscription &&
     pendingRequest &&
-    ["pending", "payment_requested", "payment_declared"].includes(pendingRequest.status);
+    ["pending", "payment_requested", "payment_declared", "payment_confirmed"].includes(pendingRequest.status);
 
   const renderSaveStatus = () => {
     if (saveStatus === "saving") {
@@ -66,8 +69,8 @@ export const StudioTopBar: React.FC<StudioTopBarProps> = ({
     }
     return (
       <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[13px] text-[#667085]">
-        <span className="w-2 h-2 rounded-full bg-[#667085]" />
-        <span>Modifications non enregistrées</span>
+        <span className="w-2 h-2 rounded-full bg-[#16A34A]" />
+        <span>Brouillon prêt</span>
       </span>
     );
   };
@@ -140,15 +143,15 @@ export const StudioTopBar: React.FC<StudioTopBarProps> = ({
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2.5">
-        {shopSlug ? (
+        {shopSlug && hasActiveSubscription && isPublished ? (
           <a
             href={`/store/${shopSlug}`}
             target="_blank"
             rel="noreferrer"
             className="h-[44px] min-h-[44px] px-4 rounded-[10px] border border-[#E5E7EB] bg-[#FFFFFF] hover:bg-[#F7F8FA] text-[#17191C] text-[14px] font-medium flex items-center gap-2 transition-colors cursor-pointer"
           >
-            <ExternalLink className="w-4 h-4 text-[#667085]" />
-            <span>Aperçu</span>
+            <Smartphone className="w-4 h-4 text-[#667085]" />
+            <span>Aperçu mobile</span>
           </a>
         ) : (
           <button
@@ -163,7 +166,7 @@ export const StudioTopBar: React.FC<StudioTopBarProps> = ({
 
         <button
           type="button"
-          onClick={onRequestPublication || onPublish}
+          onClick={hasActiveSubscription ? () => onPublish() : onRequestPublication || onPublish}
           className={`h-[44px] min-h-[44px] px-5 rounded-[10px] text-[14px] font-semibold text-white flex items-center gap-2 transition-colors cursor-pointer shadow-xs ${
             isPendingReview
               ? "bg-[#EA580C] hover:bg-[#C2410C]"
@@ -174,18 +177,23 @@ export const StudioTopBar: React.FC<StudioTopBarProps> = ({
         >
           {isPendingReview ? (
             <>
-              <Clock className="w-4 h-4 animate-spin" />
-              <span>En vérification</span>
+              <Clock className="w-4 h-4" />
+              <span>{pendingRequest?.status === "payment_requested" ? "Paiement à effectuer" : "Dossier en cours"}</span>
             </>
           ) : isPublished ? (
             <>
               <CheckCircle2 className="w-4 h-4" />
-              <span>Publié</span>
+              <span>Mettre à jour</span>
+            </>
+          ) : hasActiveSubscription ? (
+            <>
+              <Send className="w-4 h-4" />
+              <span>Publier la boutique</span>
             </>
           ) : (
             <>
-              <Send className="w-4 h-4" />
-              <span>Publier</span>
+              <Sparkles className="w-4 h-4" />
+              <span>Activer ma boutique</span>
             </>
           )}
         </button>

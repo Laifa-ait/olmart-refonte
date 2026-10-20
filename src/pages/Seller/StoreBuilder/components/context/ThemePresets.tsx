@@ -1,5 +1,5 @@
 import React from "react";
-import { Palette, Check, Eye } from "lucide-react";
+import { Palette, Check } from "lucide-react";
 
 export const PRESET_THEMES = [
   {
@@ -66,13 +66,11 @@ export const PRESET_THEMES = [
 
 interface ThemePresetsProps {
   currentPrimaryColor?: string;
-  onPreviewTheme: (preset: typeof PRESET_THEMES[0]) => void;
   onApplyTheme: (preset: typeof PRESET_THEMES[0]) => void;
 }
 
 export const ThemePresets: React.FC<ThemePresetsProps> = ({
   currentPrimaryColor = "#F97316",
-  onPreviewTheme,
   onApplyTheme,
 }) => {
   return (
@@ -136,17 +134,8 @@ export const ThemePresets: React.FC<ThemePresetsProps> = ({
               <div className="flex items-center gap-2 pt-1 border-t border-[#E5E7EB]">
                 <button
                   type="button"
-                  onClick={() => onPreviewTheme(theme)}
-                  className="flex-1 h-8 px-2.5 bg-[#FFFFFF] border border-[#E5E7EB] hover:bg-[#F7F8FA] text-[#344054] text-[12px] font-medium rounded-lg flex items-center justify-center gap-1 transition-colors cursor-pointer"
-                >
-                  <Eye className="w-3.5 h-3.5 text-[#667085]" />
-                  <span>Prévisualiser</span>
-                </button>
-
-                <button
-                  type="button"
                   onClick={() => onApplyTheme(theme)}
-                  className="flex-1 h-8 px-2.5 bg-[#F97316] hover:bg-[#EA580C] text-white text-[12px] font-bold rounded-lg flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-xs"
+                  className="h-8 w-full px-2.5 bg-[#F97316] hover:bg-[#EA580C] text-white text-[12px] font-bold rounded-lg flex items-center justify-center gap-1 transition-colors cursor-pointer shadow-xs"
                 >
                   <span>Utiliser ce thème</span>
                 </button>

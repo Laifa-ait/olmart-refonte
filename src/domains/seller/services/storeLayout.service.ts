@@ -10,6 +10,7 @@ import {
 } from "../customPage.types";
 import { LegacyStoreAdapter } from "./legacyStore.adapter";
 import { invalidatePublicStorefrontCache } from "./storePublic.service";
+import { getSellerSubscriptionStatus } from "./sellerSubscription.service";
 import { safeLogger } from "../../../utils/logger";
 
 const MAX_HISTORY_RETENTION = 10;
@@ -74,18 +75,25 @@ export class StoreLayoutService {
       };
     });
 
-    const mediaGallery: MediaGalleryItem[] = [];
+    const mediaGallery: MediaGalleryItem[] = [...(storeConfig.mediaGallery || [])];
+    const knownMediaUrls = new Set(mediaGallery.map((item) => item.url));
+    const addMedia = (item: MediaGalleryItem) => {
+      if (!item.url || knownMediaUrls.has(item.url)) return;
+      knownMediaUrls.add(item.url);
+      mediaGallery.push(item);
+    };
     if (storeConfig.logoUrl) {
-      mediaGallery.push({ id: "logo", url: storeConfig.logoUrl, type: "image", name: "Logo officiel", uploadedAt: storeConfig.updatedAt });
+      addMedia({ id: "logo", url: storeConfig.logoUrl, type: "image", name: "Logo officiel", uploadedAt: storeConfig.updatedAt });
     }
     if (storeConfig.bannerUrl) {
-      mediaGallery.push({ id: "banner", url: storeConfig.bannerUrl, type: "image", name: "Bannière d'en-tête", uploadedAt: storeConfig.updatedAt });
+      addMedia({ id: "banner", url: storeConfig.bannerUrl, type: "image", name: "Bannière d'en-tête", uploadedAt: storeConfig.updatedAt });
     }
     productsSnap.docs.forEach((d) => {
       const p = d.data();
-      if (p.image && typeof p.image === "string") {
-        mediaGallery.push({ id: `prod_${d.id}`, url: p.image, type: "image", name: String(p.name || "Produit"), uploadedAt: storeConfig.updatedAt });
-      }
+      const productImages = [p.image, ...(Array.isArray(p.images) ? p.images : [])];
+      productImages.forEach((url, index) => {
+        if (typeof url === "string") addMedia({ id: `prod_${d.id}_${index}`, url, type: "image", name: String(p.name || "Produit"), uploadedAt: storeConfig.updatedAt });
+      });
     });
 
     return {
@@ -93,7 +101,7 @@ export class StoreLayoutService {
       draftLayout: layoutDocData.draft,
       publishedLayout: layoutDocData.published,
       historyList,
-      mediaGallery,
+      mediaGallery: mediaGallery.slice(0, 120),
     };
   }
 
@@ -257,6 +265,11 @@ export class StoreLayoutService {
    * Publishes draft layout atomically, logs history snapshot, and prunes older versions.
    */
   static async publishLayout(sellerId: string, changeSummary?: string): Promise<StoreLayoutVersion> {
+    const subscriptionStatus = await getSellerSubscriptionStatus(sellerId);
+    if (!subscriptionStatus.hasActiveSubscription || !subscriptionStatus.subscription) {
+      throw new Error("Un abonnement Studio actif est nécessaire pour mettre votre boutique en ligne. Votre brouillon reste accessible.");
+    }
+
     const layoutRef = db.collection("store_layouts").doc(sellerId);
     return await db.runTransaction(async (t) => {
       const doc = await t.get(layoutRef);
@@ -266,6 +279,10 @@ export class StoreLayoutService {
       const data = doc.data() as StoreLayoutDocument;
       if (!data.draft || data.draft.sections.length === 0) {
         throw new Error("Le brouillon est vide. Impossible de publier un agencement sans sections.");
+      }
+      const sectionLimit = subscriptionStatus.subscription.limits?.maxCustomSections;
+      if (typeof sectionLimit === "number" && data.draft.sections.length > sectionLimit) {
+        throw new Error(`Votre formule autorise ${sectionLimit} sections au maximum. Réduisez votre vitrine avant de la publier.`);
       }
 
       const newVersionNumber = (data.currentVersion || 1) + 1;

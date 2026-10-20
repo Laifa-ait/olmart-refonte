@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Send, AlertCircle, ShieldCheck, X } from "lucide-react";
 import { SubscriptionPlan, SubscriptionRequest } from "../../../../domains/seller/subscription.types";
 import { StoreConfig, CustomPageSection } from "../../../../domains/seller/customPage.types";
@@ -14,6 +14,7 @@ interface StudioSubscriptionModalProps {
   storeConfig?: StoreConfig | null;
   sections?: CustomPageSection[];
   onRequestPlan: (planId: string) => Promise<void>;
+  onRefreshStatus?: () => Promise<void>;
   onSubmitProof: (payload: {
     requestId: string;
     transactionReference: string;
@@ -31,20 +32,21 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
   storeConfig = null,
   sections = [],
   onRequestPlan,
+  onRefreshStatus,
   onSubmitProof,
 }) => {
   const [selectedPlanId, setSelectedPlanId] = useState<string>(
     plans[1]?.id || plans[0]?.id || "pro_creator"
   );
 
-  const initialStep =
-    pendingRequest?.status === "payment_declared"
-      ? "pending"
-      : pendingRequest?.status === "payment_requested"
-      ? "payment"
-      : "review";
+  const getStepForRequest = (): "review" | "choose" | "payment" | "pending" | "waiting" => {
+    if (pendingRequest?.status === "payment_requested") return "payment";
+    if (["payment_declared", "payment_confirmed"].includes(pendingRequest?.status || "")) return "pending";
+    if (pendingRequest?.status === "pending") return "waiting";
+    return "review";
+  };
 
-  const [step, setStep] = useState<"review" | "choose" | "payment" | "pending">(initialStep);
+  const [step, setStep] = useState<"review" | "choose" | "payment" | "pending" | "waiting">(getStepForRequest);
 
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [transactionReference, setTransactionReference] = useState("");
@@ -53,6 +55,10 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
   const [receiptNote, setReceiptNote] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) setStep(getStepForRequest());
+  }, [isOpen, pendingRequest?.id, pendingRequest?.status]);
 
   if (!isOpen) return null;
 
@@ -67,7 +73,7 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
     setError(null);
     try {
       await onRequestPlan(planId);
-      setStep("payment");
+      setStep("waiting");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur lors de la sélection du forfait.");
     } finally {
@@ -96,13 +102,7 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
     }
   };
 
-  const instructions = pendingRequest?.paymentInstructions || {
-    bankName: "Banque Nationale d'Algérie (BNA) / CCP Algérie Poste",
-    accountHolder: "OLMART E-COMMERCE ALGERIE EURL",
-    rib: "007 99999 000000000000 00 (CCP: 21000000 Clé 99)",
-    amount: plans.find((p) => p.id === selectedPlanId)?.priceDZD || 7000,
-    referenceCode: `OLM-${Date.now().toString().slice(-6)}`,
-  };
+  const instructions = pendingRequest?.paymentInstructions;
 
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
@@ -118,7 +118,7 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
                 Publication & Activation de votre Boutique
               </h3>
               <p className="text-xs text-slate-500">
-                Processus officiel de mise en ligne sécurisé avec l'administration Olmart.
+                Créez votre vitrine gratuitement, puis activez sa publication avec un abonnement.
               </p>
             </div>
           </div>
@@ -159,7 +159,7 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
         )}
 
         {/* STEP 3: Instructions & Déclaration Paiement DZD */}
-        {step === "payment" && (
+        {step === "payment" && instructions && pendingRequest?.status === "payment_requested" && (
           <SubscriptionStepPayment
             instructions={instructions}
             copiedField={copiedField}
@@ -176,6 +176,48 @@ export const StudioSubscriptionModal: React.FC<StudioSubscriptionModalProps> = (
             onBackToChoose={() => setStep("choose")}
             onSubmitPayment={handleSubmitPayment}
           />
+        )}
+
+        {step === "payment" && (!instructions || pendingRequest?.status !== "payment_requested") && (
+          <div className="p-6 text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto">
+              <ShieldCheck className="w-7 h-7" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-base font-bold text-slate-900">Coordonnées de paiement en attente</h4>
+              <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+                Les informations de paiement seront affichées ici dès qu'elles auront été transmises par l'équipe Olmart. Aucun virement n'est à effectuer avant leur réception.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={async () => { await onRefreshStatus?.(); setStep("waiting"); }}
+              className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl cursor-pointer transition-colors"
+            >
+              Actualiser le statut
+            </button>
+          </div>
+        )}
+
+        {step === "waiting" && (
+          <div className="p-6 text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto">
+              <ShieldCheck className="w-7 h-7" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-base font-bold text-slate-900">Votre demande a bien été reçue</h4>
+              <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
+                Vous pouvez continuer à personnaliser votre boutique. L'activation sera possible après réception des instructions, déclaration du paiement et validation de l'abonnement.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={async () => { await onRefreshStatus?.(); }}
+              className="px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-xl cursor-pointer transition-colors"
+            >
+              Actualiser le statut
+            </button>
+          </div>
         )}
 
         {/* STEP 4: En attente de vérification Admin */}

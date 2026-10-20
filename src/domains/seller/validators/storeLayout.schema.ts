@@ -15,12 +15,22 @@ const safeMediaUrl = z.string().url("URL de média invalide").refine((val) => {
   }
 }, "L'URL du média doit être un lien sécurisé HTTPS");
 
+const safeNavigationTarget = z.string().max(200).refine((value) => {
+  if (value.startsWith("#") || (value.startsWith("/") && !value.startsWith("//"))) return true;
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}, "Le lien doit être une ancre, une route interne ou une URL HTTPS.");
+
 const hexColor = z.string().regex(HEX_COLOR_REGEX, "Format hexadécimal invalide (#RRGGBB)").optional();
 
 export const sectionStylesSchema = z.object({
   backgroundColor: hexColor,
   textColor: hexColor,
-  paddingY: z.enum(["sm", "md", "lg", "xl"]).optional(),
+  paddingY: z.union([z.enum(["sm", "md", "lg", "xl"]), z.number().min(0).max(120)]).optional(),
+  paddingX: z.number().min(0).max(48).optional(),
   containerWidth: z.enum(["contained", "full"]).optional(),
   borderRadius: z.enum(["none", "sm", "md", "lg"]).optional(),
 }).strict();
@@ -31,13 +41,16 @@ const heroBannerSchema = z.object({
   type: z.literal("hero_banner"),
   title: z.string().max(120).optional(),
   settings: z.object({
+    hideOnMobile: z.boolean().optional(),
+    hideOnDesktop: z.boolean().optional(),
+    anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
     title: z.string().min(1, "Le titre est obligatoire").max(120),
     subtitle: z.string().max(250).optional(),
     badgeText: z.string().max(40).optional(),
     imageUrl: safeMediaUrl,
     mobileImageUrl: safeMediaUrl.optional(),
     ctaText: z.string().max(40).optional(),
-    ctaLink: z.string().max(200).optional(),
+    ctaLink: safeNavigationTarget.optional(),
     textAlignment: z.enum(["left", "center", "right"]).optional().default("center"),
     overlayOpacity: z.number().min(0).max(80).optional().default(30),
   }).strict(),
@@ -51,7 +64,7 @@ const promoSlideSchema = z.object({
   id: z.string().min(1),
   imageUrl: safeMediaUrl,
   title: z.string().max(100).optional(),
-  link: z.string().max(200).optional(),
+  link: safeNavigationTarget.optional(),
 }).strict();
 
 const promoCarouselSchema = z.object({
@@ -59,6 +72,9 @@ const promoCarouselSchema = z.object({
   type: z.literal("promo_carousel"),
   title: z.string().max(100).optional(),
   settings: z.object({
+    hideOnMobile: z.boolean().optional(),
+    hideOnDesktop: z.boolean().optional(),
+    anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
     slides: z.array(promoSlideSchema).min(1, "Au moins 1 diapositive").max(5, "Maximum 5 diapositives"),
     autoplay: z.boolean().optional().default(true),
     intervalSec: z.number().min(2).max(15).optional().default(5),
@@ -81,8 +97,11 @@ const featuredCategoriesSchema = z.object({
   type: z.literal("featured_categories"),
   title: z.string().max(100).optional(),
   settings: z.object({
+    hideOnMobile: z.boolean().optional(),
+    hideOnDesktop: z.boolean().optional(),
+    anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
     title: z.string().max(100).optional(),
-    categories: z.array(categoryItemSchema).min(1).max(12),
+    categories: z.array(categoryItemSchema).max(12),
     layout: z.enum(["grid", "carousel"]).optional().default("grid"),
   }).strict(),
   styles: sectionStylesSchema,
@@ -95,7 +114,7 @@ const curatedCollectionItemSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1).max(80),
   imageUrl: safeMediaUrl.optional(),
-  productIds: z.array(z.string().min(1)).min(1).max(20),
+  productIds: z.array(z.string().min(1)).max(20),
 }).strict();
 
 const curatedCollectionsSchema = z.object({
@@ -103,8 +122,11 @@ const curatedCollectionsSchema = z.object({
   type: z.literal("curated_collections"),
   title: z.string().max(100).optional(),
   settings: z.object({
+    hideOnMobile: z.boolean().optional(),
+    hideOnDesktop: z.boolean().optional(),
+    anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
     title: z.string().max(100).optional(),
-    collections: z.array(curatedCollectionItemSchema).min(1).max(6),
+    collections: z.array(curatedCollectionItemSchema).max(6),
   }).strict(),
   styles: sectionStylesSchema,
   isVisible: z.boolean().default(true),
@@ -118,6 +140,9 @@ const productFeedSchema = (type: "new_arrivals" | "best_sellers" | "product_grid
     type: z.literal(type),
     title: z.string().max(100).optional(),
     settings: z.object({
+      hideOnMobile: z.boolean().optional(),
+      hideOnDesktop: z.boolean().optional(),
+      anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
       title: z.string().max(100).optional(),
       subtitle: z.string().max(200).optional(),
       maxItems: z.number().int().min(2).max(24).optional().default(8),
@@ -135,8 +160,11 @@ const featuredProductsSchema = z.object({
   type: z.literal("featured_products"),
   title: z.string().max(100).optional(),
   settings: z.object({
+    hideOnMobile: z.boolean().optional(),
+    hideOnDesktop: z.boolean().optional(),
+    anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
     title: z.string().max(100).optional(),
-    productIds: z.array(z.string().min(1)).min(1, "Au moins 1 produit sélectionné").max(20, "Maximum 20 produits"),
+    productIds: z.array(z.string().min(1)).max(20, "Maximum 20 produits"),
     layout: z.enum(["grid", "carousel"]).optional().default("grid"),
   }).strict(),
   styles: sectionStylesSchema,
@@ -150,6 +178,9 @@ const brandStorySchema = z.object({
   type: z.literal("brand_story"),
   title: z.string().max(100).optional(),
   settings: z.object({
+    hideOnMobile: z.boolean().optional(),
+    hideOnDesktop: z.boolean().optional(),
+    anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
     heading: z.string().min(1).max(120),
     bodyText: z.string().min(1).max(2000),
     imageUrl: safeMediaUrl.optional(),
@@ -168,8 +199,11 @@ const showcaseVideoSchema = z.object({
   type: z.literal("showcase_video"),
   title: z.string().max(100).optional(),
   settings: z.object({
+    hideOnMobile: z.boolean().optional(),
+    hideOnDesktop: z.boolean().optional(),
+    anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
     title: z.string().max(100).optional(),
-    videoUrl: safeMediaUrl,
+    videoUrl: safeMediaUrl.optional(),
     posterUrl: safeMediaUrl.optional(),
     autoplay: z.boolean().optional().default(false),
     loop: z.boolean().optional().default(false),
@@ -186,6 +220,9 @@ const verifiedReviewsSchema = z.object({
   type: z.literal("verified_reviews"),
   title: z.string().max(100).optional(),
   settings: z.object({
+    hideOnMobile: z.boolean().optional(),
+    hideOnDesktop: z.boolean().optional(),
+    anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
     title: z.string().max(100).optional(),
     maxReviews: z.number().int().min(1).max(12).optional().default(6),
     filterMinRating: z.number().min(1).max(5).optional().default(4),
@@ -208,6 +245,9 @@ const deliveryInfoSchema = z.object({
   type: z.literal("delivery_info"),
   title: z.string().max(100).optional(),
   settings: z.object({
+    hideOnMobile: z.boolean().optional(),
+    hideOnDesktop: z.boolean().optional(),
+    anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
     title: z.string().max(100).optional(),
     defaultTimeframe: z.string().max(60).optional(),
     customTariffs: z.array(deliveryInfoItemSchema).max(69).optional(),
@@ -224,6 +264,9 @@ const returnPolicySchema = z.object({
   type: z.literal("return_policy"),
   title: z.string().max(100).optional(),
   settings: z.object({
+    hideOnMobile: z.boolean().optional(),
+    hideOnDesktop: z.boolean().optional(),
+    anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
     title: z.string().max(100).optional(),
     delayDays: z.number().int().min(1).max(90).default(14),
     conditions: z.string().min(1).max(1500),
@@ -245,8 +288,11 @@ const faqAccordionSchema = z.object({
   type: z.literal("faq_accordion"),
   title: z.string().max(100).optional(),
   settings: z.object({
+    hideOnMobile: z.boolean().optional(),
+    hideOnDesktop: z.boolean().optional(),
+    anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
     title: z.string().max(100).optional(),
-    items: z.array(faqItemSchema).min(1, "Au moins une question/réponse").max(10, "Maximum 10 questions"),
+    items: z.array(faqItemSchema).max(10, "Maximum 10 questions"),
   }).strict(),
   styles: sectionStylesSchema,
   isVisible: z.boolean().default(true),
@@ -259,6 +305,9 @@ const contactFooterSchema = z.object({
   type: z.literal("contact_footer"),
   title: z.string().max(100).optional(),
   settings: z.object({
+    hideOnMobile: z.boolean().optional(),
+    hideOnDesktop: z.boolean().optional(),
+    anchorId: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,49}$/).optional(),
     shopPhone: z.string().max(30).optional(),
     shopEmail: z.string().email("Email invalide").max(100).optional().or(z.literal("")),
     address: z.string().max(200).optional(),
@@ -336,6 +385,14 @@ export const storeConfigSchema = z.object({
     phone: z.string().max(30).optional(),
     email: z.string().email().max(100).optional().or(z.literal("")),
   }).optional(),
+  mediaGallery: z.array(z.object({
+    id: z.string().min(1).max(120),
+    url: safeMediaUrl,
+    type: z.enum(["image", "video"]),
+    name: z.string().max(160).optional(),
+    sizeBytes: z.number().int().nonnegative().max(50 * 1024 * 1024).optional(),
+    uploadedAt: z.string().max(40),
+  }).strict()).max(60).optional(),
 });
 
 export const saveDraftLayoutSchema = z.object({

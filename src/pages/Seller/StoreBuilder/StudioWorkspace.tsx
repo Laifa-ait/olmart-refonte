@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { toast } from "react-hot-toast";
 import "./studio-tokens.css";
 import { StudioTopBar } from "./components/studio/StudioTopBar";
 import { StudioSidebar } from "./components/studio/StudioSidebar";
@@ -15,15 +16,22 @@ import {
   CustomPageSectionType,
   CustomPageTheme,
   SellerStoreConfig,
+  StoreLayoutVersion,
+  MediaGalleryItem,
 } from "../../../domains/seller/customPage.types";
 import { SubscriptionRequest } from "../../../domains/seller/subscription.types";
+import { Product } from "../../../domains/product/product.types";
 
 interface StudioWorkspaceProps {
   saveStatus: SaveStatus;
   storeConfig?: SellerStoreConfig | null;
+  publishedLayout?: StoreLayoutVersion | null;
+  hasActiveSubscription?: boolean;
   sections: CustomPageSection[];
-  products?: unknown[];
-  mediaGallery?: unknown[];
+  products?: Product[];
+  mediaGallery?: MediaGalleryItem[];
+  onUploadMedia?: (file: File) => Promise<MediaGalleryItem>;
+  onDeleteMedia?: (id: string) => Promise<void>;
   selectedSectionId: string | null;
   setSelectedSectionId: (id: string | null) => void;
   addSection: (
@@ -45,9 +53,13 @@ interface StudioWorkspaceProps {
 export const StudioWorkspace: React.FC<StudioWorkspaceProps> = ({
   saveStatus,
   storeConfig,
+  publishedLayout,
+  hasActiveSubscription = false,
   sections,
   products = [],
   mediaGallery = [],
+  onUploadMedia,
+  onDeleteMedia,
   selectedSectionId,
   setSelectedSectionId,
   addSection,
@@ -75,7 +87,7 @@ export const StudioWorkspace: React.FC<StudioWorkspaceProps> = ({
     fontFamily: "'Plus Jakarta Sans', sans-serif",
   };
 
-  const isPublished = Boolean(storeConfig?.isPublished);
+  const isPublished = Boolean(publishedLayout && hasActiveSubscription);
 
   const handleSaveTheme = async (updatedTheme: CustomPageTheme) => {
     setLiveThemeOverride(updatedTheme);
@@ -91,6 +103,50 @@ export const StudioWorkspace: React.FC<StudioWorkspaceProps> = ({
     }
   };
 
+  const handleSelectMediaUrl = (url: string) => {
+    if (!selectedSection) {
+      toast.error("Sélectionnez d'abord une section avec un visuel.");
+      return;
+    }
+    const settings = selectedSection.settings as unknown as Record<string, unknown>;
+    const field = typeof settings.imageUrl === "string"
+      ? "imageUrl"
+      : typeof settings.posterUrl === "string"
+      ? "posterUrl"
+      : typeof settings.videoUrl === "string"
+      ? "videoUrl"
+      : selectedSection.type === "showcase_video"
+      ? "posterUrl"
+      : null;
+    if (field) {
+      updateSection(selectedSection.id, {
+        settings: { ...settings, [field]: url } as unknown as CustomPageSection["settings"],
+      });
+    } else {
+      const listField = selectedSection.type === "promo_carousel"
+        ? "slides"
+        : selectedSection.type === "featured_categories"
+        ? "categories"
+        : selectedSection.type === "curated_collections"
+        ? "collections"
+        : null;
+      const list = listField && Array.isArray(settings[listField])
+        ? settings[listField] as Array<Record<string, unknown>>
+        : [];
+      if (!listField || list.length === 0) {
+        toast.error("Ajoutez d'abord un élément dans cette section pour y placer un visuel.");
+        return;
+      }
+      const firstItem = { ...list[0], imageUrl: url };
+      updateSection(selectedSection.id, {
+        settings: { ...settings, [listField]: [firstItem, ...list.slice(1)] } as unknown as CustomPageSection["settings"],
+      });
+    }
+    setNavMode("sections");
+    setMobileColumn("inspector");
+    toast.success("Visuel appliqué à la section sélectionnée.");
+  };
+
   return (
     <div className="flex flex-col h-full md:h-[calc(100vh-10px)] bg-[#F7F8FA] text-[#17191C] overflow-hidden select-none min-w-0 min-h-0">
       {/* 1. Desktop TopBar (Visible strictly on Tablet/Desktop md+) */}
@@ -102,6 +158,7 @@ export const StudioWorkspace: React.FC<StudioWorkspaceProps> = ({
           shopName={storeConfig?.shopName || "Ma Boutique"}
           shopSlug={storeConfig?.shopSlug}
           isPublished={isPublished}
+          hasActiveSubscription={hasActiveSubscription}
           pendingRequest={pendingRequest}
           onPublish={publishStudio}
           onRequestPublication={onRequestPublication}
@@ -113,7 +170,9 @@ export const StudioWorkspace: React.FC<StudioWorkspaceProps> = ({
         <MobileStudioHeader
           shopName={storeConfig?.shopName || "Ma Boutique"}
           isPublished={isPublished}
-          onPublish={onRequestPublication || publishStudio}
+          hasActiveSubscription={hasActiveSubscription}
+          hasPendingRequest={Boolean(pendingRequest)}
+          onPublish={hasActiveSubscription ? publishStudio : onRequestPublication || publishStudio}
           onOpenMenu={() => setIsMobileMenuOpen(true)}
         />
         <MobileStudioNavigation
@@ -198,7 +257,11 @@ export const StudioWorkspace: React.FC<StudioWorkspaceProps> = ({
             selectedSection={selectedSection}
             products={products}
             storeConfig={storeConfig}
+            currentTheme={currentTheme}
             mediaGallery={mediaGallery}
+            onSelectMediaUrl={handleSelectMediaUrl}
+            onUploadMedia={onUploadMedia}
+            onDeleteMedia={onDeleteMedia}
             onUpdateSection={updateSection}
             onSaveTheme={handleSaveTheme}
             onThemeChangeLive={(newTheme) => setLiveThemeOverride(newTheme)}

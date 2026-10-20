@@ -1,6 +1,7 @@
 import { db } from "../../../config/firebase-admin";
 import { StoreConfig, StoreLayoutVersion } from "../customPage.types";
 import { LegacyStoreAdapter } from "./legacyStore.adapter";
+import { getSellerSubscriptionStatus } from "./sellerSubscription.service";
 import { USER_STATUSES } from "../../user/user.status";
 
 export interface PublicStorefrontResponse {
@@ -119,10 +120,16 @@ export class StorePublicService {
 
     const activeProductIds = productsSnap.docs.map((d) => d.id);
     let publishedLayout: StoreLayoutVersion;
+    let studioIsPublic = false;
 
     if (layoutDoc.exists) {
       const layoutData = layoutDoc.data();
-      if (layoutData?.published && Array.isArray(layoutData.published.sections)) {
+      const hasPublishedStudio = Boolean(layoutData?.published && Array.isArray(layoutData.published.sections));
+      const subscriptionStatus = hasPublishedStudio
+        ? await getSellerSubscriptionStatus(targetSellerId)
+        : null;
+      studioIsPublic = Boolean(hasPublishedStudio && subscriptionStatus?.hasActiveSubscription);
+      if (studioIsPublic) {
         publishedLayout = {
           ...layoutData.published,
           sections: layoutData.published.sections
@@ -150,7 +157,12 @@ export class StorePublicService {
       sellerId: targetSellerId,
       canonicalSlug,
       ...(shouldRedirectSlug ? { redirectToSlug: shouldRedirectSlug } : {}),
-      storeConfig,
+      storeConfig: studioIsPublic
+        ? storeConfig
+        : {
+            ...storeConfig,
+            theme: LegacyStoreAdapter.buildStoreConfig(targetSellerId, userData, pubData).theme,
+          },
       publishedLayout,
       activeCoupons,
       trustMetrics: {

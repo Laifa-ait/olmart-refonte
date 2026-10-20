@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { MediaGalleryItem } from "../../../../../domains/seller/customPage.types";
 import {
   Upload,
@@ -6,6 +6,7 @@ import {
   Trash2,
   CheckCircle2,
   FileImage,
+  LoaderCircle,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { MediaCard } from "./MediaCard";
@@ -13,22 +14,25 @@ import { MediaCard } from "./MediaCard";
 interface MediaInspectorPanelProps {
   mediaGallery: MediaGalleryItem[];
   onSelectMediaUrl?: (url: string) => void;
-  onUploadMedia?: (files: FileList) => Promise<void>;
-  onDeleteMedia?: (id: string) => void;
+  onUploadMedia?: (file: File) => Promise<MediaGalleryItem>;
+  onDeleteMedia?: (id: string) => Promise<void>;
 }
 
 export const MediaInspectorPanel: React.FC<MediaInspectorPanelProps> = ({
   mediaGallery,
   onSelectMediaUrl,
+  onUploadMedia,
   onDeleteMedia,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<"all" | "images" | "logos" | "banners">("all");
   const [selectedMedia, setSelectedMedia] = useState<MediaGalleryItem | null>(null);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
-  const [altText, setAltText] = useState("");
   const [localItems, setLocalItems] = useState<MediaGalleryItem[]>(mediaGallery);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => setLocalItems(mediaGallery), [mediaGallery]);
 
   const handleCopy = (url: string) => {
     navigator.clipboard?.writeText(url);
@@ -37,48 +41,37 @@ export const MediaInspectorPanel: React.FC<MediaInspectorPanelProps> = ({
     setTimeout(() => setCopiedUrl(null), 2000);
   };
 
-  const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          const newItem: MediaGalleryItem = {
-            id: `media_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-            name: file.name,
-            url: event.target.result as string,
-            type: "image",
-            sizeBytes: file.size,
-          };
-          setLocalItems((prev) => [newItem, ...prev]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-
-    toast.success(`${files.length} média(s) importé(s) avec succès !`);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const handleFilesSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length || !onUploadMedia) return;
+    setIsUploading(true);
+    try {
+      const uploaded = await Promise.all(files.map((file) => onUploadMedia(file)));
+      setLocalItems((prev) => [...uploaded, ...prev.filter((item) => !uploaded.some((entry) => entry.id === item.id))]);
+      toast.success(`${uploaded.length} image${uploaded.length > 1 ? "s" : ""} ajoutée${uploaded.length > 1 ? "s" : ""} à votre médiathèque.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "L'import de l'image a échoué.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
-  const handleDelete = (id: string) => {
-    setLocalItems((prev) => prev.filter((item) => item.id !== id));
-    if (selectedMedia?.id === id) {
-      setSelectedMedia(null);
+  const handleDelete = async (id: string) => {
+    if (!onDeleteMedia) return;
+    try {
+      await onDeleteMedia(id);
+      setLocalItems((prev) => prev.filter((item) => item.id !== id));
+      if (selectedMedia?.id === id) setSelectedMedia(null);
+      toast.success("Image supprimée de la médiathèque.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "La suppression de l'image a échoué.");
     }
-    if (onDeleteMedia) {
-      onDeleteMedia(id);
-    }
-    toast.success("Visuel supprimé de la médiathèque");
   };
 
   const handleUseImage = (url: string) => {
     if (onSelectMediaUrl) {
       onSelectMediaUrl(url);
-      toast.success("Image appliquée au champ actif");
     } else {
       handleCopy(url);
     }
@@ -106,17 +99,18 @@ export const MediaInspectorPanel: React.FC<MediaInspectorPanelProps> = ({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#F97316] hover:bg-[#EA580C] px-3.5 text-[13px] font-semibold text-white transition-colors cursor-pointer shadow-xs shrink-0"
+            disabled={isUploading || !onUploadMedia}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-[#F97316] hover:bg-[#EA580C] px-3.5 text-[13px] font-semibold text-white transition-colors cursor-pointer shadow-xs shrink-0 disabled:opacity-60 disabled:cursor-wait"
           >
-            <Upload className="h-4 w-4" />
-            <span>Importer</span>
+            {isUploading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            <span>{isUploading ? "Import en cours" : "Importer"}</span>
           </button>
 
           <input
             ref={fileInputRef}
             type="file"
             multiple
-            accept="image/jpeg,image/png,image/webp,image/avif"
+            accept="image/jpeg,image/png,image/webp"
             className="sr-only hidden"
             onChange={handleFilesSelected}
           />
@@ -147,7 +141,7 @@ export const MediaInspectorPanel: React.FC<MediaInspectorPanelProps> = ({
                   : "text-[#667085] hover:bg-[#F3F4F6]"
               }`}
             >
-              {cat === "all" ? "Tous" : cat}
+              {{ all: "Tous", images: "Images", logos: "Logos", banners: "Bannières" }[cat]}
             </button>
           ))}
         </div>
@@ -166,16 +160,6 @@ export const MediaInspectorPanel: React.FC<MediaInspectorPanelProps> = ({
               ×
             </button>
           </div>
-          <div className="space-y-1">
-            <label className="text-[#667085] block font-medium">Texte alternatif (Alt SEO)</label>
-            <input
-              type="text"
-              value={altText}
-              onChange={(e) => setAltText(e.target.value)}
-              placeholder="Description de l'image..."
-              className="w-full h-8 px-2 bg-[#FFFFFF] border border-[#E5E7EB] rounded-md text-[12px]"
-            />
-          </div>
           <div className="flex gap-2 pt-1">
             <button
               type="button"
@@ -187,9 +171,10 @@ export const MediaInspectorPanel: React.FC<MediaInspectorPanelProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => handleDelete(selectedMedia.id)}
-              className="h-8 px-2.5 bg-[#FEF2F2] border border-[#FCA5A5] text-[#DC2626] hover:bg-[#FEE2E2] rounded-lg cursor-pointer"
-              title="Supprimer du serveur"
+              onClick={() => void handleDelete(selectedMedia.id)}
+              disabled={!selectedMedia.id.startsWith("studio_")}
+              className="h-8 px-2.5 bg-[#FEF2F2] border border-[#FCA5A5] text-[#DC2626] hover:bg-[#FEE2E2] rounded-lg cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              title="Supprimer de la médiathèque"
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -224,7 +209,6 @@ export const MediaInspectorPanel: React.FC<MediaInspectorPanelProps> = ({
                 isCopied={copiedUrl === item.url}
                 onSelect={() => {
                   setSelectedMedia(item);
-                  setAltText(item.name || "");
                 }}
                 onCopy={handleCopy}
               />

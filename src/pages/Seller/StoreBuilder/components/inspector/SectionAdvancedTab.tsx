@@ -32,7 +32,7 @@ export const SectionAdvancedTab: React.FC<SectionAdvancedTabProps> = ({
         <input
           type="text"
           value={(settings.anchorId as string) || ""}
-          onChange={(e) => onSettingsChange("anchorId", e.target.value)}
+          onChange={(e) => onSettingsChange("anchorId", e.target.value || undefined)}
           placeholder="ex: catalogue"
           className="w-full h-[44px] px-3 bg-[#FFFFFF] border border-[#E4E7EC] rounded-lg text-[#17191C] text-[13px] font-mono focus:outline-none focus:border-[#F97316]"
         />

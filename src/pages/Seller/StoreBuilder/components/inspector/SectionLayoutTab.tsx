@@ -14,6 +14,9 @@ export const SectionLayoutTab: React.FC<SectionLayoutTabProps> = ({
   onStylesChange,
   onSettingsChange,
 }) => {
+  const paddingValue = typeof styles.paddingY === "number"
+    ? styles.paddingY
+    : ({ sm: 16, md: 32, lg: 48, xl: 64 }[styles.paddingY || "md"]);
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
@@ -34,14 +37,14 @@ export const SectionLayoutTab: React.FC<SectionLayoutTabProps> = ({
       <div className="space-y-1.5 pt-2 border-t border-[#E4E7EC]">
         <div className="flex justify-between items-center text-[13px]">
           <span className="font-medium text-[#17191C]">Espacement vertical (0 à 120px)</span>
-          <span className="font-mono text-[#F97316] font-bold">{styles.paddingY ?? 32}px</span>
+          <span className="font-mono text-[#F97316] font-bold">{paddingValue}px</span>
         </div>
         <input
           type="range"
           min={0}
           max={120}
           step={8}
-          value={styles.paddingY ?? 32}
+          value={paddingValue}
           onChange={(e) => onStylesChange("paddingY", parseInt(e.target.value, 10))}
           className="w-full accent-[#F97316] cursor-pointer"
         />

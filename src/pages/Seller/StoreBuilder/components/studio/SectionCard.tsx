@@ -12,9 +12,14 @@ import {
   BookOpen,
   Award,
   Truck,
-  MessageSquare,
   HelpCircle,
   Layout,
+  Grid,
+  Layers,
+  Sparkles,
+  ShieldCheck,
+  Phone,
+  RotateCcw,
 } from "lucide-react";
 import {
   CustomPageSection,
@@ -33,13 +38,21 @@ interface SectionCardProps {
 }
 
 const SECTION_TYPE_MAP: Record<string, { icon: React.ComponentType<{ className?: string }>; label: string; color: string }> = {
-  hero_banner: { icon: ImageIcon, label: "Hero banner", color: "bg-orange-50 text-[#F97316]" },
-  product_grid: { icon: ShoppingBag, label: "Product grid", color: "bg-blue-50 text-blue-600" },
-  brand_story: { icon: BookOpen, label: "Brand story", color: "bg-purple-50 text-purple-600" },
-  icons_benefits: { icon: Award, label: "Icons & Benefits", color: "bg-emerald-50 text-emerald-600" },
-  delivery_info: { icon: Truck, label: "Delivery info", color: "bg-amber-50 text-amber-600" },
-  testimonials: { icon: MessageSquare, label: "Testimonials", color: "bg-rose-50 text-rose-600" },
-  faq: { icon: HelpCircle, label: "FAQ", color: "bg-indigo-50 text-indigo-600" },
+  hero_banner: { icon: ImageIcon, label: "Bannière principale", color: "bg-orange-50 text-[#F97316]" },
+  promo_carousel: { icon: Sparkles, label: "Carrousel promotionnel", color: "bg-amber-50 text-amber-600" },
+  featured_categories: { icon: Grid, label: "Catégories", color: "bg-blue-50 text-blue-600" },
+  curated_collections: { icon: Layers, label: "Collections", color: "bg-indigo-50 text-indigo-600" },
+  new_arrivals: { icon: Sparkles, label: "Nouveautés", color: "bg-emerald-50 text-emerald-600" },
+  featured_products: { icon: ShoppingBag, label: "Produits en vedette", color: "bg-blue-50 text-blue-600" },
+  best_sellers: { icon: Award, label: "Meilleures ventes", color: "bg-amber-50 text-amber-600" },
+  product_grid: { icon: ShoppingBag, label: "Catalogue complet", color: "bg-blue-50 text-blue-600" },
+  brand_story: { icon: BookOpen, label: "Histoire de la marque", color: "bg-purple-50 text-purple-600" },
+  showcase_video: { icon: ImageIcon, label: "Vidéo de présentation", color: "bg-violet-50 text-violet-600" },
+  verified_reviews: { icon: ShieldCheck, label: "Avis vérifiés", color: "bg-rose-50 text-rose-600" },
+  delivery_info: { icon: Truck, label: "Livraison", color: "bg-amber-50 text-amber-600" },
+  return_policy: { icon: RotateCcw, label: "Retours et échanges", color: "bg-cyan-50 text-cyan-600" },
+  faq_accordion: { icon: HelpCircle, label: "Questions fréquentes", color: "bg-indigo-50 text-indigo-600" },
+  contact_footer: { icon: Phone, label: "Contact boutique", color: "bg-slate-100 text-slate-700" },
 };
 
 export const SectionCard: React.FC<SectionCardProps> = ({

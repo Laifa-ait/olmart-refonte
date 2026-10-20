@@ -16,9 +16,9 @@ export const StoreBuilderGate: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadStatus = useCallback(async () => {
+  const loadStatus = useCallback(async (showLoader = true) => {
     try {
-      setIsLoading(true);
+      if (showLoader) setIsLoading(true);
       setError(null);
       const [summary, availablePlans] = await Promise.all([
         subscriptionApi.getSellerStatus(),
@@ -29,7 +29,7 @@ export const StoreBuilderGate: React.FC = () => {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur de chargement du statut.");
     } finally {
-      setIsLoading(false);
+      if (showLoader) setIsLoading(false);
     }
   }, []);
 
@@ -39,7 +39,7 @@ export const StoreBuilderGate: React.FC = () => {
 
   const handleRequestPlan = async (planId: string) => {
     await subscriptionApi.requestSubscription(planId);
-    await loadStatus();
+    await loadStatus(false);
   };
 
   const handleSubmitProof = async (payload: {
@@ -50,7 +50,7 @@ export const StoreBuilderGate: React.FC = () => {
     receiptNote?: string;
   }) => {
     await subscriptionApi.declarePayment(payload);
-    await loadStatus();
+    await loadStatus(false);
   };
 
   if (isLoading) {
@@ -77,12 +77,14 @@ export const StoreBuilderGate: React.FC = () => {
       {/* Creation First: Store Builder is immediately accessible to all sellers */}
       <StoreBuilderActive
         subscription={activeSub || undefined}
-        daysRemaining={statusSummary?.daysRemaining ?? 14}
+        hasActiveSubscription={Boolean(activeSub)}
+        daysRemaining={statusSummary?.daysRemaining ?? 0}
         sellerId={currentUser?.uid}
         plans={plans}
         pendingRequest={pendingReq}
         onRequestPlan={handleRequestPlan}
         onSubmitProof={handleSubmitProof}
+        onRefreshStatus={() => loadStatus(false)}
       />
     </div>
   );

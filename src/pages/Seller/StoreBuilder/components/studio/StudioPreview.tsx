@@ -1,7 +1,7 @@
 import React from "react";
 import { LiveCanvasPreview } from "../LiveCanvasPreview";
 import { CustomPageSection, CustomPageTheme } from "../../../../../domains/seller/customPage.types";
-import { Product } from "../../../../../domains/products/product.types";
+import { Product } from "../../../../../domains/product/product.types";
 
 interface StudioPreviewProps {
   sections: CustomPageSection[];

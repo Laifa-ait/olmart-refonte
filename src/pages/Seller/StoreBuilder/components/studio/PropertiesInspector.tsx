@@ -7,14 +7,18 @@ import { PagesInspectorPanel } from "../context/PagesInspectorPanel";
 import { StoreIdentityEditor } from "../StoreIdentityEditor";
 import { StudioNavMode } from "../SectionTreePanel";
 import { CustomPageSection, CustomPageTheme, MediaGalleryItem, SellerStoreConfig } from "../../../../../domains/seller/customPage.types";
-import { Product } from "../../../../../domains/products/product.types";
+import { Product } from "../../../../../domains/product/product.types";
 
 interface PropertiesInspectorProps {
   navMode: StudioNavMode | "identity";
   selectedSection: CustomPageSection | null;
   products?: Product[];
   storeConfig?: SellerStoreConfig | null;
+  currentTheme?: CustomPageTheme;
   mediaGallery?: MediaGalleryItem[];
+  onSelectMediaUrl?: (url: string) => void;
+  onUploadMedia?: (file: File) => Promise<MediaGalleryItem>;
+  onDeleteMedia?: (id: string) => Promise<void>;
   onUpdateSection: (id: string, updatedData: Partial<CustomPageSection>) => void;
   onSaveTheme: (theme: CustomPageTheme) => Promise<void>;
   onThemeChangeLive: (theme: CustomPageTheme) => void;
@@ -26,7 +30,11 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
   selectedSection,
   products = [],
   storeConfig,
+  currentTheme,
   mediaGallery = [],
+  onSelectMediaUrl,
+  onUploadMedia,
+  onDeleteMedia,
   onUpdateSection,
   onSaveTheme,
   onThemeChangeLive,
@@ -39,11 +47,17 @@ export const PropertiesInspector: React.FC<PropertiesInspectorProps> = ({
       ) : navMode === "theme" ? (
         <ThemeInspectorPanel
           storeConfig={storeConfig}
+          currentTheme={currentTheme}
           onSaveTheme={onSaveTheme}
           onThemeChangeLive={onThemeChangeLive}
         />
       ) : navMode === "media" ? (
-        <MediaInspectorPanel mediaGallery={mediaGallery} />
+        <MediaInspectorPanel
+          mediaGallery={mediaGallery}
+          onSelectMediaUrl={onSelectMediaUrl}
+          onUploadMedia={onUploadMedia}
+          onDeleteMedia={onDeleteMedia}
+        />
       ) : navMode === "identity" ? (
         <div className="p-4">
           <StoreIdentityEditor

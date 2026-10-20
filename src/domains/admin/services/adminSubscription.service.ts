@@ -1,5 +1,6 @@
 import { db } from "../../../config/firebase-admin";
 import { safeLogger } from "../../../utils/logger";
+import { invalidatePublicStorefrontCache } from "../../seller/services/storePublic.service";
 import {
   SubscriptionRequest,
   SellerSubscription,
@@ -111,7 +112,7 @@ export async function grantSubscriptionTx(
   const now = new Date();
   const nowIso = now.toISOString();
 
-  return await db.runTransaction(async (tx) => {
+  const result = await db.runTransaction(async (tx) => {
     const reqRef = db.collection(REQUESTS_COLLECTION).doc(requestId);
     const reqSnap = await tx.get(reqRef);
     if (!reqSnap.exists) {
@@ -193,6 +194,8 @@ export async function grantSubscriptionTx(
       subscription
     };
   });
+  invalidatePublicStorefrontCache(result.subscription.sellerId);
+  return result;
 }
 
 export async function rejectSubscriptionRequest(
