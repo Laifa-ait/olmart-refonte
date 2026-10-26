@@ -23,16 +23,16 @@ export const MobileUserCard: React.FC<MobileUserCardProps> = ({
 
   if (!currentUser) {
     return (
-      <div className="rounded-2xl border border-[#E2D9E5] bg-[#FAF8FA] p-3.5">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-white text-[#5B4865] flex items-center justify-center shrink-0 border border-[#E2D9E5]">
-            <LogIn className="w-4.5 h-4.5 stroke-[2]" />
+      <div className="bg-gradient-to-b from-white to-zinc-50/70 rounded-2xl p-4.5 border border-zinc-200/80 shadow-xs">
+        <div className="flex items-start gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-[#0088A8]/10 text-[#0088A8] flex items-center justify-center shrink-0 border border-[#0088A8]/15">
+            <LogIn className="w-5 h-5 stroke-[2]" />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-sm text-zinc-900 leading-tight">
+            <h4 className="font-bold text-sm text-zinc-900 leading-tight">
               {t("Bienvenue sur Olmart")}
             </h4>
-            <p className="text-[11px] text-zinc-500 font-normal mt-0.5 leading-snug">
+            <p className="text-xs text-zinc-500 font-normal mt-1 leading-relaxed">
               {t("Connectez-vous pour suivre vos commandes et gérer vos favoris.")}
             </p>
           </div>
@@ -44,7 +44,7 @@ export const MobileUserCard: React.FC<MobileUserCardProps> = ({
             onNavigate("/auth");
             onClose();
           }}
-          className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#5B4865] hover:bg-[#493852] active:scale-98 text-white font-semibold text-xs transition-colors cursor-pointer border-none"
+          className="w-full mt-3.5 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#0088A8] hover:bg-[#00738e] active:scale-98 text-white font-semibold text-xs transition-all shadow-xs cursor-pointer border-none"
         >
           <span>{t("Se connecter / S'inscrire")}</span>
           <ChevronRight className="w-4 h-4 rtl:rotate-180 stroke-[2.5]" />
@@ -80,8 +80,8 @@ export const MobileUserCard: React.FC<MobileUserCardProps> = ({
               {displayName}
             </h4>
             {role === "admin" && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#FBF6E9] text-[#8C7040] border border-[#EDE1C3]">
-                <ShieldCheck className="w-3 h-3 text-[#9A7A43]" />
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200/70">
+                <ShieldCheck className="w-3 h-3 text-rose-600" />
                 <span>{t("Admin", "Admin")}</span>
               </span>
             )}
@@ -124,15 +124,15 @@ export const MobileUserCard: React.FC<MobileUserCardProps> = ({
               onNavigate("/dashboard/admin");
               onClose();
             }}
-            className="w-full flex items-center justify-between py-2 px-3 rounded-xl bg-[#FBF6E9] hover:bg-[#F5ECD7] text-[#6D5734] text-xs font-semibold transition-all border border-[#EDE1C3] active:scale-98 cursor-pointer"
+            className="w-full flex items-center justify-between py-2 px-3 rounded-xl bg-rose-50/80 hover:bg-rose-100/80 text-rose-900 text-xs font-semibold transition-all border border-rose-200 active:scale-98 cursor-pointer"
           >
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-[#B79A62] text-white flex items-center justify-center shadow-2xs">
+              <div className="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center shadow-2xs">
                 <ShieldCheck className="w-3.5 h-3.5 stroke-[2.5]" />
               </div>
               <span>{t("Espace Administration")}</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-[#9A7A43] rtl:rotate-180" />
+            <ChevronRight className="w-4 h-4 text-rose-500 rtl:rotate-180" />
           </button>
         )}
 
@@ -162,15 +162,15 @@ export const MobileUserCard: React.FC<MobileUserCardProps> = ({
               onLogout();
               onClose();
             }}
-            className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl bg-[#F4F0F5] hover:bg-[#EBE4EE] text-[#5B4865] text-xs font-bold transition-all border border-[#E2D9E5] active:scale-98 cursor-pointer shadow-2xs"
+            className="w-full flex items-center justify-between py-2.5 px-3 rounded-xl bg-rose-50/90 hover:bg-rose-100 text-rose-700 text-xs font-bold transition-all border border-rose-200/90 active:scale-98 cursor-pointer shadow-2xs"
           >
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-[#E7DFEA] text-[#5B4865] flex items-center justify-center">
+              <div className="w-6 h-6 rounded-lg bg-rose-200/80 text-rose-700 flex items-center justify-center">
                 <LogOut className="w-3.5 h-3.5 stroke-[2.2]" />
               </div>
               <span>{t("Se déconnecter", "Se déconnecter")}</span>
             </div>
-            <span className="text-[11px] text-[#6B5874] font-semibold">{t("Déconnexion")}</span>
+            <span className="text-[11px] text-rose-600 font-semibold">{t("Déconnexion")}</span>
           </button>
         )}
       </div>

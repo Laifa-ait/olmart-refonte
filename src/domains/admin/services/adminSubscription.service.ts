@@ -1,6 +1,6 @@
 import { db } from "../../../config/firebase-admin";
+import { listAllPlans } from "./adminSubscriptionPlans.service";
 import { safeLogger } from "../../../utils/logger";
-import { invalidatePublicStorefrontCache } from "../../seller/services/storePublic.service";
 import {
   SubscriptionRequest,
   SellerSubscription,
@@ -33,8 +33,12 @@ export async function requestPaymentInstructions(
   instructions: Omit<BankPaymentInstructions, "requestedAt" | "requestedByAdminId">,
   adminId: string
 ): Promise<SubscriptionRequest> {
-  const now = new Date().toISOString();
   const reqRef = db.collection(REQUESTS_COLLECTION).doc(requestId);
+  const reqSnap = await reqRef.get();
+  if (!reqSnap.exists) throw new Error("Demande d'abonnement introuvable.");
+  const reqData = reqSnap.data() as SubscriptionRequest;
+  if (Number(reqData.planSnapshot?.price) === 0) throw new Error("Aucun paiement n'est requis pour l'offre vendeur gratuite.");
+  const now = new Date().toISOString();
   const fullInstructions: BankPaymentInstructions = {
     ...instructions,
     requestedAt: now,
@@ -76,8 +80,12 @@ export async function confirmPaymentReceived(
   adminId: string,
   notes?: string
 ): Promise<SubscriptionRequest> {
-  const now = new Date().toISOString();
   const reqRef = db.collection(REQUESTS_COLLECTION).doc(requestId);
+  const reqSnap = await reqRef.get();
+  if (!reqSnap.exists) throw new Error("Demande d'abonnement introuvable.");
+  const reqData = reqSnap.data() as SubscriptionRequest;
+  if (Number(reqData.planSnapshot?.price) === 0) throw new Error("Une offre gratuite ne nécessite pas de confirmation de paiement.");
+  const now = new Date().toISOString();
   await reqRef.update({
     status: "payment_confirmed",
     paymentConfirmation: {
@@ -112,7 +120,7 @@ export async function grantSubscriptionTx(
   const now = new Date();
   const nowIso = now.toISOString();
 
-  const result = await db.runTransaction(async (tx) => {
+  return await db.runTransaction(async (tx) => {
     const reqRef = db.collection(REQUESTS_COLLECTION).doc(requestId);
     const reqSnap = await tx.get(reqRef);
     if (!reqSnap.exists) {
@@ -121,6 +129,11 @@ export async function grantSubscriptionTx(
     const reqData = reqSnap.data() as SubscriptionRequest;
     if (reqData.status === "granted") {
       throw new Error("L'abonnement a déjà été accordé pour cette demande (double attribution strictement interdite).");
+    }
+    const plans = await listAllPlans();
+    const currentPlan = plans.find((plan) => plan.id === reqData.planId);
+    if (Number(currentPlan?.price ?? reqData.planSnapshot?.price) === 0) {
+      throw new Error("Cette offre est gratuite et ne peut pas être validée comme un abonnement payant.");
     }
     if (reqData.status !== "payment_confirmed") {
       throw new Error(`Attribution refusée: la demande doit être au statut 'payment_confirmed' (statut actuel: [${reqData.status}]). Seul un virement vérifié et confirmé administrativement autorise l'attribution.`);
@@ -194,8 +207,6 @@ export async function grantSubscriptionTx(
       subscription
     };
   });
-  invalidatePublicStorefrontCache(result.subscription.sellerId);
-  return result;
 }
 
 export async function rejectSubscriptionRequest(

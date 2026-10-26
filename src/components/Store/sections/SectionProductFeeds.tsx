@@ -1,8 +1,23 @@
-import React from "react";
-import { CustomPageSection, CustomPageTheme } from "../../../domains/seller/customPage.types";
+import React, { useRef } from "react";
+import {
+  CustomPageSection,
+  CustomPageTheme,
+  ProductFeedSettings,
+  FeaturedProductsSettings,
+} from "../../../domains/seller/customPage.types";
 import { Product } from "../../../domains/product/product.types";
-import { normalizeTimestamp } from "../../../utils/date";
-import { readableTextColor } from "./themeColorUtils";
+import {
+  buildSectionContainerStyle,
+  resolveBorderRadiusClass,
+  resolveContainerWidthClass,
+  resolveShadowClass,
+  resolveAnimationClass,
+  SectionDividerRenderer,
+} from "./sectionStyleHelper";
+import { ChevronLeft, ChevronRight, Sparkles, Grid, Sliders } from "lucide-react";
+import { LiveCountdownBanner } from "./ProductFeedEcommerceWidgets";
+import { SectionProductItemCard } from "./SectionProductItemCard";
+import { useStudioStore } from "../../../pages/Seller/StoreBuilder/store/useStudioStore";
 
 interface SectionProductFeedsProps {
   section: CustomPageSection<"featured_products" | "new_arrivals" | "best_sellers" | "product_grid">;
@@ -11,6 +26,7 @@ interface SectionProductFeedsProps {
   isEditable?: boolean;
   isSelected?: boolean;
   onSelect?: () => void;
+  previewViewport?: "mobile" | "tablet" | "desktop";
 }
 
 export const SectionProductFeeds: React.FC<SectionProductFeedsProps> = ({
@@ -21,111 +37,203 @@ export const SectionProductFeeds: React.FC<SectionProductFeedsProps> = ({
   isSelected,
   onSelect,
 }) => {
-  const settings = section.settings as {
-    title?: string;
-    subtitle?: string;
-    productIds?: string[];
-    maxItems?: number;
-    layout?: "grid" | "carousel";
-    filterCategoryId?: string;
-  };
-  const styles = section.styles;
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+  const settings = (section.settings || {}) as ProductFeedSettings & FeaturedProductsSettings;
+  const styles = section.styles || {};
+
+  const selectSection = useStudioStore((s) => s.selectSection);
+  const setActiveInspectorTab = useStudioStore((s) => s.setActiveInspectorTab);
 
   let displayProducts: Product[] = [];
-  if (section.type === "featured_products" && Array.isArray(settings.productIds)) {
-    const idSet = new Set(settings.productIds);
-    displayProducts = products.filter((p) => idSet.has(p.id));
+  if (Array.isArray(settings.productIds) && settings.productIds.length > 0) {
+    const byId = new Map(products.map((p) => [p.id, p]));
+    displayProducts = settings.productIds
+      .map((id) => byId.get(id))
+      .filter((p): p is Product => Boolean(p));
+    if (displayProducts.length === 0) {
+      displayProducts = products.slice(0, 8);
+    }
   } else {
+    const filtered = settings.filterCategoryId
+      ? products.filter((p) => p.category === settings.filterCategoryId)
+      : products;
     const limit = settings.maxItems || 8;
-    const feed = section.type === "best_sellers"
-      ? [...products].sort((a, b) => (b.salesCount || 0) - (a.salesCount || 0))
-      : section.type === "new_arrivals"
-      ? [...products].sort((a, b) => {
-          const aDate = a.createdAt ? normalizeTimestamp(a.createdAt).toMillis() : 0;
-          const bDate = b.createdAt ? normalizeTimestamp(b.createdAt).toMillis() : 0;
-          return bDate - aDate;
-        })
-      : [...products];
-    const categoryFiltered = settings.filterCategoryId
-      ? feed.filter((product) => product.category === settings.filterCategoryId)
-      : feed;
-    displayProducts = categoryFiltered.slice(0, limit);
+    displayProducts = filtered.slice(0, limit);
   }
 
-  const paddingY = typeof styles.paddingY === "number"
-    ? styles.paddingY
-    : ({ sm: 16, md: 32, lg: 48, xl: 64 }[styles.paddingY || "md"]);
-  const paddingX = styles.paddingX ?? 16;
-  const productCardStyle: React.CSSProperties = {
-    borderRadius: styles.borderRadius
-      ? `${({ none: 0, sm: 8, md: 16, lg: 24 })[styles.borderRadius]}px`
-      : `${theme.borderRadiusPx ?? 12}px`,
-    backgroundColor: theme.surfaceColor || "#FFFFFF",
-    color: readableTextColor(theme.surfaceColor),
+  const layoutMode = settings.layout || "grid";
+  const cardStyle = settings.cardStyle || "modern";
+  const aspectRatio = settings.cardAspectRatio || "4/5";
+  const imagePosition = settings.cardImagePosition || "center";
+  const imageFit = settings.cardImageFit || "cover";
+  const columnsDesktop = settings.columnsDesktop || 4;
+  const accentColor = settings.cardAccentColor || theme.primaryColor || "#023859";
+
+  const triggerDesignFocus = (e: React.MouseEvent, focusTarget: string) => {
+    if (!isEditable) return;
+    e.stopPropagation();
+    if (onSelect) onSelect();
+    setActiveInspectorTab("content");
+    selectSection(section.id, focusTarget);
   };
+
+  const scrollCarousel = (dir: "left" | "right", e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!carouselRef.current) return;
+    const amount = dir === "left" ? -280 : 280;
+    carouselRef.current.scrollBy({ left: amount, behavior: "smooth" });
+  };
+
+  const gridColsClass =
+    columnsDesktop === 2
+      ? "grid-cols-2 gap-3 @sm:gap-4"
+      : columnsDesktop === 3
+      ? "grid-cols-2 @md:grid-cols-3 gap-3 @sm:gap-5"
+      : "grid-cols-2 @md:grid-cols-4 gap-3 @sm:gap-5";
+
+  const renderCard = (prod: Product) => (
+    <SectionProductItemCard
+      key={prod.id}
+      product={prod}
+      cardStyle={cardStyle}
+      aspectRatio={aspectRatio}
+      imagePosition={imagePosition}
+      imageFit={imageFit}
+      accentColor={accentColor}
+      showCategory={settings.showCategory !== false}
+      showStockBadge={settings.showStockBadge !== false}
+      showQuickWishlist={settings.showWishlistButton !== false}
+      showStockProgressBar={Boolean(settings.showStockProgress)}
+      showCompareAtPrice={settings.showCompareAtPrice !== false}
+      showStarRating={settings.showRatingStars !== false}
+      theme={theme}
+      isEditable={isEditable}
+      triggerDesignFocus={triggerDesignFocus}
+    />
+  );
 
   return (
     <div
       onClick={isEditable ? onSelect : undefined}
-      className={`transition-all cursor-pointer ${isEditable && isSelected ? "ring-2 ring-inset ring-[#F97316]" : ""}`}
-      style={{
-        backgroundColor: styles.backgroundColor || "transparent",
-        color: styles.textColor || readableTextColor(styles.backgroundColor || theme.canvasColor),
-        paddingBlock: `${paddingY}px`,
-        paddingInline: `${paddingX}px`,
-      }}
+      style={buildSectionContainerStyle(styles, "transparent", "#111827")}
+      className={`relative transition-all select-none ${resolveBorderRadiusClass(
+        styles.borderRadius
+      )} ${resolveShadowClass(styles.shadow)} ${resolveAnimationClass(styles.animation)}`}
     >
-      <div className={styles.containerWidth === "contained" ? "max-w-6xl mx-auto" : "w-full"}>
-        {settings.title && (
-          <div className="mb-6 text-center">
-            <h2 className="text-xl md:text-3xl font-extrabold" style={{ color: theme.primaryColor, fontSize: `clamp(1.25rem, 2vw, ${theme.titleFontSizePx ?? 32}px)` }}>
-              {settings.title}
-            </h2>
-            {settings.subtitle && (
-              <p className="mt-1 text-sm opacity-70 md:text-base" style={{ fontSize: `${theme.bodyFontSizePx ?? 16}px` }}>{settings.subtitle}</p>
+      {isEditable && isSelected && (
+        <div
+          className="mb-4 flex flex-wrap items-center justify-between gap-2 bg-[#F8FBFC] text-[#011C40] px-3 py-2 rounded-xl border border-slate-200/90 select-none"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[#011C40]">
+            <Sparkles className="w-3.5 h-3.5 text-[#023859]" />
+            <span>Grille Produits ({displayProducts.length})</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={(e) => triggerDesignFocus(e, "selection")}
+              className="h-7 px-2.5 rounded-lg bg-[#023859] hover:bg-[#011C40] text-white text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+            >
+              <Grid className="w-3 h-3" />
+              <span>Sélecteur Produits</span>
+            </button>
+            <button
+              type="button"
+              onClick={(e) => triggerDesignFocus(e, "countdown")}
+              className="h-7 px-2.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+            >
+              <Sliders className="w-3 h-3 text-[#26658C]" />
+              <span>Chrono Offre</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className={resolveContainerWidthClass(styles.containerWidth)}>
+        {settings.showCountdown && (
+          <div onClick={(e) => triggerDesignFocus(e, "countdown")}>
+            <LiveCountdownBanner
+              label={settings.countdownLabel}
+              subtitle={settings.countdownSubtitle}
+              endDate={settings.countdownEndDate}
+              countdownStyle={settings.countdownStyle}
+              bannerBgColor={settings.countdownBgColor}
+              bannerTextColor={settings.countdownTextColor}
+              accentColor={settings.countdownAccentColor}
+              themePrimaryColor={theme.primaryColor}
+            />
+          </div>
+        )}
+
+        {(settings.title || section.title || settings.subtitle) && (
+          <div className="mb-5 flex items-start justify-between gap-3">
+            <div
+              onClick={(e) => isEditable && triggerDesignFocus(e, "title")}
+              className={`min-w-0 flex-1 ${
+                isEditable ? "cursor-pointer rounded px-1 hover:ring-1 hover:ring-[#26658C]" : ""
+              }`}
+            >
+              {(settings.title || section.title) && (
+                <h3
+                  className="text-lg @sm:text-xl @md:text-2xl font-extrabold tracking-tight leading-snug"
+                  style={{ color: theme.secondaryColor || "#011C40" }}
+                >
+                  {settings.title || section.title}
+                </h3>
+              )}
+              {settings.subtitle && (
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  {settings.subtitle}
+                </p>
+              )}
+            </div>
+
+            {layoutMode === "carousel" && (
+              <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
+                <button
+                  type="button"
+                  onClick={(e) => scrollCarousel("left", e)}
+                  className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-700 shadow-2xs hover:bg-slate-50 cursor-pointer"
+                  title="Précédent"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => scrollCarousel("right", e)}
+                  className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-700 shadow-2xs hover:bg-slate-50 cursor-pointer"
+                  title="Suivant"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             )}
           </div>
         )}
 
-        {displayProducts.length === 0 ? (
-          <div className="rounded-xl border border-black/5 p-8 text-center font-medium" style={{ backgroundColor: theme.surfaceColor || "#FFFFFF", color: readableTextColor(theme.surfaceColor), borderRadius: `${theme.borderRadiusPx ?? 12}px` }}>
-            Aucun produit à afficher dans cette section.
-          </div>
-        ) : (
-          <div className={settings.layout === "carousel" ? "flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2" : "grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6"}>
-            {displayProducts.map((product) => (
+        {layoutMode === "carousel" ? (
+          <div
+            ref={carouselRef}
+            className="flex overflow-x-auto snap-x snap-mandatory gap-3 @sm:gap-4 pb-2 scrollbar-hide scroll-smooth"
+          >
+            {displayProducts.map((prod) => (
               <div
-                key={product.id}
-                className={`overflow-hidden border border-gray-100 shadow-sm transition-shadow hover:shadow-md ${settings.layout === "carousel" ? "w-56 shrink-0 snap-start md:w-64" : ""}`}
-                style={productCardStyle}
+                key={prod.id}
+                className="w-[46%] min-w-[155px] @sm:w-56 @md:w-64 shrink-0 snap-start"
               >
-                <div className="relative aspect-square bg-gray-100 dark:bg-gray-900">
-                  <img
-                    src={product.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30"}
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                  {product.originalPrice && product.originalPrice > product.price && (
-                    <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-md">
-                      PROMO
-                    </span>
-                  )}
-                </div>
-                <div className="p-3 md:p-4">
-                  <h3 className="line-clamp-1 text-xs font-semibold md:text-sm">
-                    {product.name}
-                  </h3>
-                  <div className="mt-2 flex items-baseline justify-between">
-                    <span className="text-sm font-extrabold md:text-base" style={{ color: theme.primaryColor }}>
-                      {product.price.toLocaleString("fr-DZ")} DZD
-                    </span>
-                  </div>
-                </div>
+                {renderCard(prod)}
               </div>
             ))}
           </div>
+        ) : (
+          <div className={`grid ${gridColsClass}`}>
+            {displayProducts.map((prod) => renderCard(prod))}
+          </div>
         )}
       </div>
+
+      <SectionDividerRenderer divider={styles.divider} theme={theme} />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import { StoreIdentityEditor } from "../StoreIdentityEditor";
+import { StoreIdentityEditor } from "../identity/StoreIdentityEditor";
 import { SellerStoreConfig } from "../../../../../domains/seller/customPage.types";
 
 interface StoreIdentityWorkspaceProps {

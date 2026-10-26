@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Product } from "../../domains/product/product.types";
 import { ProductCard } from "../Product/ProductCard";
 import { useTranslation } from "react-i18next";
-import { ArrowUpRight, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
 
 export const HomeEndlessGrid: React.FC = () => {
   const { t } = useTranslation();
@@ -120,7 +118,7 @@ export const HomeEndlessGrid: React.FC = () => {
 
   if (loading) {
     return (
-      <section className="mx-auto mb-12 w-full max-w-[96rem] px-4 sm:mb-16 sm:px-6 md:px-8">
+      <section className="w-full max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8 mb-12 sm:mb-16">
         <div className="h-6 w-48 bg-zinc-200 animate-pulse rounded-md mb-6" />
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 md:gap-5">
           {[...Array(12)].map((_, i) => (
@@ -134,29 +132,12 @@ export const HomeEndlessGrid: React.FC = () => {
   if (products.length === 0) return null;
 
   return (
-    <section className="mx-auto mb-14 w-full max-w-[96rem] px-4 sm:mb-20 sm:px-6 md:px-8">
-      <div className="mb-5 flex items-end justify-between gap-4 sm:mb-7">
-        <div>
-          <div className="mb-2 inline-flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.18em] text-emerald-800 sm:text-[11px]">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800">
-              <Sparkles className="h-3.5 w-3.5" />
-            </span>
-            {t("home.endless_grid.eyebrow", "À découvrir maintenant")}
-          </div>
-          <h2 className="font-display text-2xl font-bold tracking-[-0.035em] text-[#15271f] sm:text-3xl">
-            {t("home.endless_grid.title", "Les dernières trouvailles")}
-          </h2>
-          <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-            {t("home.endless_grid.subtitle", "Les nouveautés partagées par les boutiques Olmart.")}
-          </p>
-        </div>
-        <Link
-          to="/shop"
-          className="mb-1 inline-flex shrink-0 items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 sm:text-sm"
-        >
-          <span>{t("home.endless_grid.view_all", "Tout le catalogue")}</span>
-          <ArrowUpRight className="h-4 w-4" />
-        </Link>
+    <section className="w-full max-w-[90rem] mx-auto px-4 sm:px-6 md:px-8 mb-12 sm:mb-16">
+      {/* En-tête simple avec typographie nette */}
+      <div className="flex items-center justify-between mb-5 sm:mb-6">
+        <h2 className="font-sans text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+          {t("home.endless_grid.title", "Publications récentes")}
+        </h2>
       </div>
 
       {/* Grille des publications directement intégrée sans cadre */}

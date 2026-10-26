@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { Star, MessageSquare, Plus } from 'lucide-react';
 import { ArtisanReview } from '../../../types/artisan';
 import { addArtisanReview } from '../../../services/artisan.api';
@@ -27,7 +28,7 @@ export const ArtisanReviewsSection: React.FC<ArtisanReviewsSectionProps> = ({
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) {
-      alert('Veuillez vous connecter pour laisser un avis.');
+      toast.error('Veuillez vous connecter pour laisser un avis.');
       return;
     }
 

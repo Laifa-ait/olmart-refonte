@@ -1,71 +1,60 @@
 import React from "react";
 
 /**
- * Robust wrapper for React.lazy that handles dynamic import failures.
- * Retries fetch up to maxAttempts times and performs a single page reload if chunks are stale/invalidated.
+ * Wraps React.lazy to automatically handle chunk loading errors
+ * caused by server redeployments or stale asset hashes.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function lazyWithRetry<T extends React.ComponentType<any>>(
-  componentImport: () => Promise<{ default: T } | T>,
-  keyName?: string
+export function lazyWithRetry<
+  P = Record<string, unknown>,
+  T extends React.ComponentType<P> = React.ComponentType<P>
+>(
+  componentImport: () => Promise<Record<string, unknown> | { default: T } | T>,
+  exportName?: string
 ): React.LazyExoticComponent<T> {
   return React.lazy(async () => {
     let attempts = 0;
-    const maxAttempts = 3;
-
-    while (attempts < maxAttempts) {
+    while (attempts < 2) {
       try {
         attempts++;
-        const module = await componentImport();
-        if (keyName) {
-          try {
-            window.sessionStorage.removeItem(`lazy_reload_${keyName}`);
-          } catch {
-            /* ignore storage errors */
-          }
+        const loaded = await componentImport();
+        window.sessionStorage.removeItem("page_reloaded_timestamp");
+
+        if (exportName && loaded && typeof loaded === "object" && exportName in loaded) {
+          const namedExport = (loaded as Record<string, unknown>)[exportName] as T;
+          return { default: namedExport };
         }
-        if (module && typeof module === "object" && "default" in module) {
-          return module as { default: T };
-        } else if (module) {
-          return { default: module as T };
+        if (loaded && typeof loaded === "object" && "default" in loaded) {
+          return loaded as { default: T };
         }
-        throw new Error("Module not found");
+        return { default: loaded as T };
       } catch (error: unknown) {
-        const errorMsg =
-          error instanceof Error
-            ? error.message
-            : typeof error === "string"
-            ? error
-            : "";
-
-        const isDynamicImportError =
-          errorMsg.includes("Failed to fetch dynamically imported module") ||
-          errorMsg.includes("Importing a module script failed") ||
-          errorMsg.includes("error loading dynamically imported module") ||
-          errorMsg.includes("dynamically imported module");
-
-        if (!isDynamicImportError || attempts >= maxAttempts) {
-          if (isDynamicImportError && keyName) {
-            try {
-              const reloadKey = `lazy_reload_${keyName}`;
-              const reloaded = window.sessionStorage.getItem(reloadKey);
-              if (!reloaded) {
-                window.sessionStorage.setItem(reloadKey, "true");
-                window.location.reload();
-                return new Promise<{ default: T }>(() => {});
-              }
-            } catch {
-              /* ignore storage errors */
-            }
-          }
-          throw error;
+        if (attempts < 2) {
+          await new Promise((resolve) => setTimeout(resolve, 400));
+          continue;
         }
 
-        // Wait 300ms before retrying
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        const errStr = error instanceof Error ? error.message : String(error);
+        const isChunkError =
+          errStr.includes("Failed to fetch dynamically imported module") ||
+          errStr.includes("Loading chunk") ||
+          errStr.includes("Importing a module script failed") ||
+          errStr.includes("error loading dynamically imported module");
+
+        const lastReload = Number(window.sessionStorage.getItem("page_reloaded_timestamp") || "0");
+        const now = Date.now();
+        const reloadedRecently = now - lastReload < 10000;
+
+        if (isChunkError && !reloadedRecently) {
+          console.warn("[LazyWithRetry] Chunk loading failed. Reloading page...", error);
+          window.sessionStorage.setItem("page_reloaded_timestamp", String(now));
+          window.location.reload();
+          return new Promise(() => {});
+        }
+
+        console.error("[LazyWithRetry] Dynamic import failed:", error);
+        throw error;
       }
     }
-
-    throw new Error(`Failed to load component after ${maxAttempts} attempts`);
+    throw new Error("Failed to load component");
   });
 }

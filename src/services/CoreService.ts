@@ -35,9 +35,16 @@ export interface LogErrorBody {
 }
 
 export class CoreService {
+  private static initialProductsChecked = false;
+  private static cachedHomeData: Record<string, unknown> | null = null;
+  private static cachedHomeDataAt = 0;
+  private static readonly HOME_DATA_TTL_MS = 30 * 1000;
+
   static async ensureInitialProductsSeeded(): Promise<void> {
+    if (CoreService.initialProductsChecked) return;
     try {
       const snap = await db.collection("products").limit(1).get();
+      CoreService.initialProductsChecked = true;
       if (snap.empty) {
         safeLogger.info("[CoreService] 🚀 Empty products collection detected. Auto-seeding initial marketplace products...");
         const sampleProducts = [
@@ -47,7 +54,8 @@ export class CoreService {
             promoPrice: 125000,
             category: "Maison & Déco",
             description: "Un canapé moderne inspiré par les paysages de l'Atlas. Tissu premium et confort absolu.",
-            image: "/images/placeholders/product.svg",
+            image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80",
+            images: ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80"],
             wilaya: "Alger",
             stock: 15,
             rating: 4.8,
@@ -55,7 +63,7 @@ export class CoreService {
             sellerId: "admin_seed",
             sellerName: "Boutique Officielle Olmart",
             status: "active",
-            media: [{ url: "/images/placeholders/product.svg", type: "image" }],
+            media: [{ url: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80", type: "image" }],
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           },
@@ -65,7 +73,8 @@ export class CoreService {
             promoPrice: 280,
             category: "Supermarché",
             description: "Jus d'orange 100% naturel sans sucre ajouté.",
-            image: "/images/placeholders/product.svg",
+            image: "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=800&q=80",
+            images: ["https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=800&q=80"],
             wilaya: "Alger",
             stock: 120,
             rating: 4.9,
@@ -73,7 +82,7 @@ export class CoreService {
             sellerId: "admin_seed",
             sellerName: "Boutique Officielle Olmart",
             status: "active",
-            media: [{ url: "/images/placeholders/product.svg", type: "image" }],
+            media: [{ url: "https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=800&q=80", type: "image" }],
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           },
@@ -83,7 +92,8 @@ export class CoreService {
             flashPrice: 24900,
             category: "Luminaires",
             description: "Une lumière d'ambiance qui rappelle les couchers de soleil du Sahara.",
-            image: "/images/placeholders/product.svg",
+            image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80",
+            images: ["https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80"],
             wilaya: "Ghardaïa",
             stock: 8,
             rating: 4.7,
@@ -91,7 +101,7 @@ export class CoreService {
             sellerId: "admin_seed",
             sellerName: "Boutique Officielle Olmart",
             status: "active",
-            media: [{ url: "/images/placeholders/product.svg", type: "image" }],
+            media: [{ url: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80", type: "image" }],
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           },
@@ -101,7 +111,8 @@ export class CoreService {
             promoPrice: 69000,
             category: "Tapis",
             description: "Tapis tissé main selon la tradition séculaire de l'Est Algérien.",
-            image: "/images/placeholders/product.svg",
+            image: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80",
+            images: ["https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80"],
             wilaya: "Constantine",
             stock: 5,
             rating: 5.0,
@@ -109,7 +120,7 @@ export class CoreService {
             sellerId: "admin_seed",
             sellerName: "Boutique Officielle Olmart",
             status: "active",
-            media: [{ url: "/images/placeholders/product.svg", type: "image" }],
+            media: [{ url: "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80", type: "image" }],
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           },
@@ -119,7 +130,8 @@ export class CoreService {
             flashPrice: 38000,
             category: "Électronique & Électroménager",
             description: "Performances professionnelles pour votre cuisine.",
-            image: "/images/placeholders/product.svg",
+            image: "https://images.unsplash.com/photo-1517256064527-09c53b2d0bc6?auto=format&fit=crop&w=800&q=80",
+            images: ["https://images.unsplash.com/photo-1517256064527-09c53b2d0bc6?auto=format&fit=crop&w=800&q=80"],
             wilaya: "Oran",
             stock: 15,
             rating: 4.6,
@@ -127,7 +139,7 @@ export class CoreService {
             sellerId: "admin_seed",
             sellerName: "Boutique Officielle Olmart",
             status: "active",
-            media: [{ url: "/images/placeholders/product.svg", type: "image" }],
+            media: [{ url: "https://images.unsplash.com/photo-1517256064527-09c53b2d0bc6?auto=format&fit=crop&w=800&q=80", type: "image" }],
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           },
@@ -137,7 +149,8 @@ export class CoreService {
             promoPrice: 14500,
             category: "Artisanat",
             description: "Vase céramique fait main sculpté par des artisans de Kabylie.",
-            image: "/images/placeholders/product.svg",
+            image: "https://images.unsplash.com/photo-1612196808214-b7e239e5f6b7?auto=format&fit=crop&w=800&q=80",
+            images: ["https://images.unsplash.com/photo-1612196808214-b7e239e5f6b7?auto=format&fit=crop&w=800&q=80"],
             wilaya: "Tizi Ouzou",
             stock: 10,
             rating: 4.9,
@@ -145,7 +158,7 @@ export class CoreService {
             sellerId: "admin_seed",
             sellerName: "Boutique Officielle Olmart",
             status: "active",
-            media: [{ url: "/images/placeholders/product.svg", type: "image" }],
+            media: [{ url: "https://images.unsplash.com/photo-1612196808214-b7e239e5f6b7?auto=format&fit=crop&w=800&q=80", type: "image" }],
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
           }
@@ -165,25 +178,25 @@ export class CoreService {
   }
 
   static async getHomeData() {
+    if (CoreService.cachedHomeData && (Date.now() - CoreService.cachedHomeDataAt) < CoreService.HOME_DATA_TTL_MS) {
+      return CoreService.cachedHomeData;
+    }
+
     const startTime = Date.now();
     try {
       await CoreService.ensureInitialProductsSeeded();
 
-      let productsSnap = await db.collection("products").where("status", "in", ["active", "approved"]).limit(24).get().catch(async () => {
-        return db.collection("products").limit(24).get().catch(() => ({ docs: [] }));
-      });
-
-      if (productsSnap.docs.length === 0) {
-        productsSnap = await db.collection("products").limit(24).get().catch(() => ({ docs: [] }));
-      }
-
-      const [categoriesSnap, sectionsSnap, bannersSnap, tagsSnap, sellersSnap] = await Promise.all([
+      const [productsSnap, categoriesSnap, sectionsSnap, bannersSnap, tagsSnap, sellersSnap] = await Promise.all([
+        db.collection("products").where("status", "in", ["active", "approved"]).limit(24).get().catch(async () => {
+          return db.collection("products").limit(24).get().catch(() => ({ docs: [] }));
+        }),
         db.collection("homepage_categories_v2").limit(100).get().catch(() => ({ docs: [] })),
         db.collection("homepage_sections").orderBy("orderIndex", "asc").limit(50).get().catch(() => ({ docs: [] })),
         db.collection("banners").limit(30).get().catch(() => ({ docs: [] })),
         db.collection("tags").limit(100).get().catch(() => ({ docs: [] })),
-        db.collection("publicProfiles").limit(20).get().catch(() => ({ docs: [] }))
+        db.collection("publicProfiles").limit(20).get().catch(() => ({ docs: [] })),
       ]);
+
       const categories = categoriesSnap.docs.map((doc: FirestoreDocSnapshot) => ({ id: doc.id, ...doc.data() }));
       const sections = sectionsSnap.docs.map((doc: FirestoreDocSnapshot) => ({ id: doc.id, ...doc.data() }));
           
@@ -205,14 +218,17 @@ export class CoreService {
       const sellers = sellersSnap.docs.map((doc: FirestoreDocSnapshot) => ({ id: doc.id, ...doc.data() }));
       const duration = Date.now() - startTime;
       safeLogger.info("/api/v1/public/home-data processed", { durationMs: duration });
-      return {
+      const result = {
         categories,
         sections,
         banners,
         tags,
         featuredProducts,
-        sellers
+        sellers,
       };
+      CoreService.cachedHomeData = result;
+      CoreService.cachedHomeDataAt = Date.now();
+      return result;
     } catch (err: unknown) {
       const duration = Date.now() - startTime;
       safeLogger.error("/api/v1/public/home-data failed", { durationMs: duration, err: err instanceof Error ? err.message : String(err) });
@@ -220,9 +236,40 @@ export class CoreService {
     }
   }
 
+  private static cachedSettings: Record<string, unknown> | null = null;
+  private static cachedSettingsAt = 0;
+  private static readonly SETTINGS_TTL_MS = 5 * 60 * 1000; // 5 minutes cache
+
   static async getPublicSettings() {
-    const docSnap = await db.collection("settings").doc("global").get();
-    return docSnap.exists ? (docSnap.data() || {}) : {};
+    if (CoreService.cachedSettings && (Date.now() - CoreService.cachedSettingsAt) < CoreService.SETTINGS_TTL_MS) {
+      return CoreService.cachedSettings;
+    }
+    const defaultSettings = {
+      siteName: "Olmart",
+      supportEmail: "support@olmart.dz",
+      contactPhone: "+213 21 00 00 00",
+      currency: "DZD",
+      currencySymbol: "DA",
+      shippingAvailable: true,
+    };
+    try {
+      if (!db || typeof db.collection !== "function") {
+        return defaultSettings;
+      }
+      const docSnap = await Promise.race([
+        db.collection("settings").doc("global").get(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Firestore settings timeout (1500ms)")), 1500)),
+      ]);
+      const data = docSnap.exists ? (docSnap.data() || {}) : {};
+      CoreService.cachedSettings = { ...defaultSettings, ...data };
+      CoreService.cachedSettingsAt = Date.now();
+      return CoreService.cachedSettings;
+    } catch (err: unknown) {
+      safeLogger.warn("[CoreService] Failed to read public settings from DB, returning resilient default", {
+        err: err instanceof Error ? err.message : String(err),
+      });
+      return CoreService.cachedSettings || defaultSettings;
+    }
   }
 
   static async logError(body: LogErrorBody) {

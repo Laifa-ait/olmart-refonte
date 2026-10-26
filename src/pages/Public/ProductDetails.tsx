@@ -184,16 +184,17 @@ export const ProductDetails: React.FC = () => {
                 isColorOutOfStock={isColorOutOfStock}
                 isSizeOutOfStock={isSizeOutOfStock}
                 buyBoxNode={
-                  <ProductBuyBox
-                    product={product}
-                    isCurrentSelectionOutOfStock={isCurrentSelectionOutOfStock}
-                    onAddToCart={handleAddToCart}
-                    onToggleWishlist={() => toggleWishlist(product.id)}
-                    wishlist={wishlist}
-                    onShare={handleShare}
-                    stickyRef={buyBoxRef}
-                    isSticky={showStickyBuyBar}
-                  />
+                  <div ref={buyBoxRef}>
+                    <ProductBuyBox
+                      product={product}
+                      isCurrentSelectionOutOfStock={isCurrentSelectionOutOfStock}
+                      onAddToCart={handleAddToCart}
+                      onToggleWishlist={() => toggleWishlist(product.id)}
+                      wishlist={wishlist}
+                      onShare={handleShare}
+                      isSticky={showStickyBuyBar}
+                    />
+                  </div>
                 }
               />
             </div>
@@ -236,3 +237,5 @@ export const ProductDetails: React.FC = () => {
     </div>
   );
 };
+
+export default ProductDetails;

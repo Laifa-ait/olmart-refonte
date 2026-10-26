@@ -39,11 +39,49 @@ export const getWebpFirebaseUrl = (url: string | null | undefined): string => {
   return url;
 };
 
-export const getOptimizedImageUrl = (url: string | null | undefined, _width: number = 400): string => {
-  if (!url) return "/images/placeholders/product.svg";
-  
-  // Par défaut, nous laissons les composants comme ProductImage gérer la substitution WebP avec fallback de sécurité
+export const getOptimizedImageUrl = (
+  url: string | null | undefined,
+  _width: number = 400,
+  productName?: string
+): string => {
+  if (!url || url.trim() === "" || url.includes("placeholders/product.svg") || url.includes("placeholder")) {
+    return getFallbackSubImage(productName || "");
+  }
   return url;
+};
+
+/**
+ * Extrait intelligemment l'image d'un produit à partir de tous ses champs possibles
+ * (image, imageUrl, photo, thumbnail, images[0], desktop_image) avec fallback contextuel Unsplash.
+ */
+export const extractProductImageUrl = (product: Record<string, unknown> | null | undefined): string => {
+  if (!product) return "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=600";
+
+  const imagesArr = Array.isArray(product.images) ? product.images : [];
+  const firstImageInArr = typeof imagesArr[0] === "string" ? imagesArr[0] : null;
+
+  const rawUrl =
+    (typeof product.image === "string" && product.image) ||
+    (typeof product.imageUrl === "string" && product.imageUrl) ||
+    (typeof product.photo === "string" && product.photo) ||
+    (typeof product.thumbnail === "string" && product.thumbnail) ||
+    firstImageInArr ||
+    (typeof product.desktop_image === "string" && product.desktop_image);
+
+  if (
+    rawUrl &&
+    rawUrl.trim().length > 0 &&
+    !rawUrl.includes("placeholders/product.svg") &&
+    !rawUrl.includes("placeholder.png")
+  ) {
+    return rawUrl.trim();
+  }
+
+  const productName =
+    (typeof product.name === "string" ? product.name : "") ||
+    (typeof product.title === "string" ? product.title : "") ||
+    (typeof product.category === "string" ? product.category : "");
+  return getFallbackSubImage(productName);
 };
 
 export const getFallbackSubImage = (name: string): string => {
@@ -194,6 +232,34 @@ export async function compressClientImage(
     console.warn("[ImageCompression] Fallback sur fichier d'origine:", error);
     return file;
   }
-}
+};
+
+/**
+ * Image de secours contextuelle haute résolution pour les bannières d'accueil
+ * lorsque Firebase Storage ou une URL distante échoue (ex: 402 Delinquent Billing, 404, etc.)
+ */
+export const getBannerFallbackImage = (bannerOrTitle: unknown): string => {
+  let text = "";
+  if (typeof bannerOrTitle === "string") {
+    text = bannerOrTitle;
+  } else if (bannerOrTitle && typeof bannerOrTitle === "object") {
+    const b = bannerOrTitle as Record<string, unknown>;
+    text = `${b.title || ""} ${b.subtitle || ""} ${b.name || ""}`.toLowerCase();
+  }
+  const norm = text.toLowerCase().trim();
+  if (norm.includes("cuisine") || norm.includes("tifal") || norm.includes("tefal") || norm.includes("poele") || norm.includes("casserole") || norm.includes("repas")) {
+    return "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=1400";
+  }
+  if (norm.includes("mode") || norm.includes("vetement") || norm.includes("habit") || norm.includes("veste") || norm.includes("chaussure")) {
+    return "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1400";
+  }
+  if (norm.includes("promo") || norm.includes("soldes") || norm.includes("braderie") || norm.includes("reduction")) {
+    return "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1400";
+  }
+  if (norm.includes("high-tech") || norm.includes("ordinateur") || norm.includes("phone") || norm.includes("informatique") || norm.includes("tech")) {
+    return "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&q=80&w=1400";
+  }
+  return "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&q=80&w=1400";
+};
 
 

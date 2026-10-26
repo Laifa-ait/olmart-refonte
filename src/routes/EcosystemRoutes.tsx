@@ -1,33 +1,34 @@
 import React from "react";
 import { Route, Navigate } from "react-router-dom";
 import { PageWrapper } from "../components/common/PageWrapper";
+import { lazyWithRetry } from "../utils/lazyWithRetry";
 
 // Artisans & Bricolage Pages
-const ArtisansHome = React.lazy(() => import("../pages/Artisans/ArtisansHome").then((m) => ({ default: m.ArtisansHome })));
-const ArtisanDetailPage = React.lazy(() => import("../pages/Artisans/ArtisanDetailPage").then((m) => ({ default: m.ArtisanDetailPage })));
-const ArtisanApplyPage = React.lazy(() => import("../pages/Artisans/ArtisanApplyPage").then((m) => ({ default: m.ArtisanApplyPage })));
-const ArtisanDashboardPage = React.lazy(() => import("../pages/Artisans/ArtisanDashboardPage").then((m) => ({ default: m.ArtisanDashboardPage })));
-const ClientArtisanQuotesPage = React.lazy(() => import("../pages/Artisans/ClientArtisanQuotesPage").then((m) => ({ default: m.ClientArtisanQuotesPage })));
-const ArtisanBroadcastsPage = React.lazy(() => import("../pages/Artisans/ArtisanBroadcastsPage").then((m) => ({ default: m.ArtisanBroadcastsPage })));
+const ArtisansHome = lazyWithRetry(() => import("../pages/Artisans/ArtisansHome"), "ArtisansHome");
+const ArtisanDetailPage = lazyWithRetry(() => import("../pages/Artisans/ArtisanDetailPage"), "ArtisanDetailPage");
+const ArtisanApplyPage = lazyWithRetry(() => import("../pages/Artisans/ArtisanApplyPage"), "ArtisanApplyPage");
+const ArtisanDashboardPage = lazyWithRetry(() => import("../pages/Artisans/ArtisanDashboardPage"), "ArtisanDashboardPage");
+const ClientArtisanQuotesPage = lazyWithRetry(() => import("../pages/Artisans/ClientArtisanQuotesPage"), "ClientArtisanQuotesPage");
+const ArtisanBroadcastsPage = lazyWithRetry(() => import("../pages/Artisans/ArtisanBroadcastsPage"), "ArtisanBroadcastsPage");
 
 // Olma Immo Pages
-const OlmaImmoHome = React.lazy(() => import("../pages/OlmaImmo/OlmaImmoHome").then((m) => ({ default: m.OlmaImmoHome })));
-const PropertyDetail = React.lazy(() => import("../pages/OlmaImmo/PropertyDetail").then((m) => ({ default: m.PropertyDetail })));
-const PropertyOwnerDashboard = React.lazy(() => import("../pages/OlmaImmo/PropertyOwnerDashboard").then((m) => ({ default: m.PropertyOwnerDashboard })));
-const PropertyEditor = React.lazy(() => import("../pages/OlmaImmo/PropertyEditor").then((m) => ({ default: m.PropertyEditor })));
-const MyBookings = React.lazy(() => import("../pages/OlmaImmo/MyBookings").then((m) => ({ default: m.MyBookings })));
-const OlmaImmoProfile = React.lazy(() => import("../pages/OlmaImmo/OlmaImmoProfile").then((m) => ({ default: m.OlmaImmoProfile })));
+const OlmaImmoHome = lazyWithRetry(() => import("../pages/OlmaImmo/OlmaImmoHome"), "OlmaImmoHome");
+const PropertyDetail = lazyWithRetry(() => import("../pages/OlmaImmo/PropertyDetail"), "PropertyDetail");
+const PropertyOwnerDashboard = lazyWithRetry(() => import("../pages/OlmaImmo/PropertyOwnerDashboard"), "PropertyOwnerDashboard");
+const PropertyEditor = lazyWithRetry(() => import("../pages/OlmaImmo/PropertyEditor"), "PropertyEditor");
+const MyBookings = lazyWithRetry(() => import("../pages/OlmaImmo/MyBookings"), "MyBookings");
+const OlmaImmoProfile = lazyWithRetry(() => import("../pages/OlmaImmo/OlmaImmoProfile"), "OlmaImmoProfile");
 
 // Olma Auto Pages
-const AutoHome = React.lazy(() => import("../pages/Auto/AutoHome").then((m) => ({ default: m.AutoHome })));
-const VehicleCatalogPage = React.lazy(() => import("../pages/Auto/VehicleCatalogPage").then((m) => ({ default: m.VehicleCatalogPage })));
-const VehicleDetailPage = React.lazy(() => import("../pages/Auto/VehicleDetailPage").then((m) => ({ default: m.VehicleDetailPage })));
-const CreateVehicleListingPage = React.lazy(() => import("../pages/Auto/CreateVehicleListingPage").then((m) => ({ default: m.CreateVehicleListingPage })));
-const SellerGaragePage = React.lazy(() => import("../pages/Auto/SellerGaragePage").then((m) => ({ default: m.SellerGaragePage })));
-const AutoPartsPage = React.lazy(() => import("../pages/Auto/AutoPartsPage").then((m) => ({ default: m.AutoPartsPage })));
-const AutoPartDetailPage = React.lazy(() => import("../pages/Auto/AutoPartDetailPage").then((m) => ({ default: m.AutoPartDetailPage })));
-const AutoEstimationPage = React.lazy(() => import("../pages/Auto/AutoEstimationPage").then((m) => ({ default: m.AutoEstimationPage })));
-const AutoComparePage = React.lazy(() => import("../pages/Auto/AutoComparePage").then((m) => ({ default: m.AutoComparePage })));
+const AutoHome = lazyWithRetry(() => import("../pages/Auto/AutoHome"), "AutoHome");
+const VehicleCatalogPage = lazyWithRetry(() => import("../pages/Auto/VehicleCatalogPage"), "VehicleCatalogPage");
+const VehicleDetailPage = lazyWithRetry(() => import("../pages/Auto/VehicleDetailPage"), "VehicleDetailPage");
+const CreateVehicleListingPage = lazyWithRetry(() => import("../pages/Auto/CreateVehicleListingPage"), "CreateVehicleListingPage");
+const SellerGaragePage = lazyWithRetry(() => import("../pages/Auto/SellerGaragePage"), "SellerGaragePage");
+const AutoPartsPage = lazyWithRetry(() => import("../pages/Auto/AutoPartsPage"), "AutoPartsPage");
+const AutoPartDetailPage = lazyWithRetry(() => import("../pages/Auto/AutoPartDetailPage"), "AutoPartDetailPage");
+const AutoEstimationPage = lazyWithRetry(() => import("../pages/Auto/AutoEstimationPage"), "AutoEstimationPage");
+const AutoComparePage = lazyWithRetry(() => import("../pages/Auto/AutoComparePage"), "AutoComparePage");
 
 export const renderEcosystemRoutes = () => (
   <>

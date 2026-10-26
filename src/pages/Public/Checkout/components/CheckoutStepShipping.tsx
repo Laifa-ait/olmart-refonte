@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import { CheckoutDeliveryMethods } from "./CheckoutDeliveryMethods";
 import { CheckoutLocationSelector } from "./CheckoutLocationSelector";
 import { ShippingLocation } from "../../../../services/shippingClient";
+import type { CheckoutFormData } from "../types";
 
 interface CheckoutStepShippingProps {
   activeAccordion: number;
@@ -13,29 +14,13 @@ interface CheckoutStepShippingProps {
   isStep1Completed: boolean;
   isStep2Completed: boolean;
   isValidPhone: boolean;
-  formData: {
-    fullName: string;
-    email: string;
-    phone: string;
-    wilaya: string;
-    commune: string;
-    address: string;
-  };
-  setFormData: React.Dispatch<
-    React.SetStateAction<{
-      fullName: string;
-      email: string;
-      phone: string;
-      wilaya: string;
-      commune: string;
-      address: string;
-    }>
-  >;
+  formData: CheckoutFormData;
+  setFormData: React.Dispatch<React.SetStateAction<CheckoutFormData>>;
   deliveryMethod: "domicile" | "stopdesk";
   setDeliveryMethod: (method: "domicile" | "stopdesk") => void;
   selectedAgency: string;
   setSelectedAgency: (agency: string) => void;
-  availableCommunes: string[];
+  availableCommunes?: string[];
   availableCenters: string[];
   shippingData?: { wilayas: ShippingLocation[] };
 }
@@ -56,12 +41,13 @@ export const CheckoutStepShipping: React.FC<CheckoutStepShippingProps> = ({
   availableCenters,
   shippingData,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
 
   return (
     <div
-      className={`surface-card p-6 sm:p-8 ${
-        activeAccordion === 2 ? "" : "opacity-70"
+      className={`surface-card p-5 sm:p-8 ${
+        activeAccordion === 2 ? "" : "opacity-80"
       } transition-opacity duration-300`}
       id="checkout-step-shipping-card"
     >
@@ -69,11 +55,11 @@ export const CheckoutStepShipping: React.FC<CheckoutStepShippingProps> = ({
         onClick={() => {
           if (isValidPhone && formData.fullName.trim()) setActiveAccordion(2);
         }}
-        className="w-full flex items-center justify-between text-start bg-none border-none outline-none cursor-pointer"
+        className="w-full flex items-center justify-between text-start bg-transparent border-none outline-none cursor-pointer"
         type="button"
         id="btn-shipping-accordion-trigger"
       >
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <div
             className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs shrink-0 transition-all ${
               activeAccordion === 2
@@ -89,8 +75,8 @@ export const CheckoutStepShipping: React.FC<CheckoutStepShippingProps> = ({
               "2"
             )}
           </div>
-          <h3 className="text-lg sm:text-xl font-sans font-bold text-[var(--color-slate-900, #0f172a)]">
-            {t("checkout.shipping", "Expédition (Où ?)")}
+          <h3 className="text-base sm:text-xl font-sans font-bold text-zinc-900">
+            {t("checkout.shipping", isAr ? "معلومات الشحن (الوجهة)" : "Expédition (Où ?)")}
           </h3>
         </div>
       </button>
@@ -104,9 +90,10 @@ export const CheckoutStepShipping: React.FC<CheckoutStepShippingProps> = ({
             className="overflow-hidden"
             id="shipping-form-container"
           >
-            <div className="pt-8 space-y-6">
+            <div className="pt-6 space-y-6">
               <CheckoutLocationSelector
                 wilaya={formData.wilaya}
+                daira={formData.daira}
                 commune={formData.commune}
                 setFormData={setFormData}
                 availableCommunes={availableCommunes}
@@ -122,24 +109,24 @@ export const CheckoutStepShipping: React.FC<CheckoutStepShippingProps> = ({
                 availableCenters={availableCenters}
               />
 
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <label
                   htmlFor="landmark"
-                  className="text-xs font-sans font-bold text-stone-400 uppercase tracking-widest rtl:tracking-normal ms-1"
+                  className="text-xs font-sans font-bold text-zinc-700 ms-1 block"
                 >
                   {deliveryMethod === "stopdesk"
                     ? t(
                         "checkout.landmark_stopdesk",
-                        "Instructions complémentaires (ex : disponible l'après-midi)"
+                        isAr ? "تعليمات إضافية لمكتب الاستلام (اختياري)" : "Consignes complémentaires (facultatif)"
                       )
                     : t(
                         "checkout.landmark_home",
-                        "Adresse exacte & Repères (ex: N° de maison, près de la pharmacie)"
-                      )}
+                        isAr ? "العنوان الدقيق ومعلم قريب" : "Adresse exacte & Repères"
+                      )} <span className="text-rose-500">*</span>
                 </label>
                 <textarea
                   id="landmark"
-                  rows={3}
+                  rows={2}
                   value={formData.address}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, address: e.target.value }))
@@ -148,44 +135,62 @@ export const CheckoutStepShipping: React.FC<CheckoutStepShippingProps> = ({
                     deliveryMethod === "stopdesk"
                       ? t(
                           "checkout.placeholder_stopdesk",
-                          "Saisissez toute consigne utile pour la préparation ou l'arrivée du colis."
+                          isAr
+                            ? "ملاحظات إضافية لتسهيل استلام الطرد في المكتب..."
+                            : "Consignes utiles pour l'agence ou la récupération du colis..."
                         )
                       : t(
                           "checkout.placeholder_home",
-                          "Pas de code postal. Indiquez plutôt un lieu connu, votre quartier, le numéro d'appartement ou particularité de votre bâtiment."
+                          isAr
+                            ? "رقم المنزل/العمارة، اسم الشارع، الحي، أو معلم معروف (مثال: مقابل الصيدلية)..."
+                            : "N° de maison/bâtiment, nom de rue, quartier, repère connu (ex: face à la pharmacie)..."
                         )
                   }
-                  className="w-full px-6 py-4 bg-transparent border border-stone-200 rounded-2xl outline-none font-bold text-sm resize-none focus:ring-2 ring-[var(--color-orange-600, #ea580c)]/20"
+                  className="w-full px-4 py-3 bg-zinc-50/70 border border-zinc-200 rounded-xl outline-none font-semibold text-xs sm:text-sm text-zinc-900 resize-none focus:bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-500/15 transition-all"
                 />
               </div>
 
               <button
                 onClick={() => {
+                  if (!formData.wilaya) {
+                    toast.error(
+                      t("checkout.select_wilaya", isAr ? "يرجى اختيار الولاية." : "Veuillez sélectionner votre wilaya.")
+                    );
+                    return;
+                  }
+                  if (!formData.commune || formData.commune === "Autre") {
+                    toast.error(
+                      t("checkout.select_commune", isAr ? "يرجى تحديد البلدية." : "Veuillez choisir votre commune.")
+                    );
+                    return;
+                  }
                   if (deliveryMethod === "stopdesk" && !selectedAgency) {
                     toast.error(
                       t(
                         "checkout.select_agency_error",
-                        "Veuillez sélectionner un bureau de retrait pour la livraison en agence."
+                        isAr
+                          ? "يرجى اختيار مكتب الاستلام (StopDesk)."
+                          : "Veuillez sélectionner un bureau de retrait pour la livraison en agence."
                       )
                     );
                     return;
                   }
-                  if (formData.commune && formData.address) {
-                    setActiveAccordion(3);
-                  } else {
+                  if (!formData.address.trim()) {
                     toast.error(
                       t(
                         "checkout.invalid_commune_landmark",
-                        "Veuillez choisir une commune et un point de repère."
+                        isAr ? "يرجى كتابة العنوان أو معلم قريب للتسليم." : "Veuillez préciser votre adresse ou un repère connu."
                       )
                     );
+                    return;
                   }
+                  setActiveAccordion(3);
                 }}
-                className="btn-ghost-teal w-full sm:w-auto mt-4"
+                className="btn-ghost-teal w-full sm:w-auto mt-2"
                 type="button"
                 id="btn-shipping-continue"
               >
-                {t("checkout.continue_validation", "Passer à la validation")}
+                {t("checkout.continue_validation", isAr ? "متابعة لتأكيد المعلومات" : "Passer à la validation")}
               </button>
             </div>
           </motion.div>

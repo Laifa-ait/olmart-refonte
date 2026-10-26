@@ -300,8 +300,8 @@ export const Shop: React.FC = () => {
     availableFacets,
     filteredProducts,
     toggleFacet,
-    setBooleanFacet,
-    setMinRating,
+    setBooleanFacet: _setBooleanFacet,
+    setMinRating: _setMinRating,
     setPriceRange,
     resetFilters,
     totalCount,
@@ -434,7 +434,7 @@ export const Shop: React.FC = () => {
           </div>
 
           {/* Unified Control Box: Double-Decker categories & express tags */}
-          <div className="rounded-[1.75rem] border border-[#eae3dc] bg-white/90 p-3.5 shadow-[0_12px_28px_rgba(62,46,32,0.055)] backdrop-blur-sm sm:p-5 space-y-4">
+          <div className="w-full bg-transparent p-0 space-y-4">
             {/* Deck 1: Main Categories */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -962,8 +962,6 @@ export const Shop: React.FC = () => {
         selectedFacets={selectedFacets}
         availableFacets={availableFacets}
         toggleFacet={toggleFacet}
-        setBooleanFacet={setBooleanFacet}
-        setMinRating={setMinRating}
         setPriceRange={setPriceRange}
         resetFilters={resetFilters}
         totalCount={totalCount}

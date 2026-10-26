@@ -1,10 +1,14 @@
 import { z } from "zod";
 import { ALGERIA_WILAYAS } from "../constants";
 
+import { isValidAlgerianPhone } from "./phone";
+
 // 1. Onboarding Validation Schema
 export const onboardingSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères.").max(100, "Nom trop long."),
-  phone: z.string().regex(/^(05|06|07)[0-9]{8}$/, "Numéro de téléphone algérien invalide (ex: 0555123456)."),
+  phone: z.string().refine(isValidAlgerianPhone, {
+    message: "Numéro de téléphone algérien invalide (ex: 0555123456 ou +213555123456)."
+  }),
   wilaya: z.string().refine((val) => ALGERIA_WILAYAS.includes(val), {
     message: "Wilaya invalide. Veuillez sélectionner une wilaya parmi les 69 wilayas d'Algérie."
   }),
@@ -28,7 +32,9 @@ const cartItemSchema = z.object({
 const shippingAddressSchema = z.object({
   fullName: z.string().min(2, "Nom complet requis.").max(100),
   email: z.string().email("Format d'adresse e-mail invalide.").optional().or(z.literal('')),
-  phone: z.string().regex(/^(05|06|07)[0-9]{8}$/, "Numéro de téléphone algérien invalide."),
+  phone: z.string().refine(isValidAlgerianPhone, {
+    message: "Numéro de téléphone algérien invalide."
+  }),
   wilaya: z.string().refine((val) => ALGERIA_WILAYAS.includes(val), {
     message: "Wilaya de livraison invalide."
   }),

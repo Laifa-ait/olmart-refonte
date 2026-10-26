@@ -58,7 +58,8 @@ router.post(
 
     if (idempotencyKey) {
       try {
-        const keyRef = db.collection("idempotency_keys").doc(idempotencyKey);
+        const scopedKey = `${userId}_${idempotencyKey}`;
+        const keyRef = db.collection("idempotency_keys").doc(scopedKey);
         const keySnap = await keyRef.get();
         if (keySnap.exists) {
           const keyData = keySnap.data();

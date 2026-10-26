@@ -15,6 +15,7 @@ import { analyticsEngine } from '../../../../utils/analyticsEngine';
 import { CartItem } from '../../../../domains/product/product.types';
 import { Coupon, CouponDateType } from '../../../../domains/marketing/coupon.types';
 import { generateRandomAlphanumeric } from '../../../../utils/secureCrypto';
+import type { CheckoutFormData } from "../types";
 
 export interface CheckoutOrderSummary {
   id: string;
@@ -34,7 +35,7 @@ export const useCheckout = () => {
   const [shippingData, setShippingData] = useState<{
     wilayas: ShippingLocation[];
     communes: Array<{ id: number; wilaya_id: number; name: string }>;
-    centers: Array<{ id: number; wilaya_id: number; name: string }>;
+    centers: string[];
   }>({ wilayas: [], communes: [], centers: [] });
   const [shippingRate, setShippingRate] = useState<ShippingRateDetail | null>(null);
 
@@ -46,11 +47,12 @@ export const useCheckout = () => {
      }).catch(e => console.error("Could not fetch shipping locations", e));
   }, []);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<CheckoutFormData>({
     fullName: currentUser?.displayName || '',
     email: currentUser?.email || '',
     phone: '',
     wilaya: localStorage.getItem("olma_default_wilaya") || '',
+    daira: '',
     commune: '',
     address: '',
   });
@@ -93,7 +95,7 @@ export const useCheckout = () => {
       if (!formData.wilaya) return [];
       const wilayaObj = shippingData.wilayas.find(w => w.name === formData.wilaya);
       if (!wilayaObj) return [];
-      return shippingData.centers.filter(c => c.wilaya_id === wilayaObj.id).map(c => c.name);
+      return shippingData.centers;
   }, [formData.wilaya, shippingData]);
 
   // Pre-select commune by default when wilaya changes for smooth UX & no empty selection
@@ -167,6 +169,7 @@ export const useCheckout = () => {
   const [shops, setShops] = useState<Record<string, Shop>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeliveryInfoConfirmed, setIsDeliveryInfoConfirmed] = useState(false);
+  const [confirmedSnapshot, setConfirmedSnapshot] = useState<string | null>(null);
   const [deliveryRegId, setDeliveryRegId] = useState<string | null>(null);
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [orderSummary, setOrderSummary] = useState<CheckoutOrderSummary | null>(null);
@@ -174,14 +177,17 @@ export const useCheckout = () => {
   const [isConverting, setIsConverting] = useState(false);
   const [isConverted, setIsConverted] = useState(false);
 
-  // Reset confirmation if user edits their details after confirming
+  // Invalidate confirmation only if user modifies fields AFTER confirming
   useEffect(() => {
-    if (isDeliveryInfoConfirmed) {
+    if (!isDeliveryInfoConfirmed || !confirmedSnapshot) return;
+    const current = `${formData.fullName.trim()}|${formData.phone.replace(/\s+/g, '')}|${formData.wilaya}|${formData.daira || ""}|${formData.commune}|${formData.address.trim()}|${deliveryMethod}|${selectedAgency}`;
+    if (current !== confirmedSnapshot) {
       setIsDeliveryInfoConfirmed(false);
+      setConfirmedSnapshot(null);
       setDeliveryRegId(null);
-      toast.success(t("checkout.info_changed_notice", "Informations modifiées, veuillez valider à nouveau vos coordonnées de livraison à l'étape 3."));
+      toast.error(t("checkout.info_changed_notice", "Informations modifiées, veuillez valider à nouveau vos coordonnées de livraison à l'étape 3."));
     }
-  }, [formData.fullName, formData.phone, formData.wilaya, formData.commune, formData.address, deliveryMethod, selectedAgency, isDeliveryInfoConfirmed, t]);
+  }, [formData.fullName, formData.phone, formData.wilaya, formData.daira, formData.commune, formData.address, deliveryMethod, selectedAgency, isDeliveryInfoConfirmed, confirmedSnapshot, t]);
 
   const groupedCart = useMemo(() => {
     const groups: Record<string, { items: CartItem[], total: number, sellerName: string }> = {};
@@ -400,54 +406,36 @@ export const useCheckout = () => {
            wilaya: formData.wilaya,
            commune: formData.commune,
            address: formData.address,
-         });
-      }
-
-      let idToken = "";
-      if (currentUser) {
-        try {
-          idToken = await currentUser.getIdToken();
-        } catch (tokenErr) {
-          console.warn("Failed to retrieve auth ID token:", tokenErr);
-        }
+         }).catch(err => console.warn("Non-blocking profile sync warning:", err));
       }
 
       const finalAddress = deliveryMethod === 'stopdesk'
         ? `STOP DESK (Bureau de Retrait) : ${selectedAgency} | Repère : ${formData.address}`
         : formData.address;
 
-      const response = await fetch("/api/v1/checkout/confirm-delivery", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(idToken ? { "Authorization": `Bearer ${idToken}` } : {})
-        },
-        body: JSON.stringify({
-          id: refId,
-          fullName: formData.fullName,
-          email: formData.email || "",
-          phone: cleanPhone,
-          wilaya: formData.wilaya,
-          commune: formData.commune,
-          address: finalAddress,
-          deliveryMethod,
-          items: activeCart.map(item => ({
-            id: item.id,
-            name: item.name,
-            quantity: item.quantity || 1,
-            price: item.promoPrice || item.price,
-            selectedVariant: item.selectedVariant || null
-          })),
-          total: grandTotal,
-          userId: currentUser?.uid || "guest"
-        })
+      await apiPost("/api/v1/checkout/confirm-delivery", {
+        id: refId,
+        fullName: formData.fullName,
+        email: formData.email || "",
+        phone: cleanPhone,
+        wilaya: formData.wilaya,
+        daira: formData.daira || "",
+        commune: formData.commune,
+        address: finalAddress,
+        deliveryMethod,
+        items: activeCart.map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity || 1,
+          price: item.promoPrice || item.price,
+          selectedVariant: item.selectedVariant || null
+        })),
+        total: grandTotal,
+        userId: currentUser?.uid || "guest"
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || t("checkout.save_delivery_error", "Erreur lors de l'enregistrement de vos informations de livraison."));
-      }
-      
+      const snapshot = `${formData.fullName.trim()}|${cleanPhone}|${formData.wilaya}|${formData.daira || ""}|${formData.commune}|${formData.address.trim()}|${deliveryMethod}|${selectedAgency}`;
+      setConfirmedSnapshot(snapshot);
       setDeliveryRegId(refId);
       setIsDeliveryInfoConfirmed(true);
       
@@ -481,9 +469,12 @@ export const useCheckout = () => {
 
       const sendData = { 
         ...formData, 
+        daira: formData.daira || "",
         name: formData.fullName, 
         phone: formData.phone.replace(/\s+/g, ''),
-        address: finalAddress
+        address: finalAddress,
+        deliveryMethod,
+        selectedAgency: deliveryMethod === 'stopdesk' ? selectedAgency : undefined,
       };
 
       const payload = {

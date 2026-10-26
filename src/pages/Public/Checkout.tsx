@@ -69,7 +69,7 @@ export const Checkout: React.FC = () => {
   }
 
   const isStep1Completed = isValidPhone && !!formData.fullName.trim();
-  const isStep2Completed = !!(formData.commune && formData.address);
+  const isStep2Completed = !!(formData.wilaya && formData.commune && formData.address);
 
   return (
     <PremiumLayout>

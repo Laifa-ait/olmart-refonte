@@ -16,7 +16,8 @@ export const CheckoutSummaryItems: React.FC<CheckoutSummaryItemsProps> = ({
   groupedCart,
   getCartItemPrice,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
 
   return (
     <div className="space-y-6 max-h-[350px] overflow-y-auto mb-6 pr-2 custom-scrollbar">
@@ -27,8 +28,8 @@ export const CheckoutSummaryItems: React.FC<CheckoutSummaryItemsProps> = ({
           id={`subpackage-group-${idx}`}
         >
           <div className="flex items-center gap-2 mb-3 pb-2 border-b border-stone-200/50">
-            <span className="bg-[var(--color-slate-900, #0f172a)] text-white text-[9px] font-sans font-bold uppercase tracking-widest rtl:tracking-normal px-2 py-0.5 rounded-full">
-              {t("checkout.subpackage") || "Sous-colis"} {idx + 1}
+            <span className="bg-[var(--color-slate-900,#0f172a)] text-white text-[9px] font-sans font-bold uppercase tracking-widest rtl:tracking-normal px-2 py-0.5 rounded-full">
+              {isAr ? "طرد فرعي" : t("checkout.subpackage", "Sous-colis")} {idx + 1}
             </span>
             <span className="text-[10px] font-bold text-stone-500 uppercase tracking-widest rtl:tracking-normal">
               {group.sellerName}
@@ -41,7 +42,7 @@ export const CheckoutSummaryItems: React.FC<CheckoutSummaryItemsProps> = ({
                   <ProductImage src={item.image} alt={item.name} className="w-full h-full" />
                 </div>
                 <div className="flex-1 flex flex-col justify-center">
-                  <p className="text-[11px] font-bold text-[var(--color-slate-900, #0f172a)] line-clamp-2 leading-tight">
+                  <p className="text-[11px] font-bold text-[var(--color-slate-900,#0f172a)] line-clamp-2 leading-tight">
                     {item.name}
                   </p>
                   {item.selectedVariant && (
@@ -51,9 +52,9 @@ export const CheckoutSummaryItems: React.FC<CheckoutSummaryItemsProps> = ({
                   )}
                   <div className="flex justify-between items-center mt-2 text-stone-500">
                     <span className="text-[10px] font-bold">
-                      {t("checkout.qty", "Qté:")} {item.quantity || 1}
+                      {t("checkout.qty", isAr ? "الكمية:" : "Qté:")} {item.quantity || 1}
                     </span>
-                    <span className="text-[10px] font-sans font-bold text-[var(--color-orange-600, #ea580c)] tracking-wider rtl:tracking-normal">
+                    <span className="text-[10px] font-sans font-bold text-[var(--color-orange-600,#ea580c)] tracking-wider rtl:tracking-normal">
                       {formatPrice(
                         getCartItemPrice(item) * (item.quantity || 1)
                       )}

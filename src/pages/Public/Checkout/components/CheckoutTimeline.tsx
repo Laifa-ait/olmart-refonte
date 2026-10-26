@@ -18,40 +18,37 @@ export const CheckoutTimeline: React.FC<CheckoutTimelineProps> = ({
   isStep2Completed,
   onNavigateToCart,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
+
+  const progressPercentage =
+    activeAccordion === 1 ? "33%" : activeAccordion === 2 ? "66%" : "100%";
 
   return (
-    <div className="mt-8 mb-4 max-w-3xl mx-auto" id="checkout-timeline">
-      <div className="flex items-center justify-between relative">
-        {/* Progress Line Connector */}
-        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-0.5 bg-stone-200 z-0">
+    <div className="mt-6 mb-6 max-w-2xl mx-auto px-2 sm:px-4" id="checkout-timeline">
+      <div className="flex items-start justify-between relative">
+        {/* Progress Line Connector aligned with circle center (top-4 sm:top-5) */}
+        <div className="absolute left-6 right-6 sm:left-8 sm:right-8 top-4.5 sm:top-5 -translate-y-1/2 h-0.5 bg-stone-200 z-0">
           <motion.div
-            className="h-full bg-orange-500"
+            className="h-full bg-amber-500 origin-left rtl:origin-right"
             initial={{ width: "0%" }}
-            animate={{
-              width:
-                activeAccordion === 1
-                  ? "33%"
-                  : activeAccordion === 2
-                  ? "66%"
-                  : "100%",
-            }}
-            transition={{ duration: 0.4 }}
+            animate={{ width: progressPercentage }}
+            transition={{ duration: 0.35, ease: "easeInOut" }}
           />
         </div>
 
         {/* Step 1: Cart */}
         <button
           onClick={onNavigateToCart}
-          className="z-10 flex flex-col items-center group cursor-pointer bg-none border-none outline-none"
+          className="z-10 flex flex-col items-center group cursor-pointer bg-transparent border-none outline-none max-w-[75px] sm:max-w-none"
           type="button"
           id="timeline-step-cart"
         >
-          <div className="w-10 h-10 rounded-full bg-emerald-500 text-white border-4 border-white shadow flex items-center justify-center font-bold text-sm group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-emerald-500 text-white border-2 sm:border-4 border-white shadow-sm flex items-center justify-center font-bold text-xs sm:text-sm group-hover:scale-105 transition-transform shrink-0">
             <Check className="w-4 h-4 stroke-[3]" />
           </div>
-          <span className="text-[10px] font-sans font-bold uppercase tracking-wider text-emerald-600 mt-2 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
-            {t("checkout.timeline_cart", "Panier")}
+          <span className="text-[10px] sm:text-xs font-semibold text-emerald-700 mt-2 text-center truncate w-full">
+            {t("checkout.timeline_cart", isAr ? "السلة" : "Panier")}
           </span>
         </button>
 
@@ -61,14 +58,14 @@ export const CheckoutTimeline: React.FC<CheckoutTimelineProps> = ({
             if (isStep1Completed) setActiveAccordion(1);
           }}
           disabled={!isStep1Completed}
-          className="z-10 flex flex-col items-center group disabled:cursor-not-allowed bg-none border-none outline-none"
+          className="z-10 flex flex-col items-center group disabled:cursor-not-allowed bg-transparent border-none outline-none max-w-[75px] sm:max-w-none"
           type="button"
           id="timeline-step-identity"
         >
           <div
-            className={`w-10 h-10 rounded-full border-4 border-white shadow flex items-center justify-center font-bold text-sm transition-all ${
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 sm:border-4 border-white shadow-sm flex items-center justify-center font-bold text-xs sm:text-sm transition-all shrink-0 ${
               activeAccordion === 1
-                ? "bg-zinc-950 text-white scale-110"
+                ? "bg-zinc-950 text-white scale-105 sm:scale-110 ring-2 ring-zinc-950/20"
                 : isStep1Completed
                 ? "bg-emerald-500 text-white"
                 : "bg-stone-100 text-stone-400"
@@ -81,15 +78,15 @@ export const CheckoutTimeline: React.FC<CheckoutTimelineProps> = ({
             )}
           </div>
           <span
-            className={`text-[10px] font-sans font-bold uppercase tracking-wider mt-2 ${
+            className={`text-[10px] sm:text-xs font-semibold mt-2 text-center truncate w-full ${
               activeAccordion === 1
-                ? "text-zinc-950 underline decoration-2"
+                ? "text-zinc-950 font-bold"
                 : isStep1Completed
-                ? "text-emerald-600"
+                ? "text-emerald-700"
                 : "text-stone-400"
             }`}
           >
-            {t("checkout.timeline_identity", "Coordonnées")}
+            {t("checkout.timeline_identity", isAr ? "الهوية" : "Coordonnées")}
           </span>
         </button>
 
@@ -99,14 +96,14 @@ export const CheckoutTimeline: React.FC<CheckoutTimelineProps> = ({
             if (isStep1Completed && isStep2Completed) setActiveAccordion(2);
           }}
           disabled={!isStep1Completed}
-          className="z-10 flex flex-col items-center group disabled:cursor-not-allowed bg-none border-none outline-none"
+          className="z-10 flex flex-col items-center group disabled:cursor-not-allowed bg-transparent border-none outline-none max-w-[75px] sm:max-w-none"
           type="button"
           id="timeline-step-shipping"
         >
           <div
-            className={`w-10 h-10 rounded-full border-4 border-white shadow flex items-center justify-center font-bold text-sm transition-all ${
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 sm:border-4 border-white shadow-sm flex items-center justify-center font-bold text-xs sm:text-sm transition-all shrink-0 ${
               activeAccordion === 2
-                ? "bg-zinc-950 text-white scale-110"
+                ? "bg-zinc-950 text-white scale-105 sm:scale-110 ring-2 ring-zinc-950/20"
                 : isStep2Completed && isStep1Completed
                 ? "bg-emerald-500 text-white"
                 : "bg-stone-100 text-stone-400"
@@ -119,15 +116,15 @@ export const CheckoutTimeline: React.FC<CheckoutTimelineProps> = ({
             )}
           </div>
           <span
-            className={`text-[10px] font-sans font-bold uppercase tracking-wider mt-2 ${
+            className={`text-[10px] sm:text-xs font-semibold mt-2 text-center truncate w-full ${
               activeAccordion === 2
-                ? "text-zinc-950 underline decoration-2"
+                ? "text-zinc-950 font-bold"
                 : isStep2Completed
-                ? "text-emerald-600"
+                ? "text-emerald-700"
                 : "text-stone-400"
             }`}
           >
-            {t("checkout.timeline_shipping", "Livraison")}
+            {t("checkout.timeline_shipping", isAr ? "الشحن" : "Livraison")}
           </span>
         </button>
 
@@ -137,27 +134,27 @@ export const CheckoutTimeline: React.FC<CheckoutTimelineProps> = ({
             if (isStep1Completed && isStep2Completed) setActiveAccordion(3);
           }}
           disabled={!isStep1Completed || !isStep2Completed}
-          className="z-10 flex flex-col items-center group disabled:cursor-not-allowed bg-none border-none outline-none"
+          className="z-10 flex flex-col items-center group disabled:cursor-not-allowed bg-transparent border-none outline-none max-w-[75px] sm:max-w-none"
           type="button"
           id="timeline-step-validation"
         >
           <div
-            className={`w-10 h-10 rounded-full border-4 border-white shadow flex items-center justify-center font-bold text-sm transition-all ${
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 sm:border-4 border-white shadow-sm flex items-center justify-center font-bold text-xs sm:text-sm transition-all shrink-0 ${
               activeAccordion === 3
-                ? "bg-zinc-950 text-white scale-110"
+                ? "bg-zinc-950 text-white scale-105 sm:scale-110 ring-2 ring-zinc-950/20"
                 : "bg-stone-100 text-stone-400"
             }`}
           >
             3
           </div>
           <span
-            className={`text-[10px] font-sans font-bold uppercase tracking-wider mt-2 ${
+            className={`text-[10px] sm:text-xs font-semibold mt-2 text-center truncate w-full ${
               activeAccordion === 3
-                ? "text-zinc-950 underline decoration-2"
+                ? "text-zinc-950 font-bold"
                 : "text-stone-400"
             }`}
           >
-            {t("checkout.timeline_validation", "Validation")}
+            {t("checkout.timeline_validation", isAr ? "التأكيد" : "Validation")}
           </span>
         </button>
       </div>

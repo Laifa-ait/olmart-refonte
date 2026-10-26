@@ -50,13 +50,14 @@ export const CheckoutSummarySidebar: React.FC<CheckoutSummarySidebarProps> = ({
   isDeliveryInfoConfirmed,
   getCartItemPrice,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === "ar";
 
   return (
     <div className="col-span-1 lg:col-span-5 space-y-6" id="checkout-summary-sidebar-container">
       <div className="surface-card p-6 sm:p-8 sticky top-28">
-        <h3 className="text-sm font-sans font-bold text-[var(--color-slate-900, #0f172a)] uppercase tracking-widest rtl:tracking-normal mb-6 border-b border-stone-100 pb-4">
-          {t("order_summary", "Résumé des articles")}
+        <h3 className="text-sm font-sans font-bold text-[var(--color-slate-900,#0f172a)] tracking-wide mb-6 border-b border-stone-100 pb-4">
+          {t("order_summary", isAr ? "ملخص الطلب" : "Résumé des articles")}
         </h3>
 
         <CheckoutSummaryItems
@@ -75,15 +76,15 @@ export const CheckoutSummarySidebar: React.FC<CheckoutSummarySidebarProps> = ({
 
         <div className="space-y-3 pt-2">
           <div className="flex justify-between items-center text-sm font-semibold text-zinc-500">
-            <span>{t("Sous-total")}</span>
+            <span>{t("Sous-total", isAr ? "المجموع الفرعي" : "Sous-total")}</span>
             <span className="text-zinc-900 font-bold tabular-nums">
               {formatPrice(subtotal)}
             </span>
           </div>
           {couponDiscount > 0 && (
             <div className="flex justify-between items-center text-sm font-bold text-emerald-600 animate-fade-in py-1">
-              <span className="flex items-center gap-1.5 font-sans font-bold uppercase text-xs">
-                {t("checkout.discount", "Remise coupon")} ({appliedCoupon?.code})
+              <span className="flex items-center gap-1.5 font-sans font-bold text-xs">
+                {t("checkout.discount", isAr ? "تخفيض القسيمة" : "Remise coupon")} ({appliedCoupon?.code})
               </span>
               <span className="font-black text-xs tabular-nums">
                 - {formatPrice(couponDiscount)}
@@ -91,7 +92,7 @@ export const CheckoutSummarySidebar: React.FC<CheckoutSummarySidebarProps> = ({
             </div>
           )}
           <div className="flex justify-between items-center text-sm font-semibold text-zinc-500">
-            <span>{t("Livraison estimée")}</span>
+            <span>{t("Livraison estimée", isAr ? "تكلفة التوصيل" : "Livraison estimée")}</span>
             <span className="text-zinc-900 font-bold tabular-nums">
               {formatPrice(totalShipping)}
             </span>
@@ -99,11 +100,11 @@ export const CheckoutSummarySidebar: React.FC<CheckoutSummarySidebarProps> = ({
 
           <div className="flex justify-between items-baseline pt-4 mt-4 border-t border-zinc-200/80">
             <div>
-              <span className="text-xs font-sans font-bold text-zinc-900 uppercase tracking-wider block">
-                {t("checkout.total", "Total à payer")}
+              <span className="text-xs font-sans font-bold text-zinc-900 tracking-wide block">
+                {t("checkout.total", isAr ? "المبلغ الإجمالي" : "Total à payer")}
               </span>
               <span className="text-[11px] font-semibold text-emerald-700 block mt-0.5">
-                {t("Paiement à la livraison")}
+                {t("Paiement à la livraison", isAr ? "الدفع عند الاستلام (COD)" : "Paiement à la livraison")}
               </span>
             </div>
             <div className="text-end">
@@ -135,13 +136,15 @@ export const CheckoutSummarySidebar: React.FC<CheckoutSummarySidebarProps> = ({
                 {isSubmittingOrder ? (
                   <>
                     <span className="w-5 h-5 border-2 border-zinc-950/30 border-t-zinc-950 rounded-full animate-spin" />
-                    <span>{t("checkout.placing_order", "Finalisation de la commande...")}</span>
+                    <span>
+                      {t("checkout.placing_order", isAr ? "جاري تأكيد وتسجيل الطلب..." : "Finalisation de la commande...")}
+                    </span>
                   </>
                 ) : (
                   <span>
                     {t(
                       "checkout.finalize_purchase_button",
-                      "Confirmer la commande (COD)"
+                      isAr ? "تأكيد الطلب نهائياً (COD)" : "Confirmer la commande (COD)"
                     )}
                   </span>
                 )}
@@ -150,7 +153,9 @@ export const CheckoutSummarySidebar: React.FC<CheckoutSummarySidebarProps> = ({
                 <p className="text-[11px] text-center text-amber-700 font-semibold mt-2.5">
                   {t(
                     "checkout.prompt_confirm_info",
-                    "⚠️ Veuillez valider vos informations de livraison à l'étape 3"
+                    isAr
+                      ? "⚠️ يرجى تأكيد بيانات ومعلومات التوصيل في الخطوة 3"
+                      : "⚠️ Veuillez valider vos informations de livraison à l'étape 3"
                   )}
                 </p>
               )}

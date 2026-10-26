@@ -147,7 +147,7 @@ export const MegaMenuDropdown: React.FC<MegaMenuDropdownProps> = ({
                         onClick={() => setActiveSectionName(section.name)}
                         className={`w-full text-left py-2.5 px-3.5 rounded-xl text-[13px] font-semibold transition-all duration-150 flex items-center justify-between cursor-pointer ${
                           isActive
-                            ? "bg-[#065F46] text-white shadow-xs"
+                            ? "bg-[#5B4865] text-white shadow-xs"
                             : "bg-transparent text-slate-800 hover:text-slate-950 hover:bg-slate-50"
                         }`}
                       >
@@ -180,12 +180,12 @@ export const MegaMenuDropdown: React.FC<MegaMenuDropdownProps> = ({
                         onMouseEnter={() => {
                           if (link.featuredProduct) setHoveredProduct(link.featuredProduct);
                         }}
-                        className="group flex items-center justify-between py-1.5 text-[13px] font-medium text-slate-800 hover:text-[#065F46] transition-colors cursor-pointer"
+                        className="group flex items-center justify-between py-1.5 text-[13px] font-medium text-slate-800 hover:text-[#5B4865] transition-colors cursor-pointer"
                       >
                         <span className="truncate group-hover:translate-x-0.5 transition-transform">
                           {t(link.name) || link.name}
                         </span>
-                        <span className="text-slate-300 group-hover:text-[#065F46] text-xs font-bold shrink-0 ml-2">
+                        <span className="text-slate-300 group-hover:text-[#5B4865] text-xs font-bold shrink-0 ml-2">
                           {linkIdx % 4 === 3 ? "⌄" : "•"}
                         </span>
                       </Link>

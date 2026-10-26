@@ -69,7 +69,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ hideOnRoutes =
     {
       id: "home",
       icon: Home,
-      label: "Accueil",
       ariaLabel: "Accueil",
       onClick: () => {
         setIsCartOpen(false);
@@ -81,7 +80,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ hideOnRoutes =
     {
       id: "categories",
       icon: LayoutGrid,
-      label: "Catégories",
       ariaLabel: "Catégories",
       onClick: () => {
         setIsCartOpen(false);
@@ -93,7 +91,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ hideOnRoutes =
     {
       id: "wishlist",
       icon: Heart,
-      label: "Favoris",
       ariaLabel: wishlist.length > 0 ? `Favoris (${wishlist.length})` : "Favoris",
       badge: wishlist.length > 0 ? wishlist.length : undefined,
       onClick: () => {
@@ -105,7 +102,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ hideOnRoutes =
     {
       id: "cart",
       icon: ShoppingBag,
-      label: "Panier",
       ariaLabel: cart.length > 0 ? `Panier (${cart.length})` : "Panier",
       badge: cart.length > 0 ? (cart.length > 99 ? "99+" : cart.length) : undefined,
       onClick: () => {
@@ -117,7 +113,6 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ hideOnRoutes =
     {
       id: "account",
       icon: UserIcon,
-      label: "Compte",
       ariaLabel: "Mon compte",
       onClick: () => {
         setIsCartOpen(false);
@@ -132,9 +127,13 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ hideOnRoutes =
   ];
 
   return (
-    <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 pointer-events-none">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 z-[200] pointer-events-none">
       <div className="pointer-events-auto">
-        <CurvedBottomNav items={navItems} activeId={activeId} onChange={() => {}} />
+        <CurvedBottomNav
+          items={navItems}
+          activeId={activeId}
+          onChange={() => {}}
+        />
       </div>
     </div>
   );

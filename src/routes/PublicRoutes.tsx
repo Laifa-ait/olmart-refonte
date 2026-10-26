@@ -6,7 +6,7 @@ import { lazyWithRetry } from "../utils/lazyWithRetry";
 // Core Public Pages (Lazy Loaded)
 const Home = lazyWithRetry(() => import("../pages/Public/Home").then((m) => m.Home), "Home");
 const Shop = lazyWithRetry(() => import("../pages/Public/Shop").then((m) => m.Shop), "Shop");
-const ProductDetails = lazyWithRetry(() => import("../pages/Public/ProductDetails").then((m) => m.ProductDetails), "ProductDetails");
+const ProductDetails = lazyWithRetry(() => import("../pages/Public/ProductDetails"));
 const Auth = lazyWithRetry(() => import("../pages/Public/Auth").then((m) => m.Auth), "Auth");
 const Cart = lazyWithRetry(() => import("../pages/Public/Cart").then((m) => m.Cart), "Cart");
 const Checkout = lazyWithRetry(() => import("../pages/Public/Checkout").then((m) => m.Checkout), "Checkout");
@@ -37,6 +37,7 @@ export const renderPublicRoutes = () => (
     <Route path="/univers" element={<PageWrapper><MobileCategories /></PageWrapper>} />
     <Route path="/univers/:categorySlug" element={<Navigate to="/shop" replace />} />
     <Route path="/shop" element={<PageWrapper><Shop /></PageWrapper>} />
+    <Route path="/shop/:sellerId" element={<PageWrapper><StoreProfile /></PageWrapper>} />
     <Route path="/store/:sellerId" element={<PageWrapper><StoreProfile /></PageWrapper>} />
     <Route path="/boutique/:sellerId" element={<PageWrapper><StoreProfile /></PageWrapper>} />
     <Route path="/catalogue/:tagSlug" element={<PageWrapper><ProductFilterPage /></PageWrapper>} />

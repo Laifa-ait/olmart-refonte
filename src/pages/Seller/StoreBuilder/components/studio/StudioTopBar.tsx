@@ -1,16 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
-  Monitor,
-  Tablet,
-  Smartphone,
   ExternalLink,
   Send,
-  CheckCircle2,
-  Clock,
-  Sparkles,
+  ArrowLeft,
+  History,
+  Save,
+  PanelLeft,
+  PanelRight,
 } from "lucide-react";
 import { SaveStatus } from "../../hooks/useSellerStudio";
-import { SubscriptionRequest } from "../../../../../domains/seller/subscription.types";
+import { StoreHistoryEntry } from "../../../../../domains/seller/customPage.types";
+import { StudioHistoryModal } from "../topbar/StudioHistoryModal";
+import { StudioDirectPublishModal } from "../topbar/StudioDirectPublishModal";
+import { StudioTopBarViewport } from "../topbar/StudioTopBarViewport";
 
 interface StudioTopBarProps {
   viewport: "mobile" | "tablet" | "desktop";
@@ -19,10 +22,19 @@ interface StudioTopBarProps {
   shopName?: string;
   shopSlug?: string;
   isPublished?: boolean;
-  hasActiveSubscription?: boolean;
-  pendingRequest?: SubscriptionRequest | null;
-  onPublish: () => void;
-  onRequestPublication?: () => void;
+  historyList?: StoreHistoryEntry[];
+  onSaveDraft?: () => void;
+  onPublish: (changeSummary?: string) => void;
+  onRollback?: (versionNumber: number) => void;
+  showLeftSidebar?: boolean;
+  onToggleLeftSidebar?: () => void;
+  showRightSidebar?: boolean;
+  onToggleRightSidebar?: () => void;
+  onToggleBothSidebars?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
+  onUndo?: () => void;
+  onRedo?: () => void;
 }
 
 export const StudioTopBar: React.FC<StudioTopBarProps> = ({
@@ -32,172 +44,185 @@ export const StudioTopBar: React.FC<StudioTopBarProps> = ({
   shopName = "Ma Boutique",
   shopSlug,
   isPublished,
-  hasActiveSubscription = false,
-  pendingRequest,
+  historyList = [],
+  onSaveDraft,
   onPublish,
-  onRequestPublication,
+  onRollback,
+  showLeftSidebar = true,
+  onToggleLeftSidebar,
+  showRightSidebar = true,
+  onToggleRightSidebar,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
 }) => {
-  const isPendingReview =
-    !hasActiveSubscription &&
-    pendingRequest &&
-    ["pending", "payment_requested", "payment_declared", "payment_confirmed"].includes(pendingRequest.status);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+  const [changeSummary, setChangeSummary] = useState("");
+
+  const handleBack = () => {
+    const target = location.pathname.startsWith("/dashboard/seller")
+      ? "/dashboard/seller"
+      : "/seller";
+    navigate(target);
+  };
 
   const renderSaveStatus = () => {
     if (saveStatus === "saving") {
       return (
-        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[13px] text-[#B45309] bg-[#FFFBEB] border border-[#B45309]/20">
+        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-[#B45309] bg-[#FFFBEB] border border-[#B45309]/20">
           <span className="w-2 h-2 rounded-full bg-[#B45309] animate-pulse" />
-          <span>Enregistrement…</span>
+          <span>Sauvegarde…</span>
         </span>
       );
     }
     if (saveStatus === "saved") {
       return (
-        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[13px] text-[#16A34A] bg-[#F0FDF4] border border-[#16A34A]/20">
+        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-[#16A34A] bg-[#F0FDF4] border border-[#16A34A]/20">
           <span className="w-2 h-2 rounded-full bg-[#16A34A]" />
-          <span>Enregistré</span>
+          <span>Synchronisé</span>
         </span>
       );
     }
     if (saveStatus === "error") {
       return (
-        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[13px] text-[#DC2626] bg-[#FEF2F2] border border-[#DC2626]/20">
+        <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-[#DC2626] bg-[#FEF2F2] border border-[#DC2626]/20">
           <span className="w-2 h-2 rounded-full bg-[#DC2626]" />
-          <span>Erreur d'enregistrement</span>
+          <span>Erreur</span>
         </span>
       );
     }
     return (
-      <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[13px] text-[#667085]">
+      <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] text-[#667085] bg-[#F8FAFC] border border-[#E5E7EB]">
         <span className="w-2 h-2 rounded-full bg-[#16A34A]" />
-        <span>Brouillon prêt</span>
+        <span>Prêt</span>
       </span>
     );
   };
 
   return (
-    <header className="h-[64px] min-h-[64px] bg-[#FFFFFF] border-b border-[#E5E7EB] px-4 lg:px-6 flex items-center justify-between z-30 shrink-0">
-      {/* Brand & Boutique */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-[10px] bg-[#F97316] flex items-center justify-center text-white">
-            <Sparkles className="w-4 h-4" />
-          </div>
-          <span className="text-[18px] font-bold text-[#17191C] tracking-tight">
-            Studio Olmart
-          </span>
-        </div>
+    <header className="h-14 bg-white border-b border-[#E5E7EB] px-4 flex items-center justify-between shadow-2xs select-none">
+      {/* Left: Back & Sidebar Toggles */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="p-2 text-[#667085] hover:text-[#17191C] hover:bg-[#F1F3F5] rounded-lg transition-colors cursor-pointer"
+          title="Retour au Tableau de bord"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
 
-        <div className="h-6 w-[1px] bg-[#E5E7EB] mx-1 hidden sm:block" />
+        <div className="h-4 w-px bg-[#E5E7EB] mx-1" />
 
-        <div className="hidden sm:block max-w-[180px] truncate">
-          <span className="text-[14px] font-semibold text-[#17191C] truncate block" title={shopName}>
-            {shopName}
-          </span>
-        </div>
+        <button
+          type="button"
+          onClick={onToggleLeftSidebar}
+          className={`p-2 rounded-lg transition-colors cursor-pointer ${
+            showLeftSidebar
+              ? "text-[#17191C] bg-[#F1F3F5]"
+              : "text-[#667085] hover:text-[#17191C] hover:bg-[#F1F3F5]"
+          }`}
+          title="Afficher/Masquer le panneau de navigation"
+        >
+          <PanelLeft className="w-4 h-4" />
+        </button>
 
-        <div className="hidden md:flex items-center ml-2">
-          {renderSaveStatus()}
-        </div>
+        <span className="text-xs font-black text-[#17191C] tracking-tight max-w-[150px] sm:max-w-[220px] truncate">
+          {shopName}
+        </span>
       </div>
 
-      {/* Viewport Switcher */}
-      <div className="hidden lg:flex items-center bg-[#F7F8FA] p-1 border border-[#E5E7EB] rounded-[10px]">
-        <button
-          type="button"
-          onClick={() => setViewport("desktop")}
-          className={`h-[32px] px-3 rounded-[8px] text-[13px] font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
-            viewport === "desktop"
-              ? "bg-[#FFFFFF] text-[#F97316] shadow-xs"
-              : "text-[#667085] hover:text-[#17191C]"
-          }`}
-        >
-          <Monitor className="w-3.5 h-3.5" />
-          <span>Bureau</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setViewport("tablet")}
-          className={`h-[32px] px-3 rounded-[8px] text-[13px] font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
-            viewport === "tablet"
-              ? "bg-[#FFFFFF] text-[#F97316] shadow-xs"
-              : "text-[#667085] hover:text-[#17191C]"
-          }`}
-        >
-          <Tablet className="w-3.5 h-3.5" />
-          <span>Tablette</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setViewport("mobile")}
-          className={`h-[32px] px-3 rounded-[8px] text-[13px] font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
-            viewport === "mobile"
-              ? "bg-[#FFFFFF] text-[#F97316] shadow-xs"
-              : "text-[#667085] hover:text-[#17191C]"
-          }`}
-        >
-          <Smartphone className="w-3.5 h-3.5" />
-          <span>Mobile</span>
-        </button>
-      </div>
+      {/* Center: Undo/Redo & Viewport Switcher */}
+      <StudioTopBarViewport
+        viewport={viewport}
+        setViewport={setViewport}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        onUndo={onUndo}
+        onRedo={onRedo}
+      />
 
-      {/* Action Buttons */}
-      <div className="flex items-center gap-2.5">
-        {shopSlug && hasActiveSubscription && isPublished ? (
-          <a
-            href={`/store/${shopSlug}`}
-            target="_blank"
-            rel="noreferrer"
-            className="h-[44px] min-h-[44px] px-4 rounded-[10px] border border-[#E5E7EB] bg-[#FFFFFF] hover:bg-[#F7F8FA] text-[#17191C] text-[14px] font-medium flex items-center gap-2 transition-colors cursor-pointer"
-          >
-            <Smartphone className="w-4 h-4 text-[#667085]" />
-            <span>Aperçu mobile</span>
-          </a>
-        ) : (
+      {/* Right: Actions & Publishing */}
+      <div className="flex items-center gap-2">
+        {renderSaveStatus()}
+
+        {onSaveDraft && (
           <button
             type="button"
-            onClick={() => setViewport(viewport === "desktop" ? "mobile" : "desktop")}
-            className="h-[44px] min-h-[44px] px-4 rounded-[10px] border border-[#E5E7EB] bg-[#FFFFFF] hover:bg-[#F7F8FA] text-[#17191C] text-[14px] font-medium flex items-center gap-2 transition-colors cursor-pointer"
+            onClick={onSaveDraft}
+            className="p-2 text-[#667085] hover:text-[#17191C] hover:bg-[#F1F3F5] rounded-lg transition-colors cursor-pointer"
+            title="Enregistrer manuellement"
           >
-            <ExternalLink className="w-4 h-4 text-[#667085]" />
-            <span>Aperçu</span>
+            <Save className="w-4 h-4" />
           </button>
         )}
 
         <button
           type="button"
-          onClick={hasActiveSubscription ? () => onPublish() : onRequestPublication || onPublish}
-          className={`h-[44px] min-h-[44px] px-5 rounded-[10px] text-[14px] font-semibold text-white flex items-center gap-2 transition-colors cursor-pointer shadow-xs ${
-            isPendingReview
-              ? "bg-[#EA580C] hover:bg-[#C2410C]"
-              : isPublished
-              ? "bg-[#16A34A] hover:bg-[#15803D]"
-              : "bg-[#F97316] hover:bg-[#EA580C]"
-          }`}
+          onClick={() => setIsHistoryOpen(true)}
+          className="p-2 text-[#667085] hover:text-[#17191C] hover:bg-[#F1F3F5] rounded-lg transition-colors cursor-pointer"
+          title="Historique des versions"
         >
-          {isPendingReview ? (
-            <>
-              <Clock className="w-4 h-4" />
-              <span>{pendingRequest?.status === "payment_requested" ? "Paiement à effectuer" : "Dossier en cours"}</span>
-            </>
-          ) : isPublished ? (
-            <>
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Mettre à jour</span>
-            </>
-          ) : hasActiveSubscription ? (
-            <>
-              <Send className="w-4 h-4" />
-              <span>Publier la boutique</span>
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-4 h-4" />
-              <span>Activer ma boutique</span>
-            </>
-          )}
+          <History className="w-4 h-4" />
+        </button>
+
+        {shopSlug && isPublished && (
+          <a
+            href={`/store/${shopSlug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 text-[#667085] hover:text-[#17191C] hover:bg-[#F1F3F5] rounded-lg transition-colors"
+            title="Voir la boutique publique"
+          >
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        )}
+
+        <button
+          type="button"
+          onClick={onToggleRightSidebar}
+          className={`p-2 rounded-lg transition-colors cursor-pointer ${
+            showRightSidebar
+              ? "text-[#17191C] bg-[#F1F3F5]"
+              : "text-[#667085] hover:text-[#17191C] hover:bg-[#F1F3F5]"
+          }`}
+          title="Afficher/Masquer l'inspecteur"
+        >
+          <PanelRight className="w-4 h-4" />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setIsPublishModalOpen(true)}
+          className="h-9 px-3.5 rounded-xl bg-[#B85B35] hover:bg-[#A04E2C] text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-transform active:scale-95 cursor-pointer ml-1"
+        >
+          <Send className="w-3.5 h-3.5" />
+          <span>Publier</span>
         </button>
       </div>
+
+      <StudioHistoryModal
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        historyList={historyList}
+        onRollback={(versionNumber) => onRollback?.(versionNumber)}
+      />
+
+      <StudioDirectPublishModal
+        isOpen={isPublishModalOpen}
+        onClose={() => setIsPublishModalOpen(false)}
+        changeSummary={changeSummary}
+        setChangeSummary={setChangeSummary}
+        onConfirm={() => {
+          onPublish(changeSummary);
+          setIsPublishModalOpen(false);
+          setChangeSummary("");
+        }}
+      />
     </header>
   );
 };

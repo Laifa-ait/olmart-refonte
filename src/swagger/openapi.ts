@@ -75,11 +75,13 @@ openApiRegistry.registerPath({
   description: "Valide le code OTP 2FA à 6 chiffres ou un code de secours OLM-XXXXXX.",
   security: [{ BearerAuth: [] }],
   request: {
-    content: {
-      "application/json": {
-        schema: z.object({
-          code: z.string().min(6).openapi({ example: "123456" }),
-        }),
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            code: z.string().min(6).openapi({ example: "123456" }),
+          }),
+        },
       },
     },
   },
@@ -132,15 +134,17 @@ openApiRegistry.registerPath({
   description: "Création d'une fiche article avec poids d'expédition obligatoire pour calcul du fret terrestre.",
   security: [{ BearerAuth: [] }],
   request: {
-    content: {
-      "application/json": {
-        schema: z.object({
-          name: z.string().min(2),
-          price: z.number().positive(),
-          category: z.string(),
-          weight: z.number().positive(),
-          stock: z.number().int().nonnegative(),
-        }).openapi("CreateProductInput"),
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            name: z.string().min(2),
+            price: z.number().positive(),
+            category: z.string(),
+            weight: z.number().positive(),
+            stock: z.number().int().nonnegative(),
+          }).openapi("CreateProductInput"),
+        },
       },
     },
   },
@@ -159,20 +163,22 @@ openApiRegistry.registerPath({
   description: "Réservation sérialisée des stocks et création de la commande sous transaction ACID Firestore.",
   security: [{ BearerAuth: [] }],
   request: {
-    content: {
-      "application/json": {
-        schema: z.object({
-          items: z.array(z.object({
-            productId: z.string(),
-            quantity: z.number().int().positive(),
-          })),
-          shippingAddress: z.object({
-            fullName: z.string(),
-            address: z.string(),
-            wilaya: z.string(),
-            phone: z.string(),
-          }),
-        }).openapi("CheckoutInput"),
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            items: z.array(z.object({
+              productId: z.string(),
+              quantity: z.number().int().positive(),
+            })),
+            shippingAddress: z.object({
+              fullName: z.string(),
+              address: z.string(),
+              wilaya: z.string(),
+              phone: z.string(),
+            }),
+          }).openapi("CheckoutInput"),
+        },
       },
     },
   },
@@ -215,11 +221,13 @@ openApiRegistry.registerPath({
   security: [{ BearerAuth: [] }],
   request: {
     params: z.object({ orderId: z.string() }),
-    content: {
-      "application/json": {
-        schema: z.object({
-          reason: z.string().min(5),
-        }),
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            reason: z.string().min(5),
+          }),
+        },
       },
     },
   },
@@ -236,12 +244,14 @@ openApiRegistry.registerPath({
   summary: "Traduction Textuelle Multilingue (Admin)",
   security: [{ BearerAuth: [] }],
   request: {
-    content: {
-      "application/json": {
-        schema: z.object({
-          text: z.string().min(1).max(5000),
-          targetLangs: z.array(z.string()).min(1).max(5),
-        }),
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            text: z.string().min(1).max(5000),
+            targetLangs: z.array(z.string()).min(1).max(5),
+          }),
+        },
       },
     },
   },
@@ -258,12 +268,14 @@ openApiRegistry.registerPath({
   summary: "Génération de Description Produit IA (Seller)",
   security: [{ BearerAuth: [] }],
   request: {
-    content: {
-      "application/json": {
-        schema: z.object({
-          productName: z.string().min(1),
-          category: z.string().optional(),
-        }),
+    body: {
+      content: {
+        "application/json": {
+          schema: z.object({
+            productName: z.string().min(1),
+            category: z.string().optional(),
+          }),
+        },
       },
     },
   },

@@ -29,6 +29,24 @@ export type UserProfile = ZodUserProfile & {
     interests?: string[];
     [key: string]: unknown;
   };
+  name?: string;
+  rcNumber?: string;
+  nifNumber?: string;
+  rib?: string;
+  isVelocitySuspended?: boolean;
+  shopName?: string;
+  commissionRate?: number;
+  status?: string;
+  verificationStatus?: string;
+  bio?: string;
+  interests?: string[];
+  phoneNumber?: string | null;
+  capabilities?: string[];
+  sellerOnboardingCompleted?: boolean;
+  shopSlug?: string;
+  shopDescription?: string;
+  logoUrl?: string;
+  bannerUrl?: string;
 };
 
 export { ROLES } from "../../constants/roles";

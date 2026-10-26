@@ -38,39 +38,9 @@ export const autoService = {
       if (filters.wilayaId) query = query.where("wilayaId", "==", filters.wilayaId);
       if (filters.paperStatus) query = query.where("paperStatus", "==", filters.paperStatus);
 
-      // Filter optional criteria after the base query so every combination works
-      // without requiring a different Firestore composite index.
-      const snapshot = await query.limit(1000).get();
-      let items = snapshot.docs.map((doc) => toCatalogItemDto(doc.id, doc.data()));
-      items = items.filter((vehicle) => {
-        if (filters.model && !vehicle.model.toLocaleLowerCase().includes(filters.model.toLocaleLowerCase())) return false;
-        if (filters.transmission && vehicle.transmission !== filters.transmission) return false;
-        if (filters.bodyCondition && vehicle.bodyCondition !== filters.bodyCondition) return false;
-        if (filters.priceType && vehicle.priceType !== filters.priceType) return false;
-        if (filters.sellerType && vehicle.sellerType !== filters.sellerType) return false;
-        if (filters.onlyInspected && !vehicle.isVehicleInspected) return false;
-        if (filters.minPrice !== undefined && vehicle.price < filters.minPrice) return false;
-        if (filters.maxPrice !== undefined && vehicle.price > filters.maxPrice) return false;
-        if (filters.minYear !== undefined && vehicle.year < filters.minYear) return false;
-        if (filters.maxYear !== undefined && vehicle.year > filters.maxYear) return false;
-        if (filters.maxMileage !== undefined && vehicle.mileage > filters.maxMileage) return false;
-        return true;
-      });
-
-      const sorters: Record<NonNullable<VehicleFilterParams["sort"]>, (a: VehicleCatalogItemDto, b: VehicleCatalogItemDto) => number> = {
-        date_desc: (a, b) => b.createdAt.localeCompare(a.createdAt),
-        price_asc: (a, b) => a.price - b.price,
-        price_desc: (a, b) => b.price - a.price,
-        mileage_asc: (a, b) => a.mileage - b.mileage,
-        year_desc: (a, b) => b.year - a.year,
-      };
-      items.sort(sorters[filters.sort || "date_desc"]);
-
-      const page = filters.page || 1;
-      const limit = filters.limit || 20;
-      const total = items.length;
-      const start = (page - 1) * limit;
-      return { items: items.slice(start, start + limit), total, page };
+      const snapshot = await query.limit(filters.limit || 20).get();
+      const items = snapshot.docs.map((doc) => toCatalogItemDto(doc.id, doc.data()));
+      return { items, total: items.length, page: filters.page || 1 };
     } catch (err: unknown) {
       safeLogger.warn("[AutoService] listPublicVehicles query fallback", {
         err: err instanceof Error ? err.message : String(err),

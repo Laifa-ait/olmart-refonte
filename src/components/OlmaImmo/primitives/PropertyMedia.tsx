@@ -1,7 +1,14 @@
-import React, { useState } from "react";
-import { Camera } from "lucide-react";
+import React, { useState } from 'react';
+import { Camera } from 'lucide-react';
 
-export type PropertyMediaAspectRatio = "16/11" | "16/10" | "16/9" | "4/3" | "1/1" | "21/9" | "auto";
+export type PropertyMediaAspectRatio =
+  | '16/11'
+  | '16/10'
+  | '16/9'
+  | '4/3'
+  | '1/1'
+  | '21/9'
+  | 'auto';
 
 export interface PropertyMediaProps {
   src?: string;
@@ -20,22 +27,23 @@ export interface PropertyMediaProps {
   id?: string;
 }
 
-const DEFAULT_FALLBACK_IMAGE = "/images/immo-property-placeholder.svg";
+const DEFAULT_FALLBACK_IMAGE =
+  'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80';
 
 const aspectClasses: Record<PropertyMediaAspectRatio, string> = {
-  "16/11": "aspect-16/11",
-  "16/10": "aspect-16/10",
-  "16/9": "aspect-16/9",
-  "4/3": "aspect-4/3",
-  "1/1": "aspect-square",
-  "21/9": "aspect-21/9",
-  auto: "",
+  '16/11': 'aspect-16/11',
+  '16/10': 'aspect-16/10',
+  '16/9': 'aspect-16/9',
+  '4/3': 'aspect-4/3',
+  '1/1': 'aspect-square',
+  '21/9': 'aspect-21/9',
+  auto: '',
 };
 
 export const PropertyMedia: React.FC<PropertyMediaProps> = ({
   src,
   alt,
-  aspectRatio = "16/11",
+  aspectRatio = '16/11',
   topBadges,
   topActions,
   bottomOverlay,
@@ -44,8 +52,8 @@ export const PropertyMedia: React.FC<PropertyMediaProps> = ({
   activeImageIndex = 0,
   onSelectImageIndex,
   hoverZoom = true,
-  className = "",
-  imageClassName = "",
+  className = '',
+  imageClassName = '',
   id,
 }) => {
   const resolvedSrc = (images && images.length > 0 ? images[activeImageIndex] : src) || DEFAULT_FALLBACK_IMAGE;
@@ -64,11 +72,14 @@ export const PropertyMedia: React.FC<PropertyMediaProps> = ({
     }
   };
 
-  const asp = aspectClasses[aspectRatio] || aspectClasses["16/11"];
+  const asp = aspectClasses[aspectRatio] || aspectClasses['16/11'];
   const totalPhotos = photoCount ?? (images ? images.length : undefined);
 
   return (
-    <div id={id} className={`relative w-full overflow-hidden bg-stone-900 select-none ${asp} ${className}`}>
+    <div
+      id={id}
+      className={`relative w-full overflow-hidden bg-stone-900 select-none ${asp} ${className}`}
+    >
       {/* Property Photo */}
       <img
         src={imgSrc}
@@ -77,7 +88,7 @@ export const PropertyMedia: React.FC<PropertyMediaProps> = ({
         decoding="async"
         onError={handleError}
         className={`w-full h-full object-cover ${
-          hoverZoom ? "group-hover:scale-105 transition-transform duration-500 ease-out" : ""
+          hoverZoom ? 'group-hover:scale-105 transition-transform duration-500 ease-out' : ''
         } ${imageClassName}`}
       />
 
@@ -88,16 +99,26 @@ export const PropertyMedia: React.FC<PropertyMediaProps> = ({
       />
 
       {/* Top badges slot */}
-      {topBadges && <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap z-10">{topBadges}</div>}
+      {topBadges && (
+        <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap z-10">
+          {topBadges}
+        </div>
+      )}
 
       {/* Top actions slot */}
-      {topActions && <div className="absolute top-3 right-3 flex items-center gap-2 z-10">{topActions}</div>}
+      {topActions && (
+        <div className="absolute top-3 right-3 flex items-center gap-2 z-10">
+          {topActions}
+        </div>
+      )}
 
       {/* Bottom overlay (Price tag, photo count, or custom children) */}
       <div className="absolute inset-x-3 bottom-3 flex items-end justify-between gap-2 z-10 pointer-events-none">
-        <div className="pointer-events-auto flex-1 min-w-0">{bottomOverlay}</div>
+        <div className="pointer-events-auto flex-1 min-w-0">
+          {bottomOverlay}
+        </div>
 
-        {typeof totalPhotos === "number" && totalPhotos > 1 && (
+        {typeof totalPhotos === 'number' && totalPhotos > 1 && (
           <div
             className="pointer-events-auto shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-xs text-white text-[11px] font-semibold border border-white/10 shadow-xs"
             title={`${totalPhotos} photos disponibles`}
@@ -122,7 +143,7 @@ export const PropertyMedia: React.FC<PropertyMediaProps> = ({
               }}
               aria-label={`Photo ${idx + 1}`}
               className={`h-1.5 rounded-full transition-all cursor-pointer ${
-                activeImageIndex === idx ? "w-4 bg-white" : "w-1.5 bg-white/60 hover:bg-white"
+                activeImageIndex === idx ? 'w-4 bg-white' : 'w-1.5 bg-white/60 hover:bg-white'
               }`}
             />
           ))}

@@ -1,5 +1,6 @@
 import { ProductFormData, ProductVariant, SellerProduct } from "../../../../types/seller";
 import { safeParseFloat } from "../hooks/useProductVariantsAndAttributes";
+import { getFallbackSubImage } from "../../../../utils/imageUtils";
 
 export interface BuildPayloadOptions {
   status: string;
@@ -16,7 +17,7 @@ export function buildProductPayload(
   options: BuildPayloadOptions
 ): Partial<SellerProduct> & Record<string, unknown> {
   const filteredImages = (formData.images || []).filter((img) => img && img.trim().length > 0);
-  const mainImage = filteredImages[0] || formData.image || "/placeholder.png";
+  const mainImage = filteredImages[0] || formData.image || getFallbackSubImage(formData.name || formData.category || "");
 
   const sanitizedVariants: ProductVariant[] = (formData.variants || []).map((v) => {
     const vStock = typeof v.stock === "number" ? v.stock : parseInt(String(v.stock || "0"), 10) || 0;

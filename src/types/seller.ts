@@ -74,6 +74,7 @@ export interface SellerProduct {
   video?: string;
   colors?: string[];
   sizes?: string[];
+  variants?: ProductVariant[];
   sizeType?: string;
   weight?: number;
   dimensions?: string;
@@ -85,9 +86,16 @@ export interface SellerProduct {
   isBannerFeatured?: boolean;
   isStoreFeatured?: boolean;
   rejectionReason?: string;
-  variants?: ProductVariant[];
-  hasOutOfStockVariants?: boolean;
   attributes?: Record<string, string | number | boolean | string[]>;
+  shippingCarriers?: string[];
+  defaultShippingCarrier?: string;
+  originWilaya?: string;
+  originWilayaCode?: string;
+  originDaira?: string;
+  originCommune?: string;
+  allowHomeDelivery?: boolean;
+  allowStopDesk?: boolean;
+  freeShipping?: boolean;
   tags?: string[];
   metaTitle?: string;
   metaDescription?: string;
@@ -158,6 +166,15 @@ export interface ProductFormData {
   internalNotes?: string;
   translations?: ProductTranslationsMap;
   energyClass?: string;
+  shippingCarriers?: string[];
+  defaultShippingCarrier?: string;
+  originWilaya?: string;
+  originWilayaCode?: string;
+  originDaira?: string;
+  originCommune?: string;
+  allowHomeDelivery?: boolean;
+  allowStopDesk?: boolean;
+  freeShipping?: boolean;
 }
 
 export interface AdminTag {
@@ -201,7 +218,7 @@ export interface SellerUserProfile {
   rating?: number;
   sellerTrustScore?: number;
   phone?: string;
-  phoneNumber?: string;
+  phoneNumber?: string | null;
   logoUrl?: string;
   photoURL?: string;
   address?: string;

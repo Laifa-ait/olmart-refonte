@@ -45,8 +45,8 @@ RUN apk upgrade --no-cache
 
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV CSRF_SECRET=olmart_live_production_secure_csrf_secret_32bytes_v1
-# CSRF_SECRET may also be overridden at runtime via GCP Secret Manager / Cloud Run environment
+# CSRF_SECRET is injected at runtime via GCP Secret Manager / Cloud Run environment.
+# Never provide fallback secrets in the Dockerfile.
 
 # Copy package files and install only production dependencies
 COPY package*.json ./

@@ -1,10 +1,8 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import {defineConfig, loadEnv} from 'vite';
-import { VitePWA } from 'vite-plugin-pwa';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,115 +17,6 @@ export default defineConfig(({mode}) => {
     plugins: [
       react(), 
       tailwindcss(),
-      {
-        name: 'mirror-build-artifacts',
-        closeBundle() {
-          try {
-            const distDir = path.resolve(__dirname, 'dist');
-            const buildDir = path.resolve(__dirname, 'build');
-            if (fs.existsSync(distDir)) {
-              fs.cpSync(distDir, buildDir, { recursive: true });
-            }
-          } catch {
-            // graceful fallback
-          }
-        },
-      },
-      VitePWA({
-        registerType: 'autoUpdate',
-        manifest: {
-          name: 'Olma Marketplace',
-          short_name: 'Olma',
-          theme_color: '#f9f4e8',
-          start_url: '/',
-          display: 'standalone',
-          background_color: '#ffffff',
-          icons: [
-            {
-              src: '/logo.svg',
-              sizes: 'any',
-              type: 'image/svg+xml',
-              purpose: 'any maskable'
-            },
-            {
-              src: '/logo.svg',
-              sizes: '512x512',
-              type: 'image/svg+xml'
-            }
-          ]
-        },
-        workbox: {
-          maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
-          globPatterns: ['**/*.{js,css,html,svg,woff2}'],
-          globIgnores: [
-            '**/vendor-pdf-*.js',
-            '**/vendor-charts-*.js',
-            '**/vendor-quill-*.js',
-            '**/vendor-html2canvas-*.js',
-            '**/vendor-sentry-*.js',
-            '**/vendor-joyride-*.js',
-            '**/browser-image-compression-*.js',
-            '**/*Admin*.js',
-            '**/*Dashboard*.js'
-          ],
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/(fonts\.googleapis\.com|fonts\.gstatic\.com)\/.*/i,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'google-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
-            },
-            {
-              urlPattern: /\.(?:png|gif|jpg|jpeg|webp|svg|avif)$/i,
-              handler: 'StaleWhileRevalidate',
-              options: {
-                cacheName: 'assets-images-cache',
-                expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
-                }
-              }
-            },
-            {
-              urlPattern: /\/api\/v1\/public\//i,
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'api-public-cache',
-                networkTimeoutSeconds: 5,
-                expiration: {
-                  maxEntries: 50,
-                  maxAgeSeconds: 60 * 5 // 5 minutes
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
-            },
-            {
-              urlPattern: /\/locales\/.*\.json/,
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'locales-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 // 24 hours
-                },
-                cacheableResponse: {
-                  statuses: [0, 200]
-                }
-              }
-            }
-          ]
-        }
-      })
     ],
     base: '/',
     build: {
@@ -182,6 +71,19 @@ export default defineConfig(({mode}) => {
               if (id.includes('i18next') || id.includes('react-i18next')) {
                 return 'vendor-i18n';
               }
+              // 6. Heavy optional toolkits (PDF, Charts, Error monitoring)
+              if (id.includes('jspdf')) {
+                return 'vendor-pdf';
+              }
+              if (id.includes('html2canvas')) {
+                return 'vendor-html2canvas';
+              }
+              if (id.includes('recharts') || id.includes('d3-')) {
+                return 'vendor-charts';
+              }
+              if (id.includes('@sentry')) {
+                return 'vendor-sentry';
+              }
             }
           }
         }
@@ -195,20 +97,9 @@ export default defineConfig(({mode}) => {
     },
     optimizeDeps: {
       include: [
-        'react',
-        'react-dom',
-        'react-router-dom',
-        'react-i18next',
-        'i18next',
-        'firebase/app',
-        'firebase/auth',
-        'firebase/firestore',
-        'firebase/storage',
-        'lucide-react',
-        'motion/react',
-        '@tanstack/react-query',
-        'zustand',
-        'date-fns'
+        'react', 'react-dom', 'react-router-dom', 'react-i18next', 'i18next',
+        'firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage',
+        'lucide-react', 'motion/react', '@tanstack/react-query', 'zustand', 'date-fns'
       ]
     },
     server: {

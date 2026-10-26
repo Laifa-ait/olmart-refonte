@@ -29,37 +29,29 @@ const queryClient = new QueryClient({
   },
 });
 
-if ("serviceWorker" in navigator) {
-  const isDevOrPreview =
-    window.location.hostname.includes("localhost") ||
-    window.location.hostname.includes("127.0.0.1") ||
-    window.location.hostname.includes("-dev-") ||
-    window.location.hostname.includes("-pre-") ||
-    window.location.hostname.includes(".run.app") ||
-    import.meta.env.DEV;
-
+// Nettoyage immédiat et purge définitive des caches Service Worker / PWA (Anti-Desync Mobile)
+if (typeof window !== "undefined") {
   try {
-    if (!isDevOrPreview) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          for (const registration of registrations) {
-            if (registration.active?.scriptURL.includes('sw.js') && !registration.active?.scriptURL.includes('firebase')) {
-              registration.unregister().catch(() => {});
-            }
-          }
-        }).catch(() => {});
-      });
-    } else {
-      // Clean up active service workers in development/preview to prevent stale bundle load / white screen blocks
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (const registration of registrations) {
-          registration.unregister().then(() => {
-            if ("caches" in window) {
-              caches.keys().then((keys) => {
-                keys.forEach((key) => caches.delete(key));
-              }).catch(() => {});
-            }
-          }).catch(() => {});
+          if (!registration.active?.scriptURL.includes("firebase")) {
+            registration.unregister().catch(() => {});
+          }
+        }
+      }).catch(() => {});
+    }
+    if ("caches" in window) {
+      caches.keys().then((keys) => {
+        for (const key of keys) {
+          if (
+            key.includes("workbox") ||
+            key.includes("olma") ||
+            key.includes("assets") ||
+            key.includes("precache")
+          ) {
+            caches.delete(key).catch(() => {});
+          }
         }
       }).catch(() => {});
     }

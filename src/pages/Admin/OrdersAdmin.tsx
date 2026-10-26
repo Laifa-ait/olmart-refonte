@@ -23,7 +23,6 @@ export const OrdersAdmin: React.FC = () => {
     setRefreshTrigger,
     filters,
     totalVolume,
-    totalCommission,
     sellersNetPayout,
     calculatedOrdersMap,
     selectedOrderIds,
@@ -70,7 +69,6 @@ export const OrdersAdmin: React.FC = () => {
       {/* Reactive Instant Bookkeeping Statistics */}
       <OrdersStatsCards
         totalVolume={totalVolume}
-        totalCommission={totalCommission}
         sellersNetPayout={sellersNetPayout}
         filteredOrdersCount={filters.filteredOrders.length}
         totalOrdersCount={orders.length}
@@ -145,7 +143,6 @@ export const OrdersAdmin: React.FC = () => {
         selectedOrder={selectedOrder}
         setSelectedOrder={setSelectedOrder}
         statusLabels={statusLabels}
-        calculatedOrdersMap={calculatedOrdersMap}
         isUpdatingStatus={isUpdatingStatus}
         handleUpdateOrderStatus={handleUpdateOrderStatus}
         setSelectedOrderIds={setSelectedOrderIds}

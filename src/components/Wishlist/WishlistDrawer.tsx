@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart, Package } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
@@ -36,16 +36,16 @@ export const WishlistDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
       title={t("wishlist") || "Favoris"}
       icon={<Heart className="w-5 h-5" />}
     >
-      <div className="flex-1 overflow-y-auto bg-[#fbf9fc] p-5 sm:p-6">
+      <div className="flex-1 overflow-y-auto p-6">
         {wishlistProducts.length === 0 ? (
-          <div className="flex min-h-[65vh] flex-col items-center justify-center px-4 py-12 text-center">
-            <div className="mb-5 flex h-[76px] w-[76px] items-center justify-center rounded-[26px] border border-[#eee5ef] bg-white text-[#6b5874] shadow-[0_10px_28px_rgba(54,39,61,0.08)]">
-              <Heart className="h-8 w-8" strokeWidth={1.8} />
+          <div className="h-[75vh] flex flex-col items-center justify-center text-center py-12 px-4">
+            <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-5">
+              <Heart className="w-8 h-8 text-[var(--color-orange-600, #ea580c)] animate-pulse" fill="var(--color-orange-600, #ea580c)" />
             </div>
-            <h3 className="mb-2 text-base font-bold tracking-tight text-[#302638]">
+            <h3 className="text-sm font-sans font-bold text-[var(--color-slate-900, #0f172a)] tracking-tight rtl:tracking-normal mb-2 uppercase">
               {t("empty_wishlist_title") || "Votre liste est vide"}
             </h3>
-            <p className="mb-8 max-w-[270px] text-sm leading-relaxed text-[#7c7481]">
+            <p className="text-xs rtl:text-sm text-zinc-400 font-bold max-w-[240px] leading-relaxed mb-8">
               {t("empty_wishlist_desc") ||
                 "Explorez nos créations d'artisanat d'exception et sauvegardez vos articles favoris ici."}
             </p>
@@ -54,9 +54,9 @@ export const WishlistDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> 
                 onClose();
                 navigate("/shop");
               }}
-              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#5b4865] bg-[#5b4865] px-6 py-3.5 text-sm font-bold text-white shadow-[0_8px_18px_rgba(54,39,61,0.18)] transition-colors hover:bg-[#493852] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6b5874] focus-visible:ring-offset-2"
+              className="px-6 py-3.5 bg-[var(--color-orange-600, #ea580c)] hover:bg-[#b04f30]/90 text-white font-sans font-bold text-xs rtl:text-sm uppercase tracking-widest rtl:tracking-normal rounded-2xl flex items-center gap-2 shadow-sm hover:shadow-md transition-all cursor-pointer border-none"
             >
-              <ShoppingBag className="h-4 w-4" />
+              <Package className="w-4 h-4" />
               {t("go_to_shop") || "Découvrir la boutique"}
             </button>
           </div>

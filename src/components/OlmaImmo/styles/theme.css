@@ -1,179 +1,80 @@
-/* Olma Immo's own warm, architectural palette. Scoped so it cannot leak into Olmart. */
+/**
+ * OLMART — Olma Immo Silent Luxury Scoped CSS Variables
+ * Palette : "Slate / Cool Grey / Bleu ardoise" & Luxe Silencieux
+ * 
+ * Fond : Blanc pur (#FFFFFF)
+ * Charbons sombres : #1E293B, #0F172A (Titres & éléments maîtres)
+ * Gris-bleu ardoise froid : #64748B, #475569 (Textes secondaires, icônes & séparateurs)
+ */
+
 .olma-immo-scope {
-  color-scheme: light;
-  --olma-brand-primary: #234a3e;
-  --olma-brand-primary-dark: #18372f;
-  --olma-brand-primary-light: #e5efeb;
-  --olma-brand-primary-soft: #f0f5f2;
-  --olma-brand-accent: #c39b5b;
-  --olma-brand-accent-hover: #a98243;
-  --olma-brand-accent-soft: #f7f1e5;
-  --olma-brand-highlight: #527568;
-  --olma-brand-highlight-light: #edf3f0;
+  /* ========================================================
+     IDENTITÉ VISUELLE & CHARBONS SOMBRES
+     ======================================================== */
+  --olma-brand-primary: #1E293B;
+  --olma-brand-primary-dark: #0F172A;
+  --olma-brand-primary-light: #334155;
+  --olma-brand-primary-soft: #F8FAFC;
 
-  --olma-bg-base: #faf9f6;
-  --olma-bg-subtle: #f6f4ef;
-  --olma-bg-muted: #eeeae2;
-  --olma-bg-dark: #162d26;
-  --olma-surface-default: #ffffff;
-  --olma-surface-subtle: #fbfaf7;
-  --olma-surface-raised: #ffffff;
-  --olma-surface-muted: #f5f2eb;
-  --olma-surface-dark: #1b382f;
+  /* ========================================================
+     ACCENTS ARDOISE & COOL GREY (AUCUN JAUNE NI BLEU SATURE)
+     ======================================================== */
+  --olma-brand-accent: #64748B;
+  --olma-brand-accent-hover: #475569;
+  --olma-brand-accent-soft: #F1F5F9;
+  --olma-brand-highlight: #475569;
+  --olma-brand-highlight-light: #F8FAFC;
 
-  --olma-border-subtle: #f0ede6;
-  --olma-border-default: #e7e2d8;
-  --olma-border-strong: #d7d0c2;
-  --olma-border-focus: #527568;
-  --olma-border-accent: #c39b5b;
+  /* ========================================================
+     FOND BLANC PUR & SURFACES LUMINEUSES
+     ======================================================== */
+  --olma-bg-base: #FFFFFF;
+  --olma-bg-subtle: #F8FAFC;
+  --olma-bg-muted: #F1F5F9;
+  --olma-bg-dark: #0F172A;
 
-  --olma-text-primary: #1e2e27;
-  --olma-text-secondary: #53645b;
-  --olma-text-muted: #78837c;
-  --olma-text-subtle: #9aa39d;
-  --olma-text-inverse: #ffffff;
-  --olma-text-highlight: #18372f;
-  --olma-text-accent: #8f6e37;
+  /* Surfaces & Cartes */
+  --olma-surface-default: #FFFFFF;
+  --olma-surface-subtle: #F8FAFC;
+  --olma-surface-raised: #FFFFFF;
+  --olma-surface-muted: #F1F5F9;
+  --olma-surface-dark: #1E293B;
+
+  /* Bordures (Slate neutre ultrafines) */
+  --olma-border-subtle: #F1F5F9;
+  --olma-border-default: #E2E8F0;
+  --olma-border-strong: #CBD5E1;
+  --olma-border-focus: #475569;
+  --olma-border-accent: #64748B;
+
+  /* Typographie & Contrastes Minimalistes */
+  --olma-text-primary: #1E293B;
+  --olma-text-secondary: #475569;
+  --olma-text-muted: #64748B;
+  --olma-text-subtle: #94A3B8;
+  --olma-text-inverse: #FFFFFF;
+  --olma-text-highlight: #1E293B;
+  --olma-text-accent: #475569;
 
   --olma-font-display: "Playfair Display", Georgia, serif;
-  --olma-font-sans: "Inter", "Cairo", system-ui, sans-serif;
-  --olma-shadow-subtle: 0 1px 3px rgba(35, 54, 45, 0.05);
-  --olma-shadow-card: 0 6px 22px -8px rgba(35, 54, 45, 0.12), 0 1px 3px rgba(35, 54, 45, 0.04);
-  --olma-shadow-floating: 0 18px 42px -12px rgba(24, 42, 34, 0.2), 0 4px 12px rgba(24, 42, 34, 0.06);
+  --olma-font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
 
-  --olma-semantic-success: #247453;
-  --olma-semantic-success-light: #eaf4ef;
-  --olma-semantic-warning: #a98243;
-  --olma-semantic-warning-light: #f7f1e5;
-  --olma-semantic-danger: #b44843;
-  --olma-semantic-danger-light: #fbefee;
-  --olma-semantic-info: #527568;
-  --olma-semantic-info-light: #edf3f0;
-  --olma-focus-ring: 2px solid #527568;
+  /* Ombres douces & diffuses studio */
+  --olma-shadow-subtle: 0 1px 3px rgba(100, 116, 139, 0.05);
+  --olma-shadow-card: 0 10px 30px -10px rgba(100, 116, 139, 0.08);
+  --olma-shadow-floating: 0 15px 35px -5px rgba(100, 116, 139, 0.12), 0 4px 12px rgba(100, 116, 139, 0.04);
+
+  /* Statuts épurés */
+  --olma-semantic-success: #10B981;
+  --olma-semantic-success-light: #F0FDF4;
+  --olma-semantic-warning: #64748B;
+  --olma-semantic-warning-light: #F1F5F9;
+  --olma-semantic-danger: #EF4444;
+  --olma-semantic-danger-light: #FEF2F2;
+  --olma-semantic-info: #475569;
+  --olma-semantic-info-light: #F8FAFC;
+
+  /* Anneau de focus discret */
+  --olma-focus-ring: 2px solid #64748B;
   --olma-focus-offset: 2px;
-}
-
-.olma-immo-scope,
-.olma-immo-scope button,
-.olma-immo-scope input,
-.olma-immo-scope select,
-.olma-immo-scope textarea {
-  font-family: var(--olma-font-sans);
-}
-
-.olma-immo-scope :focus-visible {
-  outline: var(--olma-focus-ring);
-  outline-offset: var(--olma-focus-offset);
-}
-
-/* Legacy Immo utilities are mapped to the same palette until each page uses tokens. */
-.olma-immo-scope [class*="bg-[#1E3A8A]"],
-.olma-immo-scope [class*="bg-[#1E293B]"],
-.olma-immo-scope [class~="bg-blue-900"] {
-  background-color: var(--olma-brand-primary) !important;
-}
-.olma-immo-scope [class~="bg-blue-600"],
-.olma-immo-scope [class~="bg-blue-700"],
-.olma-immo-scope [class~="bg-indigo-600"] {
-  background-color: var(--olma-brand-primary) !important;
-}
-.olma-immo-scope [class*="text-[#1E3A8A]"],
-.olma-immo-scope [class*="text-[#1E293B]"],
-.olma-immo-scope [class~="text-blue-800"],
-.olma-immo-scope [class~="text-blue-900"] {
-  color: var(--olma-brand-primary) !important;
-}
-.olma-immo-scope [class~="text-blue-600"],
-.olma-immo-scope [class~="text-blue-700"],
-.olma-immo-scope [class~="text-indigo-600"] {
-  color: var(--olma-brand-highlight) !important;
-}
-.olma-immo-scope [class*="border-[#1E3A8A]"],
-.olma-immo-scope [class~="border-blue-200"] {
-  border-color: var(--olma-border-accent) !important;
-}
-.olma-immo-scope [class~="border-blue-300"],
-.olma-immo-scope [class~="border-blue-500"] {
-  border-color: var(--olma-brand-highlight) !important;
-}
-.olma-immo-scope [class*="ring-[#1E3A8A]"] {
-  --tw-ring-color: var(--olma-brand-highlight) !important;
-}
-.olma-immo-scope [class*="bg-[#F59E0B]"],
-.olma-immo-scope [class~="bg-amber-500"],
-.olma-immo-scope [class~="bg-amber-600"] {
-  background-color: var(--olma-brand-accent) !important;
-}
-.olma-immo-scope [class*="text-[#F59E0B]"],
-.olma-immo-scope [class*="text-[#D97706]"],
-.olma-immo-scope [class~="text-amber-600"],
-.olma-immo-scope [class~="text-amber-700"] {
-  color: var(--olma-brand-accent-hover) !important;
-}
-.olma-immo-scope [class~="bg-blue-50"],
-.olma-immo-scope [class~="bg-blue-100"],
-.olma-immo-scope [class~="bg-blue-200"],
-.olma-immo-scope [class~="bg-amber-50"],
-.olma-immo-scope [class~="bg-amber-100"] {
-  background-color: var(--olma-brand-accent-soft) !important;
-}
-.olma-immo-scope [class*="hover:bg-blue-50"]:hover,
-.olma-immo-scope [class*="hover:bg-blue-100"]:hover,
-.olma-immo-scope [class*="hover:bg-blue-900"]:hover {
-  background-color: var(--olma-brand-primary-dark) !important;
-}
-.olma-immo-scope [class*="hover:text-blue-900"]:hover {
-  color: var(--olma-brand-primary-dark) !important;
-}
-
-.olma-immo-scope [class~="bg-slate-50"] {
-  background-color: var(--olma-bg-subtle) !important;
-}
-.olma-immo-scope [class~="bg-slate-100"] {
-  background-color: var(--olma-bg-muted) !important;
-}
-.olma-immo-scope [class~="bg-slate-200"] {
-  background-color: #e8e4dc !important;
-}
-.olma-immo-scope [class~="text-slate-400"] {
-  color: #8c9790 !important;
-}
-.olma-immo-scope [class~="text-slate-500"] {
-  color: var(--olma-text-muted) !important;
-}
-.olma-immo-scope [class~="text-slate-600"] {
-  color: var(--olma-text-secondary) !important;
-}
-.olma-immo-scope [class~="text-slate-700"] {
-  color: #3f5148 !important;
-}
-.olma-immo-scope [class~="text-slate-800"],
-.olma-immo-scope [class~="text-slate-900"],
-.olma-immo-scope [class~="text-slate-950"] {
-  color: var(--olma-text-primary) !important;
-}
-.olma-immo-scope [class~="border-slate-100"] {
-  border-color: var(--olma-border-subtle) !important;
-}
-.olma-immo-scope [class~="border-slate-200"],
-.olma-immo-scope [class~="border-slate-300"] {
-  border-color: var(--olma-border-default) !important;
-}
-.olma-immo-scope [class~="border-slate-400"] {
-  border-color: var(--olma-border-strong) !important;
-}
-.olma-immo-scope [class~="ring-slate-200"] {
-  --tw-ring-color: var(--olma-border-default) !important;
-}
-.olma-immo-scope [class*="shadow-[#1E3A8A]"] {
-  --tw-shadow-color: rgb(35 74 62 / 18%) !important;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .olma-immo-scope *,
-  .olma-immo-scope *::before,
-  .olma-immo-scope *::after {
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-  }
 }

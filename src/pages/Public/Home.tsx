@@ -116,8 +116,19 @@ export const Home: React.FC = () => {
   }, [currentUser, activeWilaya]);
 
   const targetedHeroBanners = useMemo<HomeHeroBanner[]>(() => {
+    const isHeroZone = (b: Banner) => {
+      const zone = (b.zone || b.position || "").toLowerCase().trim();
+      return (
+        !zone ||
+        zone === "carousel_main" ||
+        zone === "hero" ||
+        zone.includes("carrousel") ||
+        zone.includes("carousel")
+      );
+    };
+
     const filtered = dbBanners
-      .filter((b) => !b.position || b.position === "hero" || b.zone === "carousel_main")
+      .filter(isHeroZone)
       .filter((b) => filterByTargeting(b))
       .map((b) => {
         const desktopImg = b.desktop_image || b.desktopImage || b.imageUrl || "";
@@ -136,19 +147,12 @@ export const Home: React.FC = () => {
     return [
       {
         id: "default-1",
-        desktop_image: "/images/placeholders/product.svg",
-        imageUrl: "/images/placeholders/product.svg",
-        title: t("hero_title_1"),
-        subtitle: t("hero_sub_1"),
-        button_text: t("hero_btn_1"),
-      },
-      {
-        id: "default-2",
-        desktop_image: "/images/placeholders/product.svg",
-        imageUrl: "/images/placeholders/product.svg",
-        title: t("hero_title_2"),
-        subtitle: t("hero_sub_2"),
-        button_text: t("hero_btn_2"),
+        desktop_image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1200",
+        imageUrl: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1200",
+        title: t("hero_title_1", "Sélection Mode & Décoration"),
+        subtitle: t("hero_sub_1", "Les meilleures marques et artisans algériens livrés chez vous"),
+        button_text: t("hero_btn_1", "Découvrir la sélection"),
+        isActive: true,
       },
     ];
   }, [dbBanners, filterByTargeting, t]);

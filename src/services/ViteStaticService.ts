@@ -1,14 +1,19 @@
 import express, { Express, Response } from "express";
 import path from "path";
-import { promises as fsPromises, existsSync } from "fs";
+import { promises as fsPromises, existsSync, statSync, readdirSync } from "fs";
 import { getProductSeoData, injectProductSeo } from "./ProductSeoService";
 import { injectNonceToHtml } from "../middlewares/security";
 import { safeLogger } from "../utils/logger";
 import { LocaleStorageService } from "./LocaleStorageService";
 import { attachDevViteMiddleware } from "./devViteMiddleware";
+import { validateProductionHtmlTemplate } from "./htmlValidationService";
+
+export { validateProductionHtmlTemplate };
 
 let cachedHtmlTemplate = "";
+let cachedHtmlMtimeMs = 0;
 let isStaticBuildValid = false;
+let isTestOverrideActive = false;
 
 /**
  * Resets or overrides static state for testing purposes only.
@@ -16,6 +21,7 @@ let isStaticBuildValid = false;
 export function setStaticStateForTesting(valid: boolean, template: string): void {
   isStaticBuildValid = valid;
   cachedHtmlTemplate = template;
+  isTestOverrideActive = true;
 }
 
 /**
@@ -32,8 +38,28 @@ export function isFrontendReady(): boolean {
   return cachedHtmlTemplate.length > 50 && cachedHtmlTemplate.includes('id="root"');
 }
 
-import { validateProductionHtmlTemplate } from "./htmlValidationService";
-export { validateProductionHtmlTemplate };
+async function getFreshHtmlTemplate(distPath: string): Promise<string> {
+  if (isTestOverrideActive && process.env.NODE_ENV === "test") {
+    return cachedHtmlTemplate;
+  }
+  const indexHtmlPath = path.join(distPath, "index.html");
+  try {
+    if (existsSync(indexHtmlPath)) {
+      const stat = statSync(indexHtmlPath);
+      if (!cachedHtmlTemplate || stat.mtimeMs !== cachedHtmlMtimeMs) {
+        const content = await fsPromises.readFile(indexHtmlPath, "utf-8");
+        if (validateProductionHtmlTemplate(content, distPath)) {
+          cachedHtmlTemplate = content;
+          cachedHtmlMtimeMs = stat.mtimeMs;
+          isStaticBuildValid = true;
+        }
+      }
+    }
+  } catch {
+    // Keep last known valid template if concurrent build is writing index.html
+  }
+  return cachedHtmlTemplate;
+}
 
 export async function setupViteAndStaticServing(app: Express): Promise<void> {
   const distPath = existsSync(path.join(process.cwd(), "dist"))
@@ -52,12 +78,12 @@ export async function setupViteAndStaticServing(app: Express): Promise<void> {
     next();
   });
 
-  // Dedicated, fail-safe /locales/:lang.json handler: registered FIRST so it works in both dev & prod
-  // and NEVER falls through to Vite middlewares or SPA HTML serving.
+  // Dedicated, fail-safe /locales/:lang.json handler
   app.get("/locales/:lang.json", async (req, res) => {
-    const lang = req.params.lang;
+    const rawLang = req.params.lang || "fr";
+    const lang = rawLang.split("-")[0].toLowerCase();
     if (!["fr", "ar", "en"].includes(lang)) {
-      return res.status(404).json({ error: `Langue non supportée: ${lang}` });
+      return res.status(404).json({ error: `Langue non supportée: ${rawLang}` });
     }
 
     try {
@@ -79,62 +105,80 @@ export async function setupViteAndStaticServing(app: Express): Promise<void> {
     }
   });
 
-  // Fail-safe handler for service worker cleanup in dev / preview environments
-  app.get(["/sw.js", "/registerSW.js"], (req, res) => {
+  // Self-destructing Service Worker to purge stale Workbox caches and unregister old SWs
+  app.get("/sw.js", (_req, res) => {
     res.setHeader("Content-Type", "application/javascript; charset=utf-8");
     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     return res.send(
-      "self.addEventListener('install', function(e) { self.skipWaiting(); });\n" +
-      "self.addEventListener('activate', function(e) { self.registration.unregister(); });\n"
+      "self.addEventListener('install', function() { self.skipWaiting(); });\n" +
+      "self.addEventListener('activate', function(event) {\n" +
+      "  event.waitUntil(caches.keys().then(function(keys) { return Promise.all(keys.map(function(k) { return caches.delete(k); })); })\n" +
+      "    .then(function() { return self.registration.unregister(); })\n" +
+      "    .then(function() { return self.clients.matchAll({ type: 'window' }); })\n" +
+      "    .then(function(clients) { clients.forEach(function(c) { if (c.url && 'navigate' in c) c.navigate(c.url); }); }));\n" +
+      "});\n"
     );
   });
 
-  // Serve static assets from public/ directory
+  app.get("/registerSW.js", (_req, res) => {
+    res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    return res.send(
+      "if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(function(regs) {\n" +
+      "  regs.forEach(function(r) { if (!r.active || !r.active.scriptURL.includes('firebase-messaging-sw.js')) r.unregister(); });\n" +
+      "}).catch(function() {}); }\n"
+    );
+  });
+
   app.use(express.static(path.join(process.cwd(), "public")));
 
-  // Serve compiled assets from dist/assets if they exist
-  if (existsSync(path.join(distPath, "assets"))) {
-    app.use("/assets", express.static(path.join(distPath, "assets"), { maxAge: "1d" }));
-  }
+  const assetsDir = path.join(distPath, "assets");
+  app.use("/assets", express.static(assetsDir, { maxAge: "1h" }));
+
+  // Hash-resilient fallback for /assets/<chunkPrefix>-<staleHash>.(js|css) after hot rebuilds
+  app.get("/assets/:filename", (req, res, next) => {
+    try {
+      const requested = path.basename(req.params.filename || "");
+      const exactPath = path.join(assetsDir, requested);
+      if (existsSync(exactPath)) {
+        return res.sendFile(exactPath);
+      }
+
+      const match = requested.match(/^(.+)-[A-Za-z0-9_-]{6,12}\.(js|css)$/);
+      if (match && existsSync(assetsDir)) {
+        const [, prefix, ext] = match;
+        const files = readdirSync(assetsDir);
+        const replacement = files.find(
+          (f) => f.startsWith(`${prefix}-`) && f.endsWith(`.${ext}`) && !f.endsWith(".map")
+        );
+        if (replacement) {
+          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+          return res.sendFile(path.join(assetsDir, replacement));
+        }
+      }
+    } catch {
+      // fall through
+    }
+    return next();
+  });
 
   if (await attachDevViteMiddleware(app)) {
     return;
   }
 
-
   const indexHtmlPath = path.join(distPath, "index.html");
-
   app.use("/locales", express.static(path.join(distPath, "locales"), { maxAge: "1h", immutable: false, setHeaders: (res) => { res.setHeader("Cache-Control", "public, max-age=3600, must-revalidate"); } }));
   app.use("/locales", express.static(path.join(process.cwd(), "public", "locales"), { maxAge: "1h", immutable: false, setHeaders: (res) => { res.setHeader("Cache-Control", "public, max-age=3600, must-revalidate"); } }));
   app.use("/avatars", express.static(path.join(distPath, "avatars"), { maxAge: "7d" }));
   app.use("/avatars", express.static(path.join(process.cwd(), "public", "avatars"), { maxAge: "7d" }));
-  app.get(["/", "/index.html"], async (req, res) => {
-    await sendOptimizedHtml(res, cachedHtmlTemplate);
-  });
-
-  app.use(
-    express.static(distPath, {
-      index: false,
-      maxAge: 0,
-      setHeaders: (res, filePath) => {
-        if (filePath.endsWith(".html")) {
-          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        } else if (filePath.includes("/assets/")) {
-          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
-        } else if (filePath.includes("/locales/")) {
-          res.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
-        } else {
-          res.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
-        }
-      },
-    })
-  );
 
   try {
     if (existsSync(indexHtmlPath)) {
+      const stat = statSync(indexHtmlPath);
       const content = await fsPromises.readFile(indexHtmlPath, "utf-8");
       if (validateProductionHtmlTemplate(content, distPath)) {
         cachedHtmlTemplate = content;
+        cachedHtmlMtimeMs = stat.mtimeMs;
         isStaticBuildValid = true;
       } else {
         safeLogger.error("[CRITICAL BUILD ERROR] dist/index.html failed production structural/asset verification");
@@ -149,26 +193,22 @@ export async function setupViteAndStaticServing(app: Express): Promise<void> {
     isStaticBuildValid = false;
   }
 
-  const sendOptimizedHtml = async (res: Response, htmlContent: string) => {
-    let content = htmlContent;
+  const sendOptimizedHtml = async (res: Response, customHtmlContent?: string) => {
+    let content = customHtmlContent || (await getFreshHtmlTemplate(distPath));
     if (!content || content.trim() === "") {
-      if (isStaticBuildValid && cachedHtmlTemplate) {
-        content = cachedHtmlTemplate;
-      } else {
-        try {
-          const directHtmlPath = existsSync(path.join(distPath, "index.html"))
-            ? path.join(distPath, "index.html")
-            : existsSync(path.join(process.cwd(), "build", "index.html"))
-            ? path.join(process.cwd(), "build", "index.html")
-            : path.join(process.cwd(), "index.html");
-          if (existsSync(directHtmlPath)) {
-            content = await fsPromises.readFile(directHtmlPath, "utf-8");
-            cachedHtmlTemplate = content;
-            isStaticBuildValid = true;
-          }
-        } catch {
-          // ignore
+      try {
+        const directHtmlPath = existsSync(path.join(distPath, "index.html"))
+          ? path.join(distPath, "index.html")
+          : existsSync(path.join(process.cwd(), "build", "index.html"))
+          ? path.join(process.cwd(), "build", "index.html")
+          : path.join(process.cwd(), "index.html");
+        if (existsSync(directHtmlPath)) {
+          content = await fsPromises.readFile(directHtmlPath, "utf-8");
+          cachedHtmlTemplate = content;
+          isStaticBuildValid = true;
         }
+      } catch {
+        // ignore
       }
     }
 
@@ -190,27 +230,46 @@ export async function setupViteAndStaticServing(app: Express): Promise<void> {
     }
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
     res.send(content);
   };
 
-  app.get("/", async (req, res) => {
-    await sendOptimizedHtml(res, cachedHtmlTemplate);
+  app.get(["/", "/index.html"], async (_req, res) => {
+    await sendOptimizedHtml(res);
   });
+
+  app.use(
+    express.static(distPath, {
+      index: false,
+      maxAge: 0,
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith(".html")) {
+          res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        } else if (filePath.includes("/assets/")) {
+          res.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+        } else {
+          res.setHeader("Cache-Control", "public, max-age=3600, must-revalidate");
+        }
+      },
+    })
+  );
 
   app.get("/product/:id", async (req, res) => {
     try {
       const productId = req.params.id;
       const product = await getProductSeoData(productId);
-      let html = cachedHtmlTemplate || "";
+      let html = await getFreshHtmlTemplate(distPath);
 
-      if (product) {
+      if (product && html) {
         html = injectProductSeo(html, product);
         res.setHeader("Cache-Control", "public, max-age=3600, s-maxage=3600");
       }
       await sendOptimizedHtml(res, html);
     } catch (err: unknown) {
       safeLogger.error("Erreur SSR Produit", { err: err instanceof Error ? err.message : String(err) });
-      await sendOptimizedHtml(res, cachedHtmlTemplate);
+      await sendOptimizedHtml(res);
     }
   });
 
@@ -222,7 +281,6 @@ export async function setupViteAndStaticServing(app: Express): Promise<void> {
     if (ext && ext !== ".html") {
       return res.status(404).end();
     }
-    return sendOptimizedHtml(res, cachedHtmlTemplate);
+    return sendOptimizedHtml(res);
   });
 }
-

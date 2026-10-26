@@ -7,7 +7,7 @@ import { Banner } from "../../domains/home/homepage.types";
 import { BentoHeroSlide } from "./BentoHeroSlide";
 
 export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const navigate = useNavigate();
   const lang = i18n.language || "fr";
   const isRTL = lang === "ar";
@@ -17,11 +17,24 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
   const [dragOffset, setDragOffset] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const activeBanners = (banners || []).filter(
+  const DEFAULT_BANNERS: Banner[] = [
+    {
+      id: "default-hero-1",
+      title: t("hero_default_title", "Le Premier Marketplace Algérien"),
+      subtitle: t("hero_default_subtitle", "Découvrez les meilleures offres et artisans certifiés à travers 58 Wilayas"),
+      buttonText: t("hero_default_btn", "Explorer la boutique"),
+      ctaLink: "/shop",
+      imageUrl: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1200",
+      isActive: true,
+    },
+  ];
+
+  const rawActiveBanners = (banners || []).filter(
     (b) => b.is_active !== false && b.isActive !== false
   );
+  const activeBanners = rawActiveBanners.length > 0 ? rawActiveBanners : DEFAULT_BANNERS;
 
-  // Auto-advance banner every 6.5s
+  // Auto-advance banner every 6.5s if multi-slide
   useEffect(() => {
     if (activeBanners.length <= 1) return;
     const interval = setInterval(() => {
@@ -29,8 +42,6 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
     }, 6500);
     return () => clearInterval(interval);
   }, [activeBanners.length]);
-
-  if (activeBanners.length === 0) return null;
 
   const handleNext = (e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -72,6 +83,8 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
   const handleBannerClick = (b: Banner) => {
     if (b.ctaLink) {
       navigate(b.ctaLink);
+    } else if (b.tag_id) {
+      navigate(`/tags/${b.tag_id}`);
     } else {
       navigate("/shop");
     }
@@ -88,7 +101,7 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="group relative h-[460px] w-full select-none touch-pan-y overflow-hidden rounded-[1.5rem] border border-white/80 bg-[#302638] shadow-[0_20px_55px_-35px_rgba(49,38,56,0.42)] sm:h-[430px] lg:h-[390px] 2xl:h-[410px]"
+      className="w-full min-h-[340px] sm:min-h-[420px] md:min-h-[480px] lg:min-h-[500px] relative rounded-3xl overflow-hidden group shadow-lg border border-slate-200/80 dark:border-slate-800 select-none touch-pan-y bg-slate-950"
     >
       {/* Sliding Strip */}
       <motion.div
@@ -116,8 +129,8 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
             type="button"
             onClick={isRTL ? handleNext : handlePrev}
             aria-label="Previous Slide"
-            className={`absolute top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/90 text-slate-900 shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B79A62] sm:opacity-0 sm:group-hover:opacity-100 ${
-              isRTL ? "right-4 sm:right-6" : "left-4 sm:left-6"
+            className={`absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl bg-slate-900/75 hover:bg-slate-900 backdrop-blur-md border border-slate-700/60 text-white shadow-lg transition-all opacity-0 group-hover:opacity-100 duration-200 cursor-pointer ${
+              isRTL ? "right-3 sm:right-6" : "left-3 sm:left-6"
             }`}
           >
             {isRTL ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
@@ -126,8 +139,8 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
             type="button"
             onClick={isRTL ? handlePrev : handleNext}
             aria-label="Next Slide"
-            className={`absolute top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/90 text-slate-900 shadow-lg backdrop-blur-md transition hover:scale-105 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B79A62] sm:opacity-0 sm:group-hover:opacity-100 ${
-              isRTL ? "left-4 sm:left-6" : "right-4 sm:right-6"
+            className={`absolute top-1/2 -translate-y-1/2 z-20 w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-xl bg-slate-900/75 hover:bg-slate-900 backdrop-blur-md border border-slate-700/60 text-white shadow-lg transition-all opacity-0 group-hover:opacity-100 duration-200 cursor-pointer ${
+              isRTL ? "left-3 sm:left-6" : "right-3 sm:right-6"
             }`}
           >
             {isRTL ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
@@ -135,9 +148,9 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
         </>
       )}
 
-      {/* Slide Indicators with Active Progress Pill */}
+      {/* Slide Indicators with Active Progress Pill (placed at bottom-end corner) */}
       {activeBanners.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 z-30 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/15 bg-slate-950/45 px-3 py-2 shadow-lg backdrop-blur-md sm:bottom-6">
+        <div className="absolute bottom-3.5 sm:bottom-5 end-3.5 sm:end-6 z-30 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-slate-950/70 backdrop-blur-md border border-slate-800 shadow-md">
           {activeBanners.map((_, idx) => {
             const isActive = currentIndex === idx;
             return (
@@ -150,8 +163,8 @@ export const BentoHero: React.FC<{ banners: Banner[] }> = ({ banners }) => {
                 }}
                 className={`transition-all duration-300 rounded-full cursor-pointer border-none p-0 ${
                   isActive
-                    ? "w-7 h-2 bg-amber-400 shadow-xs"
-                    : "w-2 h-2 bg-white/40 hover:bg-white/70"
+                    ? "w-5 h-1.5 bg-amber-400 shadow-xs"
+                    : "w-1.5 h-1.5 bg-white/40 hover:bg-white/70"
                 }`}
                 aria-label={`Slide ${idx + 1}`}
               />

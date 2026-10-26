@@ -173,8 +173,6 @@ service firebase.storage {
         && isValidSafeFileName(fileName)
         && request.resource.size < 5 * 1024 * 1024 
         && request.resource.contentType.matches('image/.*');
-      allow delete: if isLoggedIn() && (isAdmin() || request.auth.uid == sellerId)
-        && isValidSafeFileName(fileName);
     }
 
     // -------------------------------------------------------------------------

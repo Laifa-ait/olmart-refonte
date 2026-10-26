@@ -38,6 +38,7 @@ const SiteLogsAdmin = React.lazy(() => import("../pages/Admin/SiteLogsAdmin").th
 const AgentsAdmin = React.lazy(() => import("../pages/Admin/AgentsAdmin").then((m) => ({ default: m.AgentsAdmin })));
 const AutoModerationAdmin = React.lazy(() => import("../pages/Admin/AutoModerationAdmin").then((m) => ({ default: m.AutoModerationAdmin })));
 const SubscriptionsAdmin = React.lazy(() => import("../pages/Admin/SubscriptionsAdmin").then((m) => ({ default: m.SubscriptionsAdmin })));
+const CategoryPhotosAdmin = React.lazy(() => import("../pages/Admin/CategoryPhotosAdmin").then((m) => ({ default: m.CategoryPhotosAdmin })));
 
 export const renderAdminRoutes = () => (
   <Route
@@ -68,6 +69,7 @@ export const renderAdminRoutes = () => (
     <Route path="marketing" element={<Marketing />} />
     <Route path="newsletter" element={<Newsletter />} />
     <Route path="megamenu" element={<MegaMenuSettings />} />
+    <Route path="category-photos" element={<CategoryPhotosAdmin />} />
     <Route path="banners" element={<BannerAdmin />} />
     <Route path="homepage" element={<HomepageBuilder />} />
     <Route path="univers" element={<UniversAdmin />} />

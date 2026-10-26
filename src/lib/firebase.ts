@@ -1,73 +1,44 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, Auth } from "firebase/auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  Auth,
+} from "firebase/auth";
 import { getStorage, FirebaseStorage } from "firebase/storage";
 import { initializeFirestore, getFirestore, Firestore, setLogLevel } from "firebase/firestore";
 import { safeLogger } from "../utils/logger";
 
+// Safely resolve optional firebase-applet-config.json via eager glob (prevents build failure if absent)
+const configModules = import.meta.glob<{ default: Record<string, string> }>("../../firebase-applet-config.json", {
+  eager: true,
+});
+const firebaseAppletConfig = configModules["../../firebase-applet-config.json"]?.default || null;
+
 const isTestEnv =
   (typeof process !== "undefined" && process.env?.NODE_ENV === "test") ||
   (typeof import.meta !== "undefined" && import.meta.env?.MODE === "test");
-// A local visual preview does not need a real Firebase project, but the SDK
-// still requires non-empty identifiers to construct its Auth/Firestore clients.
-const isLocalPreview = import.meta.env?.DEV === true && !isTestEnv;
 
-const isStringAndValid = (val: unknown): val is string =>
-  typeof val === "string" &&
-  val.trim().length > 0 &&
-  val !== "undefined" &&
-  val !== "null" &&
-  !val.includes("YOUR_") &&
+const isStringAndValid = (val: unknown): val is string => 
+  typeof val === "string" && 
+  val.trim().length > 0 && 
+  val !== "undefined" && 
+  val !== "null" && 
+  !val.includes("YOUR_") && 
   !val.includes("your_");
 
-const rawApiKey = import.meta.env?.VITE_FIREBASE_API_KEY;
-const rawAuthDomain = import.meta.env?.VITE_FIREBASE_AUTH_DOMAIN;
-const rawProjectId = import.meta.env?.VITE_FIREBASE_PROJECT_ID;
-const rawStorageBucket = import.meta.env?.VITE_FIREBASE_STORAGE_BUCKET;
-const rawMessagingSenderId = import.meta.env?.VITE_FIREBASE_MESSAGING_SENDER_ID;
-const rawAppId = import.meta.env?.VITE_FIREBASE_APP_ID;
+const rawApiKey = import.meta.env?.VITE_FIREBASE_API_KEY || firebaseAppletConfig?.apiKey;
+const rawAuthDomain = import.meta.env?.VITE_FIREBASE_AUTH_DOMAIN || firebaseAppletConfig?.authDomain;
+const rawProjectId = import.meta.env?.VITE_FIREBASE_PROJECT_ID || firebaseAppletConfig?.projectId;
+const rawStorageBucket = import.meta.env?.VITE_FIREBASE_STORAGE_BUCKET || firebaseAppletConfig?.storageBucket;
+const rawMessagingSenderId = import.meta.env?.VITE_FIREBASE_MESSAGING_SENDER_ID || firebaseAppletConfig?.messagingSenderId;
+const rawAppId = import.meta.env?.VITE_FIREBASE_APP_ID || firebaseAppletConfig?.appId;
 
-const apiKey = isStringAndValid(rawApiKey)
-  ? rawApiKey.trim()
-  : isTestEnv
-    ? "AIzaSyFakeTestKeyForUnitTestsOnly"
-    : isLocalPreview
-      ? "local-preview-api-key"
-      : "";
-const authDomain = isStringAndValid(rawAuthDomain)
-  ? rawAuthDomain.trim()
-  : isTestEnv
-    ? "test-app.firebaseapp.com"
-    : isLocalPreview
-      ? "olmart-local-preview.firebaseapp.com"
-      : "";
-const projectId = isStringAndValid(rawProjectId)
-  ? rawProjectId.trim()
-  : isTestEnv
-    ? "test-app"
-    : isLocalPreview
-      ? "olmart-local-preview"
-      : "";
-const storageBucket = isStringAndValid(rawStorageBucket)
-  ? rawStorageBucket.trim()
-  : isTestEnv
-    ? "test-app.firebasestorage.app"
-    : isLocalPreview
-      ? "olmart-local-preview.appspot.com"
-      : "";
-const messagingSenderId = isStringAndValid(rawMessagingSenderId)
-  ? rawMessagingSenderId.trim()
-  : isTestEnv
-    ? "00000000000"
-    : isLocalPreview
-      ? "00000000000"
-      : "";
-const appId = isStringAndValid(rawAppId)
-  ? rawAppId.trim()
-  : isTestEnv
-    ? "1:00000000000:web:000000000000"
-    : isLocalPreview
-      ? "1:00000000000:web:olmartlocalpreview"
-      : "";
+const apiKey = isStringAndValid(rawApiKey) ? rawApiKey.trim() : (isTestEnv ? "AIzaSyFakeTestKeyForUnitTestsOnly" : "");
+const authDomain = isStringAndValid(rawAuthDomain) ? rawAuthDomain.trim() : (isTestEnv ? "test-app.firebaseapp.com" : "");
+const projectId = isStringAndValid(rawProjectId) ? rawProjectId.trim() : (isTestEnv ? "test-app" : "");
+const storageBucket = isStringAndValid(rawStorageBucket) ? rawStorageBucket.trim() : (isTestEnv ? "test-app.firebasestorage.app" : "");
+const messagingSenderId = isStringAndValid(rawMessagingSenderId) ? rawMessagingSenderId.trim() : (isTestEnv ? "00000000000" : "");
+const appId = isStringAndValid(rawAppId) ? rawAppId.trim() : (isTestEnv ? "1:00000000000:web:000000000000" : "");
 
 const clientConfig = {
   apiKey,
@@ -76,15 +47,10 @@ const clientConfig = {
   storageBucket,
   messagingSenderId,
   appId,
-  measurementId: import.meta.env?.VITE_FIREBASE_MEASUREMENT_ID,
+  measurementId: import.meta.env?.VITE_FIREBASE_MEASUREMENT_ID || firebaseAppletConfig?.measurementId,
 };
 
-const requiredVars = [
-  "VITE_FIREBASE_API_KEY",
-  "VITE_FIREBASE_AUTH_DOMAIN",
-  "VITE_FIREBASE_PROJECT_ID",
-  "VITE_FIREBASE_APP_ID",
-];
+const requiredVars = ["VITE_FIREBASE_API_KEY", "VITE_FIREBASE_AUTH_DOMAIN", "VITE_FIREBASE_PROJECT_ID", "VITE_FIREBASE_APP_ID"];
 if (!isTestEnv) {
   const missingVars: string[] = [];
   for (const key of requiredVars) {
@@ -107,18 +73,7 @@ let db: Firestore;
 try {
   app = getApps().length === 0 ? initializeApp(clientConfig) : getApp();
   auth = getAuth(app);
-
-  // Keep authentication available when local preview credentials are absent.
-  // Firebase Storage throws if the app has no default bucket; previously that
-  // exception fell into the outer catch and replaced the valid Auth instance
-  // with `{}`, which made onAuthStateChanged crash the entire React tree.
-  try {
-    storage = getStorage(app);
-  } catch (storageError) {
-    const storageMessage = storageError instanceof Error ? storageError.message : String(storageError);
-    safeLogger.warn("[Firebase Client] Storage indisponible dans cet aperçu local", { err: storageMessage });
-    storage = getStorage(app, "gs://olmart-local-preview.appspot.com");
-  }
+  storage = getStorage(app);
 
   if (!isTestEnv) {
     try {
@@ -130,15 +85,11 @@ try {
 
   const customDbId =
     import.meta.env?.VITE_FIREBASE_DATABASE_ID ||
-    (typeof process !== "undefined" ? process.env?.FIREBASE_DATABASE_ID : undefined);
+    firebaseAppletConfig?.firestoreDatabaseId ||
+    (typeof process !== "undefined" ? process.env?.FIREBASE_DATABASE_ID : undefined) ||
+    "ai-studio-217f6d79-c758-4e14-845d-737228cd3915";
 
-  if (!customDbId && !isTestEnv) {
-    safeLogger.error(
-      "[Firebase Client] ❌ VITE_FIREBASE_DATABASE_ID manquant ! Veuillez définir cette variable d'environnement."
-    );
-  }
-
-  const effectiveDbId = customDbId || "(default)";
+  const effectiveDbId = customDbId;
   try {
     db = initializeFirestore(
       app,
@@ -156,20 +107,21 @@ try {
     app = getApp();
     auth = getAuth(app);
     storage = getStorage(app);
-    const customDbId = import.meta.env?.VITE_FIREBASE_DATABASE_ID;
+    const customDbId =
+      import.meta.env?.VITE_FIREBASE_DATABASE_ID ||
+      firebaseAppletConfig?.firestoreDatabaseId;
     db = customDbId && customDbId !== "(default)" ? getFirestore(app, customDbId) : getFirestore(app);
   } else {
     const errorMsg = errorObj?.message || String(err);
-    safeLogger.error(
-      "[Firebase Client] ❌ Échec critique de l'initialisation Firebase, fallback actif pour éviter l'écran blanc",
-      { err: errorMsg }
-    );
+    safeLogger.error("[Firebase Client] ❌ Échec critique de l'initialisation Firebase, fallback actif pour éviter l'écran blanc", { err: errorMsg });
     app = (getApps()[0] || {}) as FirebaseApp;
     auth = {} as Auth;
     storage = {} as FirebaseStorage;
     db = {} as Firestore;
   }
 }
+
+export const isFirebaseInitialized = Boolean(auth && typeof auth.onAuthStateChanged === "function");
 
 export { app, auth, storage, db };
 
@@ -251,3 +203,4 @@ export function withTimeout<T>(
       });
   });
 }
+

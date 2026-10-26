@@ -1,15 +1,30 @@
 import { auth } from './firebase';
 
 let cachedCsrfToken: string | null = null;
+let cachedCsrfUid: string | null = null;
 
-async function getCsrfToken(): Promise<string | null> {
-  if (cachedCsrfToken) return cachedCsrfToken;
+export function clearCsrfTokenCache(): void {
+  cachedCsrfToken = null;
+  cachedCsrfUid = null;
+}
+
+export async function getCsrfToken(authToken?: string): Promise<string | null> {
+  const currentUid = auth.currentUser?.uid || 'guest';
+  if (cachedCsrfToken && cachedCsrfUid === currentUid) return cachedCsrfToken;
   try {
-    const res = await fetch('/api/v1/csrf-token');
+    const reqHeaders: Record<string, string> = {};
+    if (authToken) {
+      reqHeaders['Authorization'] = `Bearer ${authToken}`;
+    } else if (auth.currentUser) {
+      const token = await auth.currentUser.getIdToken();
+      reqHeaders['Authorization'] = `Bearer ${token}`;
+    }
+    const res = await fetch('/api/v1/csrf-token', { headers: reqHeaders });
     if (res.ok) {
       const data = await res.json();
       if (data.success && data.csrfToken) {
         cachedCsrfToken = data.csrfToken;
+        cachedCsrfUid = currentUid;
         return cachedCsrfToken;
       }
     }
@@ -19,16 +34,17 @@ async function getCsrfToken(): Promise<string | null> {
   return null;
 }
 
-async function getAuthHeaders(includeCsrf = false, forceRefresh = false): Promise<Record<string, string>> {
+export async function getAuthHeaders(includeCsrf = false, forceRefresh = false): Promise<Record<string, string>> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
   };
 
+  let token: string | undefined;
   const user = auth.currentUser;
   if (user) {
     try {
-      const token = await user.getIdToken(forceRefresh);
+      token = await user.getIdToken(forceRefresh);
       headers['Authorization'] = `Bearer ${token}`;
     } catch {
       // ignore
@@ -36,10 +52,8 @@ async function getAuthHeaders(includeCsrf = false, forceRefresh = false): Promis
   }
 
   if (includeCsrf) {
-    const csrfToken = await getCsrfToken();
-    if (csrfToken) {
-      headers['X-CSRF-Token'] = csrfToken;
-    }
+    const csrfToken = await getCsrfToken(token);
+    if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
   }
 
   return headers;
@@ -130,7 +144,7 @@ export async function apiGet<T>(path: string, retries = 3): Promise<T> {
   throw new Error("Failed to fetch after retries");
 }
 
-export async function apiPost<T>(path: string, body: unknown = {}, retries = 1): Promise<T> {
+export async function apiPost<T>(path: string, body: unknown = {}, retries = 2): Promise<T> {
   for (let i = 0; i < retries; i++) {
     try {
       const forceRefresh = i > 0;
@@ -141,7 +155,9 @@ export async function apiPost<T>(path: string, body: unknown = {}, retries = 1):
         body: JSON.stringify(body),
       });
       if (!res.ok) {
-        if (res.status === 401 && i === 0 && auth.currentUser) {
+        if (res.status === 401 && i === 0 && auth.currentUser) continue;
+        if (res.status === 403 && i === 0) {
+          clearCsrfTokenCache();
           continue;
         }
         await handleResponseError(res);
@@ -150,15 +166,10 @@ export async function apiPost<T>(path: string, body: unknown = {}, retries = 1):
     } catch (error: unknown) {
       const err = error as ApiError;
       if (i === retries - 1) {
-        if (err?.status === 401) {
-          window.dispatchEvent(new CustomEvent('auth:unauthorized'));
-        }
+        if (err?.status === 401) window.dispatchEvent(new CustomEvent('auth:unauthorized'));
         throw error;
       }
-      if (err?.status === 401) {
-        continue;
-      }
-      // Retry on network errors, 5xx server errors, 429 rate limits, or transient reverse proxy HTML fallbacks
+      if (err?.status === 401 || err?.status === 403) continue;
       if (
         err?.message === 'Failed to fetch' ||
         (err?.status && (err.status >= 500 || err.status === 429)) ||
@@ -174,72 +185,30 @@ export async function apiPost<T>(path: string, body: unknown = {}, retries = 1):
   throw new Error("Failed to fetch after retries");
 }
 
-export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
+async function apiMutate<T>(method: 'PATCH' | 'PUT' | 'DELETE', path: string, body?: unknown): Promise<T> {
   let headers = await getAuthHeaders(true, false);
-  let res = await fetch(path, {
-    method: 'PATCH',
-    headers,
-    body: JSON.stringify(body),
-  });
-  if (res.status === 401 && auth.currentUser) {
-    headers = await getAuthHeaders(true, true);
-    res = await fetch(path, {
-      method: 'PATCH',
-      headers,
-      body: JSON.stringify(body),
-    });
+  const init: RequestInit = { method, headers, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) };
+  let res = await fetch(path, init);
+  if ((res.status === 401 && auth.currentUser) || res.status === 403) {
+    if (res.status === 403) clearCsrfTokenCache();
+    headers = await getAuthHeaders(true, res.status === 401);
+    res = await fetch(path, { ...init, headers });
   }
   if (!res.ok) {
-    if (res.status === 401) {
-      window.dispatchEvent(new CustomEvent('auth:unauthorized'));
-    }
+    if (res.status === 401) window.dispatchEvent(new CustomEvent('auth:unauthorized'));
     await handleResponseError(res);
   }
   return parseJsonResponse<T>(res, path);
+}
+
+export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
+  return apiMutate<T>('PATCH', path, body);
 }
 
 export async function apiPut<T>(path: string, body: unknown): Promise<T> {
-  let headers = await getAuthHeaders(true, false);
-  let res = await fetch(path, {
-    method: 'PUT',
-    headers,
-    body: JSON.stringify(body),
-  });
-  if (res.status === 401 && auth.currentUser) {
-    headers = await getAuthHeaders(true, true);
-    res = await fetch(path, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify(body),
-    });
-  }
-  if (!res.ok) {
-    if (res.status === 401) {
-      window.dispatchEvent(new CustomEvent('auth:unauthorized'));
-    }
-    await handleResponseError(res);
-  }
-  return parseJsonResponse<T>(res, path);
+  return apiMutate<T>('PUT', path, body);
 }
 
 export async function apiDelete<T>(path: string): Promise<T> {
-  let headers = await getAuthHeaders(true, false);
-  let res = await fetch(path, {
-    method: 'DELETE',
-    headers,
-  });
-  if (res.status === 401 && auth.currentUser) {
-    headers = await getAuthHeaders(true, true);
-    res = await fetch(path, {
-      method: 'DELETE',
-      headers,
-    });
-  }
-  if (!res.ok) {
-    if (res.status === 401) {
-      window.dispatchEvent(new CustomEvent('auth:unauthorized'));
-    }
-    await handleResponseError(res);
-  }
-  return parseJsonResponse<T>(res, path);
+  return apiMutate<T>('DELETE', path);
 }

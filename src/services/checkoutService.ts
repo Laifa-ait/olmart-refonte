@@ -1,4 +1,5 @@
 import { auth } from '../lib/firebase';
+import { getAuthHeaders, clearCsrfTokenCache } from '../lib/api';
 import { CartItem } from '../domains/product/product.types';
 import { safeLogger } from '../utils/logger';
 
@@ -34,17 +35,7 @@ export const processCheckout = async (payload: CheckoutPayload, timeoutMs = 2500
       throw new Error(`Montant minimum de commande : ${MIN_ORDER_AMOUNT} DA`);
     }
 
-    let token: string | null = null;
-    if (user) {
-       token = await user.getIdToken();
-    }
-    
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    if (token) {
-       headers['Authorization'] = `Bearer ${token}`;
-    }
+    let headers = await getAuthHeaders(true, false);
 
     let response: Response;
     try {
@@ -61,9 +52,9 @@ export const processCheckout = async (payload: CheckoutPayload, timeoutMs = 2500
       throw fetchErr;
     }
 
-    if ((response.status === 401 || response.status === 403) && user) {
-      token = await user.getIdToken(true); // force refresh
-      headers['Authorization'] = `Bearer ${token}`;
+    if ((response.status === 401 && user) || response.status === 403) {
+      if (response.status === 403) clearCsrfTokenCache();
+      headers = await getAuthHeaders(true, response.status === 401);
       try {
         response = await fetch('/api/v1/place-order', {
           method: 'POST',

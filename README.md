@@ -98,13 +98,12 @@ Toute tentative de commit déclenchera automatiquement `lint-staged` pour format
   ```
 
 ### 4. Environnement Conteneurisé & Pipeline CI/CD
-* **Image Docker (Production) :** L'image Docker finale s'exécute désormais sous un utilisateur non-root (`USER node`) et exclut toutes les dépendances de compilation (Vite, TypeScript, ESBuild). Assurez-vous de n'ajouter que des librairies de runtime dans la section `"dependencies"` du `package.json`.
-* **CI GitHub Actions :** Toute Pull Request fera l'objet d'un pipeline restrictif :
-  * Audit de sécurité `npm audit --audit-level=high`
-  * Typecheck strict & Linting
-  * Tests E2E complets
-  * Génération de **SBOM** et analyse de vulnérabilités **Trivy** (OS & Librairies).
-  * Les tags d'actions sont épinglés par leurs empreintes SHA-1 immuables.
+* **Image Docker (Production) :** L'image Docker finale s'exécute sous un utilisateur non-root (`USER node`), exclut les dépendances dev, et verrouille les fichiers statiques en lecture seule (`chmod -R a-w dist public`). Aucun secret n'est intégré dans l'image.
+* **CI GitHub Actions :** Toute Pull Request fait l'objet d'un pipeline automatisé strict et bloquant :
+  * Audit de sécurité bloquant des dépendances de production (`npm run audit:ci`)
+  * Typecheck TypeScript strict (`tsc --noEmit`) & Linting (`eslint`)
+  * Suite de tests automatisés Vitest avec rapport de couverture
+  * Validation d'intégrité de compilation du Dockerfile multi-stage (`docker build`)
 
 ---
 

@@ -129,7 +129,7 @@ router.post(
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Erreur lors de la publication";
       safeLogger.error("[SellerStudioController] POST /layout/publish error", { error: msg });
-      return res.status(msg.includes("abonnement Studio actif") ? 402 : 400).json({ error: msg });
+      return res.status(400).json({ error: msg });
     }
   }
 );

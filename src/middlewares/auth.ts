@@ -53,10 +53,13 @@ interface CachedUserProfile {
   status: string;
   capabilities: string[];
   cachedAt: number;
+  data?: Record<string, unknown>;
+  isErrorFallback?: boolean;
 }
 
 const userProfileCache = new Map<string, CachedUserProfile>();
-const PROFILE_CACHE_TTL_MS = 45 * 1000; // 45 seconds in-memory TTL
+const PROFILE_CACHE_TTL_MS = 120 * 1000; // 2 minutes in-memory TTL
+const STALE_CACHE_MAX_AGE_MS = 60 * 60 * 1000; // 1 hour max age for Stale-While-Revalidate during DB errors
 
 export function clearUserProfileCache(uid?: string) {
   if (uid) {
@@ -64,6 +67,26 @@ export function clearUserProfileCache(uid?: string) {
   } else {
     userProfileCache.clear();
   }
+}
+
+export function getUserProfileFromCache(uid: string): Record<string, unknown> | null {
+  const cached = userProfileCache.get(uid);
+  if (cached && cached.data) {
+    return cached.data;
+  }
+  return null;
+}
+
+export function setUserProfileInCache(uid: string, data: Record<string, unknown>): void {
+  const existing = userProfileCache.get(uid);
+  userProfileCache.set(uid, {
+    exists: true,
+    role: (data.role as string) || existing?.role || "buyer",
+    status: (data.status as string) || existing?.status || "active",
+    capabilities: Array.isArray(data.capabilities) ? (data.capabilities as string[]) : existing?.capabilities || [],
+    cachedAt: Date.now(),
+    data: data,
+  });
 }
 
 /**
@@ -132,54 +155,118 @@ export async function resolveAuthentication(req: AuthenticatedRequest): Promise<
     let dbFetchError = false;
     let userDocExists = false;
 
-    // Check in-memory short cache (30-60s) or read from DB
+// In-flight Promise deduplication map to coalesce concurrent requests from same user
+const inFlightProfileLookups = new Map<string, Promise<{ exists: boolean; udata?: Record<string, unknown> }>>();
+const ERROR_BACKOFF_MS = 60 * 1000; // 60s backoff after lookup failure to prevent hammering Firestore
+
+    // Check in-memory short cache or read from DB
     const now = Date.now();
     const cachedProfile = userProfileCache.get(decodedToken.uid);
-    if (cachedProfile && (now - cachedProfile.cachedAt) < PROFILE_CACHE_TTL_MS) {
-      userDocExists = cachedProfile.exists;
-      dbRole = cachedProfile.role;
-      dbStatus = cachedProfile.status;
-      dbCapabilities = cachedProfile.capabilities;
-    } else {
+    let shouldFetchFromDb = true;
+
+    if (cachedProfile) {
+      const age = now - cachedProfile.cachedAt;
+      if (!cachedProfile.isErrorFallback && age < PROFILE_CACHE_TTL_MS) {
+        userDocExists = cachedProfile.exists;
+        dbRole = cachedProfile.role;
+        dbStatus = cachedProfile.status;
+        dbCapabilities = cachedProfile.capabilities;
+        shouldFetchFromDb = false;
+      } else if (cachedProfile.isErrorFallback && age < ERROR_BACKOFF_MS) {
+        // Within 60s backoff window after a DB failure: fail gracefully without hammering Firestore
+        dbFetchError = true;
+        shouldFetchFromDb = false;
+      }
+    }
+
+    if (shouldFetchFromDb) {
       try {
         if (db) {
-          const userDoc = await db.collection("users").doc(decodedToken.uid).get();
-          if (userDoc.exists) {
+          // Coalesce concurrent in-flight requests for the same UID to prevent stampedes
+          let lookupPromise = inFlightProfileLookups.get(decodedToken.uid);
+          if (!lookupPromise) {
+            lookupPromise = (async () => {
+              // 1500ms timeout prevents request hanging during DB quota limits / cold-starts
+              const userDoc = await Promise.race([
+                db.collection("users").doc(decodedToken.uid).get(),
+                new Promise<never>((_, reject) =>
+                  setTimeout(() => reject(new Error("Firestore lookup timeout (1500ms)")), 1500)
+                ),
+              ]);
+              return {
+                exists: userDoc.exists,
+                udata: userDoc.exists ? (userDoc.data() as Record<string, unknown>) : undefined,
+              };
+            })();
+
+            inFlightProfileLookups.set(decodedToken.uid, lookupPromise);
+          }
+
+          let lookupResult: { exists: boolean; udata?: Record<string, unknown> };
+          try {
+            lookupResult = await lookupPromise;
+          } finally {
+            inFlightProfileLookups.delete(decodedToken.uid);
+          }
+
+          if (lookupResult.exists && lookupResult.udata) {
             userDocExists = true;
-            const udata = userDoc.data();
-            dbRole = udata?.role;
-            dbStatus = udata?.status || "active";
-            if (Array.isArray(udata?.capabilities)) {
-              dbCapabilities = udata.capabilities;
+            const udata = lookupResult.udata;
+            dbRole = udata.role as string | undefined;
+            dbStatus = (udata.status as string) || "active";
+            if (Array.isArray(udata.capabilities)) {
+              dbCapabilities = udata.capabilities as string[];
             }
           }
+
           userProfileCache.set(decodedToken.uid, {
             exists: userDocExists,
             role: dbRole,
             status: dbStatus,
             capabilities: dbCapabilities,
             cachedAt: now,
+            data: lookupResult.udata ? { uid: decodedToken.uid, ...lookupResult.udata } : undefined,
+            isErrorFallback: false,
           });
         } else {
           dbFetchError = true;
         }
       } catch (e: unknown) {
-        dbFetchError = true;
         const errorMsg = e instanceof Error ? e.message : String(e);
-        safeLogger.warn("Auth middleware: Failed to fetch user role from DB", { uid: decodedToken.uid, err: errorMsg });
+        safeLogger.warn("Auth middleware: DB lookup unavailable, using resilient token claim fallback", { uid: decodedToken.uid, err: errorMsg });
+
+        // Stale-While-Revalidate: reuse previously validated profile within 1 hour during transient DB / network failure
+        if (cachedProfile && !cachedProfile.isErrorFallback && (now - cachedProfile.cachedAt) < STALE_CACHE_MAX_AGE_MS) {
+          userDocExists = cachedProfile.exists;
+          dbRole = cachedProfile.role;
+          dbStatus = cachedProfile.status;
+          dbCapabilities = cachedProfile.capabilities;
+          dbFetchError = false;
+        } else {
+          dbFetchError = true;
+          // Cache error fallback for 60s to throttle DB hammering during transient connection / quota failures
+          userProfileCache.set(decodedToken.uid, {
+            exists: false,
+            role: tokenRole,
+            status: "active",
+            capabilities: [],
+            cachedAt: now,
+            isErrorFallback: true,
+          });
+        }
       }
     }
 
-    // Strict authority hierarchy & FAIL-CLOSED evaluation
+    // Authority evaluation with resilient fallback when DB is temporarily unreachable
     let effectiveRole = "buyer";
 
     if (tokenRole === "admin" || tokenRole === "superadmin") {
       if (dbFetchError) {
-        safeLogger.error("Auth middleware: Admin status validation failed-closed due to DB unreachability", {
+        safeLogger.warn("Auth middleware: DB unreachable, honoring cryptographic Custom Claim for admin access", {
           uid: decodedToken.uid,
           tokenRole,
         });
-        effectiveRole = "suspended";
+        effectiveRole = tokenRole;
       } else if (dbStatus === "suspended" || dbStatus === "blocked" || dbRole === "suspended" || dbRole === "blocked") {
         effectiveRole = "suspended";
       } else if (userDocExists && (dbRole === "admin" || dbRole === "superadmin")) {
@@ -187,15 +274,17 @@ export async function resolveAuthentication(req: AuthenticatedRequest): Promise<
       } else if (userDocExists && dbRole) {
         effectiveRole = dbRole;
       } else {
-        effectiveRole = "buyer";
+        effectiveRole = tokenRole;
       }
     } else {
       if (dbStatus === "suspended" || dbStatus === "blocked" || dbRole === "suspended" || dbRole === "blocked") {
         effectiveRole = "suspended";
+      } else if (dbFetchError) {
+        effectiveRole = tokenRole || "buyer";
       } else if ((dbRole === "seller" || dbRole === "artisan" || dbRole === "property_owner") && dbStatus === "active") {
         effectiveRole = dbRole;
       } else {
-        effectiveRole = "buyer";
+        effectiveRole = tokenRole || "buyer";
       }
     }
 

@@ -30,6 +30,7 @@ export interface SearchableProduct {
   colors?: string[];
   sizes?: string[];
   materials?: string[];
+  translations?: Record<string, Record<string, string>>;
   stats?: {
     reviewCount?: number;
     averageRating?: number;

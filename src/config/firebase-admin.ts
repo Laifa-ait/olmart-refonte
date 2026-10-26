@@ -121,14 +121,10 @@ const setupFirestore = () => {
     const configDatabaseId =
       process.env.FIREBASE_DATABASE_ID ||
       process.env.VITE_FIREBASE_DATABASE_ID ||
-      (typeof firebaseConfig.firestoreDatabaseId === "string" ? firebaseConfig.firestoreDatabaseId : undefined);
+      (typeof firebaseConfig.firestoreDatabaseId === "string" ? firebaseConfig.firestoreDatabaseId : undefined) ||
+      "ai-studio-217f6d79-c758-4e14-845d-737228cd3915";
 
-    const effectiveDatabaseId = configDatabaseId || "(default)";
-    if (!configDatabaseId) {
-      safeLogger.warn(
-        "[Firestore Core] ⚠️ FIREBASE_DATABASE_ID non défini dans l'environnement. Connexion de secours sur la base par défaut '(default)'."
-      );
-    }
+    const effectiveDatabaseId = configDatabaseId;
 
     logDev(`[Firestore Core] 📂 Mapping Firestore instance for Project: [${adminApp.options.projectId || targetProjectId}]`);
 

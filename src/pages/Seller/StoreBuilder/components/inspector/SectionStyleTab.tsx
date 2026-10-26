@@ -1,105 +1,100 @@
 import React from "react";
-import { CustomPageSectionStyles } from "../../../../../domains/seller/customPage.types";
+import {
+  CustomPageSectionStyles,
+  CustomPageTheme,
+} from "../../../../../domains/seller/customPage.types";
+import { ColorSchemePicker } from "./controls/ColorSchemePicker";
 
 interface SectionStyleTabProps {
   styles: CustomPageSectionStyles;
-  onStylesChange: (field: keyof CustomPageSectionStyles, value: unknown) => void;
+  theme?: CustomPageTheme;
+  onStylesChange: (
+    fieldOrPatch: keyof CustomPageSectionStyles | Partial<CustomPageSectionStyles>,
+    value?: unknown
+  ) => void;
 }
 
 export const SectionStyleTab: React.FC<SectionStyleTabProps> = ({
   styles,
+  theme,
   onStylesChange,
 }) => {
-  const paddingValue = typeof styles.paddingY === "number"
-    ? styles.paddingY
-    : ({ sm: 16, md: 32, lg: 48, xl: 64 }[styles.paddingY || "md"]);
+  const paddingValue =
+    typeof styles.paddingY === "number"
+      ? styles.paddingY
+      : { sm: 16, md: 32, lg: 48, xl: 64 }[styles.paddingY || "md"] ?? 32;
+
   return (
-    <div className="space-y-4">
-      {/* Background Color */}
-      <div className="space-y-1">
-        <label className="font-semibold text-slate-700 block text-[11px]">Couleur de fond spécifique</label>
-        <div className="flex items-center gap-2">
-          <input
-            type="color"
-            value={styles.backgroundColor || "#ffffff"}
-            onChange={(e) => onStylesChange("backgroundColor", e.target.value || undefined)}
-            className="w-8 h-8 rounded-lg border border-slate-200 cursor-pointer bg-transparent"
-          />
-          <input
-            type="text"
-            value={styles.backgroundColor || ""}
-            placeholder="Hérité du thème"
-            onChange={(e) => onStylesChange("backgroundColor", e.target.value || undefined)}
-            className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white"
-          />
+    <div className="space-y-4 select-none">
+      {/* Standardized WCAG Color Schemes Picker */}
+      <ColorSchemePicker
+        styles={styles}
+        theme={theme}
+        onStylesChange={onStylesChange}
+      />
+
+      {/* Arrondi des coins */}
+      <div className="space-y-1.5 pt-2 border-t border-[#E4E7EC]">
+        <label className="text-[12px] font-semibold text-[#17191C] flex items-center justify-between">
+          <span>Arrondi des cartes & blocs</span>
+          <span className="font-mono text-[#F97316] text-[11px] font-bold">
+            {styles.borderRadius || "md"}
+          </span>
+        </label>
+        <div className="grid grid-cols-4 gap-1.5">
+          {[
+            { id: "none", label: "Carré (0px)" },
+            { id: "sm", label: "Léger (6px)" },
+            { id: "md", label: "Doux (12px)" },
+            { id: "lg", label: "Rond (20px)" },
+          ].map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => onStylesChange("borderRadius", r.id)}
+              className={`h-8 rounded-lg border text-[11px] font-semibold cursor-pointer transition-colors ${
+                (styles.borderRadius || "md") === r.id
+                  ? "border-[#F97316] bg-[#FFF7ED] text-[#F97316] font-bold"
+                  : "border-[#E4E7EC] bg-white text-[#667085] hover:bg-[#F7F8FA]"
+              }`}
+            >
+              {r.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Text Color */}
-      <div className="space-y-1">
-        <label className="font-semibold text-slate-700 block text-[11px]">Couleur du texte</label>
-        <div className="flex items-center gap-2">
-          <input
-            type="color"
-            value={styles.textColor || "#0f172a"}
-            onChange={(e) => onStylesChange("textColor", e.target.value || undefined)}
-            className="w-8 h-8 rounded-lg border border-slate-200 cursor-pointer bg-transparent"
-          />
-          <input
-            type="text"
-            value={styles.textColor || ""}
-            placeholder="Hérité du thème"
-            onChange={(e) => onStylesChange("textColor", e.target.value || undefined)}
-            className="flex-1 p-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-orange-500 focus:bg-white"
-          />
-        </div>
-      </div>
-
-      <div className="space-y-1.5 border-t border-slate-200 pt-3">
-        <label className="block text-[11px] font-semibold text-slate-700">Arrondi de cette section</label>
-        <select
-          value={styles.borderRadius || "md"}
-          onChange={(e) => onStylesChange("borderRadius", e.target.value)}
-          className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-800 focus:border-orange-500 focus:outline-none"
-        >
-          <option value="none">Carré</option>
-          <option value="sm">Léger</option>
-          <option value="md">Arrondi</option>
-          <option value="lg">Très arrondi</option>
-        </select>
-      </div>
-
-      {/* Padding Y Slider */}
-      <div className="space-y-1.5 pt-2 border-t border-slate-200">
+      {/* Marges internes Y */}
+      <div className="space-y-1.5 pt-2 border-t border-[#E4E7EC]">
         <div className="flex justify-between items-center text-xs">
-          <span className="font-semibold text-slate-700 text-[11px]">Espacement vertical</span>
-          <span className="font-mono text-orange-600 font-bold">{paddingValue}px</span>
+          <span className="font-semibold text-[#17191C]">Espacement haut/bas</span>
+          <span className="font-mono text-[#F97316] font-bold">{paddingValue}px</span>
         </div>
         <input
           type="range"
           min={0}
-          max={96}
+          max={120}
           step={8}
           value={paddingValue}
           onChange={(e) => onStylesChange("paddingY", parseInt(e.target.value, 10))}
-          className="w-full accent-orange-500 cursor-pointer"
+          className="w-full accent-[#F97316] cursor-pointer"
         />
       </div>
 
-      {/* Padding X Slider */}
+      {/* Marges internes X */}
       <div className="space-y-1.5">
         <div className="flex justify-between items-center text-xs">
-          <span className="font-semibold text-slate-700 text-[11px]">Espacement horizontal</span>
-          <span className="font-mono text-orange-600 font-bold">{styles.paddingX ?? 16}px</span>
+          <span className="font-semibold text-[#17191C]">Marges latérales (gauche/droite)</span>
+          <span className="font-mono text-[#F97316] font-bold">{styles.paddingX ?? 20}px</span>
         </div>
         <input
           type="range"
           min={0}
-          max={48}
+          max={64}
           step={4}
-          value={styles.paddingX ?? 16}
+          value={styles.paddingX ?? 20}
           onChange={(e) => onStylesChange("paddingX", parseInt(e.target.value, 10))}
-          className="w-full accent-orange-500 cursor-pointer"
+          className="w-full accent-[#F97316] cursor-pointer"
         />
       </div>
     </div>

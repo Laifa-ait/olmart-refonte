@@ -1,22 +1,21 @@
 import { Express } from "express";
 import path from "path";
-import { promises as fsPromises } from "fs";
+import { promises as fsPromises, existsSync } from "fs";
 import { injectNonceToHtml } from "../middlewares/security";
 import { safeLogger } from "../utils/logger";
 
 export async function attachDevViteMiddleware(app: Express): Promise<boolean> {
-  const isTsxRunner = Boolean(
-    process.env.TSX_TSCONFIG_PATH ||
-    process.execPath.includes("tsx") ||
-    process.argv.some((arg) => arg.includes("tsx"))
-  );
+  const isCloudRun = Boolean(process.env.K_SERVICE || process.env.CLOUD_RUN_JOB);
+  const distIndexPath = path.join(process.cwd(), "dist", "index.html");
+  const hasStaticDist = existsSync(distIndexPath);
 
-  const isProduction =
-    process.env.NODE_ENV === "production" ||
-    Boolean(process.env.K_SERVICE || process.env.CLOUD_RUN_JOB) ||
-    !isTsxRunner;
-
-  if (isProduction) {
+  // Serve pre-built dist/ in Cloud Run or production to avoid the 174-request unbundled module waterfall stall
+  if (
+    hasStaticDist &&
+    (isCloudRun || process.env.NODE_ENV === "production") &&
+    process.env.NODE_ENV !== "test" &&
+    process.env.FORCE_VITE_DEV !== "true"
+  ) {
     return false;
   }
 

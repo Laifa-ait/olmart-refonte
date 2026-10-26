@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
+import toast from "react-hot-toast";
 import { FileText, Download, Trash2, HardDrive, RefreshCw, AlertCircle, Eye, FolderLock } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useDataConsent } from "../../context/DataConsentContext";
@@ -60,7 +61,7 @@ export const UserDocumentsVault: React.FC<UserDocumentsVaultProps> = ({
       setDocuments((prev) => prev.filter((d) => d.id !== docId));
       refreshStorageUsage();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Impossible de supprimer");
+      toast.error(err instanceof Error ? err.message : "Impossible de supprimer");
     } finally {
       setDeletingId(null);
     }
@@ -69,7 +70,7 @@ export const UserDocumentsVault: React.FC<UserDocumentsVaultProps> = ({
   const handlePurgeMemory = () => {
     if (window.confirm("Voulez-vous vider le cache local pour libérer de la mémoire sur votre appareil ?")) {
       const { clearedBytes } = clearBrowserCache();
-      alert(`Cache vidé avec succès (${formatBytes(clearedBytes)} libérés).`);
+      toast.success(`Cache vidé avec succès (${formatBytes(clearedBytes)} libérés).`);
     }
   };
 

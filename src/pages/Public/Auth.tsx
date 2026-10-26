@@ -305,10 +305,10 @@ export const Auth: React.FC = () => {
             {/* Titre dynamique */}
             <div className="mb-10 text-center xl:text-start">
                <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight rtl:tracking-normal text-cyan-950 mb-3">
-                  {isLogin ? (t("auth.login_title") || "Heureux de vous revoir") : (t("auth.signup_title") || "Créer un compte")}
+                  {isLogin ? t("auth.login_title", "Heureux de vous revoir") : t("auth.signup_title", "Créer un compte")}
                </h2>
                <p className="text-cyan-900/70 font-medium text-sm sm:text-base">
-                  {isLogin ? (t("auth.login_subtitle") || "Connectez-vous pour continuer vos achats.") : (t("auth.signup_subtitle") || "Rejoignez Olma et commencez l'aventure.")}
+                  {isLogin ? t("auth.login_subtitle", "Connectez-vous pour continuer vos achats.") : t("auth.signup_subtitle", "Rejoignez Olma et commencez l'aventure.")}
                </p>
             </div>
 
@@ -322,7 +322,7 @@ export const Auth: React.FC = () => {
                       isLogin ? 'bg-white text-cyan-950 shadow-sm border border-[#E8F6F8]' : 'text-cyan-900/60 hover:text-cyan-950'
                     }`}
                   >
-                    {t("auth.tab_login") || "Connexion"}
+                    {t("auth.tab_login", "Connexion")}
                   </button>
                   <button
                     type="button"
@@ -331,7 +331,7 @@ export const Auth: React.FC = () => {
                       !isLogin ? 'bg-white text-cyan-950 shadow-sm border border-[#E8F6F8]' : 'text-cyan-900/60 hover:text-cyan-950'
                     }`}
                   >
-                    {t("auth.tab_signup") || "Inscription"}
+                    {t("auth.tab_signup", "Inscription")}
                   </button>
                 </div>
 
@@ -389,8 +389,8 @@ export const Auth: React.FC = () => {
                            <User className="absolute ltr:left-5 rtl:right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-900/40 group-focus-within:text-pink-600 transition-colors pointer-events-none" />
                            <input 
                               type="text" 
-                              aria-label={t("auth.placeholder_name") || "Nom complet"}
-                              placeholder={t("auth.placeholder_name") || "Nom complet"} 
+                              aria-label={t("auth.placeholder_name", "Nom complet")}
+                              placeholder={t("auth.placeholder_name", "Nom complet")} 
                               required={!isLogin} 
                               value={name} 
                               onChange={(e) => setName(e.target.value)} 
@@ -405,8 +405,8 @@ export const Auth: React.FC = () => {
                     <Mail className="absolute ltr:left-5 rtl:right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-900/40 group-focus-within:text-pink-600 transition-colors pointer-events-none" />
                     <input 
                         type="email" 
-                        aria-label={t("auth.placeholder_email") || "Adresse e-mail"}
-                        placeholder={t("auth.placeholder_email") || "Adresse e-mail"} 
+                        aria-label={t("auth.placeholder_email", "Adresse e-mail")}
+                        placeholder={t("auth.placeholder_email", "Adresse e-mail")} 
                         required 
                         value={email} 
                         onChange={(e) => setEmail(e.target.value)} 
@@ -418,8 +418,8 @@ export const Auth: React.FC = () => {
                     <Key className="absolute ltr:left-5 rtl:right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-cyan-900/40 group-focus-within:text-pink-600 transition-colors pointer-events-none" />
                     <input 
                         type="password" 
-                        aria-label={t("auth.placeholder_password") || "Mot de passe"}
-                        placeholder={t("auth.placeholder_password") || "Mot de passe"} 
+                        aria-label={t("auth.placeholder_password", "Mot de passe")}
+                        placeholder={t("auth.placeholder_password", "Mot de passe")} 
                         required 
                         value={password} 
                         onChange={(e) => setPassword(e.target.value)} 
@@ -434,7 +434,7 @@ export const Auth: React.FC = () => {
                            onClick={handleForgotPassword}
                            className="text-xs font-bold text-cyan-900/70 hover:text-pink-600 transition-colors"
                         >
-                           {t("auth.forgot_password") || "Mot de passe oublié ?"}</button>
+                           {t("auth.forgot_password", "Mot de passe oublié ?")}</button>
                      </div>
                   )}
 
@@ -446,7 +446,7 @@ export const Auth: React.FC = () => {
                     >
                       <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-950 flex items-center gap-2">
                         <ScrollText className="w-4 h-4 text-pink-600" />
-                        {t("auth.rules_title") || "Conditions d'inscription"}
+                        {t("auth.rules_title", "Conditions d'inscription")}
                       </label>
                       
                       <button 
@@ -454,7 +454,7 @@ export const Auth: React.FC = () => {
                         onClick={() => setShowRulesModal(true)}
                         className={`text-start text-sm font-bold underline transition-colors ${rulesValidated ? 'text-emerald-600 hover:text-emerald-700' : 'text-pink-600 hover:text-pink-700'}`}
                       >
-                         {rulesValidated ? (t("auth.rules_validated") || "Conditions lues et validées") : (t("auth.rules_read_cta") || "Lire les conditions d'inscription obligatoires")}
+                         {rulesValidated ? t("auth.rules_validated", "Conditions lues et validées") : t("auth.rules_read_cta", "Lire les conditions d'inscription obligatoires")}
                       </button>
                       
                       <div className="flex items-start gap-3 mt-2 pt-2 border-t border-[#E8F6F8]">
@@ -467,9 +467,9 @@ export const Auth: React.FC = () => {
                            className="mt-1 w-4 h-4 text-[#0088A8] border-cyan-300 rounded focus:ring-[#0088A8] disabled:opacity-40 disabled:cursor-not-allowed"
                          />
                          <label htmlFor="cgv-checkbox" className={`text-xs font-semibold ${!rulesValidated ? 'text-cyan-900/40 cursor-not-allowed' : 'text-cyan-950 cursor-pointer'}`}>
-                           {t("auth.accept_rules") || "J'accepte les conditions d'inscription."}
+                           {t("auth.accept_rules", "J'accepte les conditions d'inscription.")}
                            {!rulesValidated && (
-                             <span className="block mt-1 text-pink-600 font-bold">{t("auth.read_rules_first") || "Veuillez d'abord lire le texte des conditions."}</span>
+                             <span className="block mt-1 text-pink-600 font-bold">{t("auth.read_rules_first", "Veuillez d'abord lire le texte des conditions.")}</span>
                            )}
                          </label>
                       </div>
@@ -484,13 +484,13 @@ export const Auth: React.FC = () => {
                      {loading ? (
                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                      ) : (
-                        isLogin ? (t("auth.btn_login") || "Se Connecter") : (selectedRole === 'seller' ? (t("auth.btn_apply_seller") || "Soumettre ma candidature vendeur") : (t("auth.btn_signup") || "S'inscrire"))
+                        isLogin ? t("auth.btn_login", "Se Connecter") : (selectedRole === 'seller' ? t("auth.btn_apply_seller", "Soumettre ma candidature vendeur") : t("auth.btn_signup", "S'inscrire"))
                      )}
                   </button>
                   
                   {!isLogin && selectedRole === 'seller' && (
                      <p className="text-center text-xs text-cyan-900/60 mt-4 font-medium">
-                        {t("auth.seller_disclaimer") || "Votre candidature vendeur sera examinée sous 24h à 48h par l'équipe Olmart."}
+                        {t("auth.seller_disclaimer", "Votre candidature vendeur sera examinée sous 24h à 48h par l'équipe Olmart.")}
                      </p>
                   )}
                 </form>
@@ -501,7 +501,7 @@ export const Auth: React.FC = () => {
                   </div>
                   <div className="relative flex justify-center text-sm">
                     <span className="px-4 bg-transparent text-cyan-800/40 font-bold uppercase tracking-[0.2em] text-[10px]">
-                       {t("auth.oauth_divider") || "Ou continuer avec"}
+                       {t("auth.oauth_divider", "Ou continuer avec")}
                     </span>
                   </div>
                 </div>

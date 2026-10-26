@@ -1,8 +1,8 @@
-import React from "react";
-import { House, RefreshCw, HelpCircle } from "lucide-react";
-import { OlmaSurface } from "./primitives/OlmaSurface";
-import { OlmaButton } from "./primitives/OlmaButton";
-import { FilterState } from "./SearchFilters";
+import React from 'react';
+import { Sparkles, RefreshCw, HelpCircle } from 'lucide-react';
+import { OlmaSurface } from './primitives/OlmaSurface';
+import { OlmaButton } from './primitives/OlmaButton';
+import { FilterState } from './SearchFilters';
 
 interface OlmaImmoEmptyStateProps {
   filters?: FilterState;
@@ -10,22 +10,26 @@ interface OlmaImmoEmptyStateProps {
   className?: string;
 }
 
-export const OlmaImmoEmptyState: React.FC<OlmaImmoEmptyStateProps> = ({ filters, onResetFilters, className = "" }) => {
+export const OlmaImmoEmptyState: React.FC<OlmaImmoEmptyStateProps> = ({
+  filters,
+  onResetFilters,
+  className = '',
+}) => {
   const activeTags: string[] = [];
   if (filters?.wilaya) activeTags.push(`Wilaya : ${filters.wilaya}`);
   if (filters?.commune) activeTags.push(`Commune : ${filters.commune}`);
   if (filters?.listingType) {
     const mapListing: Record<string, string> = {
-      sale: "Achat / Vente",
-      rent_long: "Location",
-      rent_short: "Séjour vacances",
+      sale: 'Achat / Vente',
+      rent_long: 'Location',
+      rent_short: 'Séjour vacances',
     };
     activeTags.push(mapListing[filters.listingType] || filters.listingType);
   }
   if (filters?.propertyType) activeTags.push(`Type : ${filters.propertyType}`);
   if (filters?.minPrice || filters?.maxPrice) {
-    const min = filters.minPrice ? `${filters.minPrice.toLocaleString("fr-DZ")} DA` : "0";
-    const max = filters.maxPrice ? `${filters.maxPrice.toLocaleString("fr-DZ")} DA` : "max";
+    const min = filters.minPrice ? `${filters.minPrice.toLocaleString('fr-DZ')} DA` : '0';
+    const max = filters.maxPrice ? `${filters.maxPrice.toLocaleString('fr-DZ')} DA` : 'max';
     activeTags.push(`Budget : ${min} - ${max}`);
   }
 
@@ -34,27 +38,29 @@ export const OlmaImmoEmptyState: React.FC<OlmaImmoEmptyStateProps> = ({ filters,
       variant="default"
       elevation="card"
       radius="3xl"
-      padding="md"
+      padding="xl"
       bordered
       borderVariant="default"
-      className={`text-center space-y-3 my-3 sm:my-5 flex flex-col items-center max-w-2xl mx-auto !rounded-[1.5rem] ${className}`}
+      className={`text-center space-y-5 my-6 flex flex-col items-center max-w-2xl mx-auto ${className}`}
     >
-      <div className="w-12 h-12 bg-[var(--olma-brand-primary-light)] text-[var(--olma-brand-primary)] rounded-2xl flex items-center justify-center mx-auto">
-        <House className="w-6 h-6" />
+      <div className="w-14 h-14 bg-[#1E3A8A] text-[#F59E0B] rounded-2xl flex items-center justify-center mx-auto shadow-md border border-blue-800/30">
+        <Sparkles className="w-7 h-7 text-[#F59E0B]" />
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-lg sm:text-xl font-bold text-[var(--olma-text-primary)] font-['Playfair_Display',serif]">
+        <h3 className="text-xl sm:text-2xl font-extrabold text-[#1E3A8A] font-['Playfair_Display',serif]">
           Aucun bien ne correspond à ces critères
         </h3>
         <p className="text-slate-600 text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
-          Aucun résultat pour le moment. Modifiez votre recherche ou élargissez la zone.
+          Nous n'avons pas trouvé d'annonces correspondant exactement à votre sélection actuelle en Algérie.
         </p>
       </div>
 
       {activeTags.length > 0 && (
         <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">Critères testés :</span>
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mr-1">
+            Critères testés :
+          </span>
           {activeTags.map((tag) => (
             <span
               key={tag}
@@ -66,9 +72,17 @@ export const OlmaImmoEmptyState: React.FC<OlmaImmoEmptyStateProps> = ({ filters,
         </div>
       )}
 
-      <div className="hidden sm:flex w-full bg-[var(--olma-bg-subtle)] rounded-xl px-3 py-2.5 border border-[var(--olma-border-default)] text-left text-[11px] sm:text-xs text-slate-600 items-start gap-2">
-        <HelpCircle className="w-4 h-4 text-[var(--olma-brand-accent)] shrink-0 mt-0.5" />
-        <span>Essayez une autre wilaya, une fourchette de prix plus large ou un autre type de bien.</span>
+      {/* Helpful suggestions */}
+      <div className="w-full bg-slate-50 rounded-2xl p-4 border border-slate-200 text-left text-xs text-slate-600 space-y-2">
+        <div className="font-bold text-[#1E3A8A] flex items-center gap-1.5 text-xs">
+          <HelpCircle className="w-4 h-4 text-[#F59E0B]" />
+          <span>Suggestions pour trouver votre bien :</span>
+        </div>
+        <ul className="list-disc list-inside space-y-1 text-slate-600 text-[11px] sm:text-xs">
+          <li>Élargissez votre recherche aux communes voisines ou à l'ensemble de la wilaya.</li>
+          <li>Ajustez ou augmentez la fourchette de prix minimum et maximum.</li>
+          <li>Consultez d'autres types de transactions (ex: location au lieu d'achat).</li>
+        </ul>
       </div>
 
       <OlmaButton
@@ -76,7 +90,7 @@ export const OlmaImmoEmptyState: React.FC<OlmaImmoEmptyStateProps> = ({ filters,
         variant="primary"
         size="md"
         leftIcon={<RefreshCw className="w-3.5 h-3.5 text-white" />}
-        className="w-full sm:w-auto"
+        className="mt-2"
       >
         Réinitialiser tous les filtres
       </OlmaButton>

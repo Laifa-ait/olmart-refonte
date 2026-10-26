@@ -20,7 +20,7 @@ node_modules
 
 # Build outputs
 dist
-build
+dist/
 dist-ssr
 .aistudio
 bun.lock
@@ -58,3 +58,12 @@ __pycache__/
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Husky internal hooks cache
+.husky/_/
+
+# Temporary preview & cache artifacts
+.*.hm
+tmp/
+public/assets/aistudio/
+
