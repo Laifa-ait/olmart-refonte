@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "default": "original-micron-7sjh2",
+    "staging": "olmart-staging-e2e"
+  }
+}
